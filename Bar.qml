@@ -1,117 +1,115 @@
 import Quickshell
+import Quickshell.Wayland
 import Quickshell.Io
 import Quickshell.Hyprland
-import Quickshell.Wayland
 import QtQuick
 import QtQuick.Layouts
 
-Scope {
+PanelWindow {
     id: root
-    property string time
 
-    Variants {
-        model: Quickshell.screens
+    property color colBg: "#1e1e2e"
+    property color colFg: "#cdd6f4"
+    property color colMuted: "#45475a"
+    property color colSurface: "#313244"
+    property color colBlue: "#89b4fa"
+    property color colText: "#cdd6f4"
+    property string fontFamily: "FiraMono Nerd Font"
+    property int fontSize: 12
 
-        PanelWindow {
-            Component.onCompleted: console.log(JSON.stringify(HyprlandIpc.workspaces))
-            required property var modelData
-            screen: modelData
+    anchors.top: true
+    anchors.left: true
+    anchors.right: true
+    implicitHeight: 30
+    color: root.colBg
 
-            anchors {
-                top: true
-                left: true
-                right: true
+    WlrLayershell.exclusiveZone: implicitHeight
+
+    RowLayout {
+        anchors.fill: parent
+        anchors.leftMargin: 12
+        anchors.rightMargin: 12
+        spacing: 8
+
+        // Left: custom label
+        Text {
+            text: "󰣇 archlinux"
+            color: root.colBlue
+            font.family: root.fontFamily
+            font.pixelSize: root.fontSize
+            font.weight: Font.Medium
+
+            opacity: 0
+            NumberAnimation on opacity {
+                from: 0
+                to: 1
+                duration: 600
+                easing.type: Easing.OutCubic
+                running: true
             }
-            implicitHeight: 30
-            color: "#1e1e2e"
+        }
 
-            WlrLayershell.exclusiveZone: implicitHeight
+        RowLayout {
+            spacing: 5
 
-            RowLayout {
-                anchors.fill: parent
-                anchors.leftMargin: 12
-                anchors.rightMargin: 12
-                spacing: 8
+            Repeater {
+                model: 10
 
-                // Left: custom label
-                Text {
-                    text: "hebi"
-                    color: "#89b4fa"
-                    font.family: "FiraMono Nerd Font"
-                    font.pixelSize: 12
-                    font.weight: Font.Medium
-                }
+                Rectangle {
+                    property bool active: Hyprland.focusedWorkspace?.id === (index + 1)
+                    property var ws: Hyprland.workspaces.values.find(w => w.id === index + 1)
 
-                // Center: workspaces
-                Item {
-                    Layout.fillWidth: true
-                }
+                    width: active ? 28 : 22
+                    height: 22
+                    radius: 11
+                    color: active ? root.colBlue : (ws ? root.colSurface : "transparent")
 
-                RowLayout {
-                    spacing: 5
-                    Repeater {
-                        model: HyprlandIpc.workspaces.sort((a, b) => a.id - b.id)
-                        Rectangle {
-                            required property var modelData
-                            property bool active: modelData.id === HyprlandIpc.focusedWorkspace?.id
-                            width: active ? 28 : 22
-                            height: 22
-                            radius: 11
-                            color: active ? "#89b4fa" : "#313244"
-                            Behavior on width {
-                                NumberAnimation {
-                                    duration: 150
-                                    easing.type: Easing.OutCubic
-                                }
-                            }
-                            Behavior on color {
-                                ColorAnimation {
-                                    duration: 150
-                                }
-                            }
-                            Text {
-                                anchors.centerIn: parent
-                                text: modelData.id
-                                color: parent.active ? "#1e1e2e" : "#cdd6f4"
-                                font.family: "FiraMono Nerd Font"
-                                font.pixelSize: 11
-                            }
-                            MouseArea {
-                                anchors.fill: parent
-                                onClicked: HyprlandIpc.dispatch("workspace " + modelData.id)
-                            }
+                    Behavior on width {
+                        NumberAnimation {
+                            duration: 150
+                            easing.type: Easing.OutCubic
                         }
                     }
-                }
+                    Behavior on color {
+                        ColorAnimation {
+                            duration: 150
+                        }
+                    }
 
-                Item {
-                    Layout.fillWidth: true
-                }
+                    Text {
+                        anchors.centerIn: parent
+                        text: index + 1
+                        color: parent.active ? root.colBg : (parent.ws ? root.colText : root.colMuted)
+                        font.family: root.fontFamily
+                        font.pixelSize: 11
+                    }
 
-                // Right: time (your existing logic)
-                Text {
-                    text: root.time
-                    color: "#cdd6f4"
-                    font.family: "FiraMono Nerd Font"
-                    font.pixelSize: 12
+                    MouseArea {
+                        anchors.fill: parent
+                        onClicked: Hyprland.dispatch("workspace " + (index + 1))
+                    }
                 }
             }
         }
-    }
 
-    Process {
-        id: dateProc
-        command: ["date"]
-        running: true
-        stdout: StdioCollector {
-            onStreamFinished: root.time = this.text
+        Item {
+            Layout.fillWidth: true
         }
-    }
 
-    Timer {
-        interval: 1000
-        running: true
-        repeat: true
-        onTriggered: dateProc.running = true
+        // Right: clock
+        Text {
+            id: clock
+            text: Qt.formatDateTime(new Date(), "ddd, MMM dd - HH:mm")
+            color: root.colFg
+            font.family: root.fontFamily
+            font.pixelSize: root.fontSize
+
+            Timer {
+                interval: 1000
+                running: true
+                repeat: true
+                onTriggered: clock.text = Qt.formatDateTime(new Date(), "ddd, MMM dd - HH:mm")
+            }
+        }
     }
 }
