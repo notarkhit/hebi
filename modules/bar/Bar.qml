@@ -21,7 +21,7 @@ PanelWindow {
     anchors.left:  true
     anchors.right: true
     implicitHeight: barHeight
-    color: Qt.rgba(0x16/255, 0x16/255, 0x1a/255, 0.92)
+    color: Qt.rgba(0x1a/255, 0x1b/255, 0x26/255, 0.92)
 
     WlrLayershell.exclusiveZone: barHeight
     WlrLayershell.layer: WlrLayer.Top
@@ -32,7 +32,7 @@ PanelWindow {
         anchors.right:  parent.right
         anchors.bottom: parent.bottom
         height: 1
-        color: "#313244"
+        color: "#3b4261"
     }
 
     // ── content row ──────────────────────────────────────────────────────────
@@ -45,7 +45,7 @@ PanelWindow {
         // Logo
         Text {
             text: "" 
-            color: "#89b4fa"
+            color: "#7aa2f7"
             font.family: root.font
             font.pixelSize: 20
 
