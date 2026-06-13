@@ -1,0 +1,5 @@
+module hebi.services
+
+singleton Time    1.0 Time.qml
+singleton Hypr    1.0 Hypr.qml
+singleton Screens 1.0 Screens.qml

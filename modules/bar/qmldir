@@ -1,0 +1,6 @@
+module hebi.modules.bar
+
+singleton Palette 1.0 Palette.qml
+
+Bar  1.0 Bar.qml
+Bars 1.0 Bars.qml
