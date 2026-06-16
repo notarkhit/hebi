@@ -35,9 +35,18 @@ PanelWindow {
         color: "#3b4261"
     }
 
-    // ── content row ──────────────────────────────────────────────────────────
+    // ── center clock ─────────────────────────────────────────────────────────
+    Clock {
+        id: centerClock
+        anchors.centerIn: parent
+    }
+
+    // ── left side ────────────────────────────────────────────────────────────
     RowLayout {
-        anchors.fill:         parent
+        anchors.left:         parent.left
+        anchors.right:        centerClock.left
+        anchors.top:          parent.top
+        anchors.bottom:       parent.bottom
         anchors.leftMargin:   12
         anchors.rightMargin:  12
         spacing: 12
@@ -54,8 +63,6 @@ PanelWindow {
                 from: 0; to: 1; duration: 600
                 easing.type: Easing.OutCubic; running: true
             }
-
-
         }
 
         // Workspaces
@@ -68,14 +75,18 @@ PanelWindow {
             Layout.fillWidth:  true
             Layout.alignment:  Qt.AlignVCenter
         }
+    }
+
+    // ── right side ───────────────────────────────────────────────────────────
+    RowLayout {
+        anchors.right:        parent.right
+        anchors.top:          parent.top
+        anchors.bottom:       parent.bottom
+        anchors.rightMargin:  12
+        spacing: 12
 
         // System info: network · volume · battery
         SysInfo {
-            Layout.alignment: Qt.AlignVCenter
-        }
-
-        // Clock
-        Clock {
             Layout.alignment: Qt.AlignVCenter
         }
     }

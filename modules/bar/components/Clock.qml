@@ -10,7 +10,7 @@ Column {
 
     Text {
         anchors.horizontalCenter: parent.horizontalCenter
-        text: Time.hourStr + ":" + Time.minuteStr
+        text: Time.format("h:mm AP")
         color: BarModule.Palette.text
         font.family: "FiraMono Nerd Font"
         font.pixelSize: 12
