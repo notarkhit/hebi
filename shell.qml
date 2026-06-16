@@ -3,6 +3,7 @@
 
 import "modules/bar"
 import "modules/launcher"
+import "modules/notifications"
 import Quickshell
 
 ShellRoot {
@@ -10,4 +11,10 @@ ShellRoot {
 
     Bars {}
     Launcher {}
+
+    // ── notification popups ─────────────────────────────────────────────────
+    // position: "top-right" | "bottom-right" | "top-left" | "bottom-left"
+    Notifications {
+        position: "top-right"
+    }
 }

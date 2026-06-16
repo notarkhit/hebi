@@ -1,0 +1,4 @@
+module hebi.modules.notifications
+
+Notifications 1.0 Notifications.qml
+NotifPopup    1.0 NotifPopup.qml

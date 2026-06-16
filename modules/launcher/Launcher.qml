@@ -14,6 +14,21 @@ Scope {
 
     // ── shared state ─────────────────────────────────────────────────────────
     property bool launcherVisible: false
+    property bool windowVisible: false
+
+    onLauncherVisibleChanged: {
+        if (launcherVisible) {
+            windowVisible = true
+        } else {
+            closeTimer.restart()
+        }
+    }
+
+    Timer {
+        id: closeTimer
+        interval: 250
+        onTriggered: root.windowVisible = false
+    }
 
     // ── IPC handler ───────────────────────────────────────────────────────────
     IpcHandler {
@@ -36,9 +51,9 @@ Scope {
 
         color: "transparent"
 
-        visible: root.launcherVisible
+        visible: root.windowVisible
         WlrLayershell.layer:         WlrLayer.Overlay
-        WlrLayershell.keyboardFocus: WlrKeyboardFocus.Exclusive
+        WlrLayershell.keyboardFocus: root.launcherVisible ? WlrKeyboardFocus.Exclusive : WlrKeyboardFocus.None
 
         // Focus + clear search when launcher opens
         onVisibleChanged: {
@@ -48,10 +63,10 @@ Scope {
             }
         }
 
-        // ── dim background ────────────────────────────────────────────────────
+        // ── background click-catcher (transparent) ────────────────────────────
         Rectangle {
             anchors.fill: parent
-            color: Qt.rgba(0, 0, 0, 0.45)
+            color: "transparent"
 
             TapHandler {
                 onTapped: root.launcherVisible = false
@@ -63,20 +78,19 @@ Scope {
             id: card
 
             width: 560
-            implicitHeight: searchRow.implicitHeight + divider.height
-                            + listView.implicitHeight + 28
+            height: listView.implicitHeight + 56
 
             anchors.horizontalCenter: parent.horizontalCenter
-            anchors.top:              parent.top
-            anchors.topMargin:        root.launcherVisible ? 44 : 34
+            anchors.bottom:           parent.bottom
+            anchors.bottomMargin:     root.launcherVisible ? 12 : -(height + 20)
 
             opacity: root.launcherVisible ? 1 : 0
 
             Behavior on opacity {
-                NumberAnimation { duration: 180; easing.type: Easing.OutCubic }
+                NumberAnimation { duration: 200; easing.type: Easing.OutCubic }
             }
-            Behavior on anchors.topMargin {
-                NumberAnimation { duration: 180; easing.type: Easing.OutCubic }
+            Behavior on anchors.bottomMargin {
+                NumberAnimation { duration: 250; easing.type: Easing.OutQuint }
             }
 
             // Swallow taps so they don't reach the dim TapHandler
@@ -92,13 +106,182 @@ Scope {
                 layer.enabled: true
             }
 
-            // ── search row ────────────────────────────────────────────────────
+            // ── app list (above search, grows upward) ────────────────────────────
+            ListView {
+                id: listView
+
+                anchors.left:         parent.left
+                anchors.right:        parent.right
+                anchors.bottom:       searchRow.top
+                anchors.bottomMargin: 8
+                anchors.leftMargin:   6
+                anchors.rightMargin:  6
+
+                clip: true
+
+                layoutDirection: Qt.LeftToRight
+                verticalLayoutDirection: ListView.BottomToTop
+
+                readonly property int itemH:    48
+                readonly property int maxItems:  8
+                implicitHeight: Math.min(count, maxItems) * itemH
+
+                spacing:      0
+                currentIndex: 0
+                onCountChanged: currentIndex = 0
+
+                model: {
+                    const q = searchField.text.toLowerCase().trim()
+                    const all = DesktopEntries.applications.values
+                    if (!q)
+                        return [...all].sort((a, b) => a.name.localeCompare(b.name))
+                    
+                    return all.filter(a => {
+                        const n = (a.name || "").toLowerCase()
+                        const g = (a.genericName || "").toLowerCase()
+                        const c = (a.comment || "").toLowerCase()
+                        return n.includes(q) || g.includes(q) || c.includes(q)
+                    }).sort((a, b) => {
+                        const nA = (a.name || "").toLowerCase()
+                        const nB = (b.name || "").toLowerCase()
+                        
+                        // 1. Exact match
+                        const aExact = nA === q
+                        const bExact = nB === q
+                        if (aExact !== bExact) return aExact ? -1 : 1
+                        
+                        // 2. Starts with
+                        const aStart = nA.startsWith(q)
+                        const bStart = nB.startsWith(q)
+                        if (aStart !== bStart) return aStart ? -1 : 1
+                        
+                        // 3. Name match over comment match
+                        const aNameMatch = nA.includes(q)
+                        const bNameMatch = nB.includes(q)
+                        if (aNameMatch !== bNameMatch) return aNameMatch ? -1 : 1
+                        
+                        // 4. Alphabetical tie-breaker
+                        return a.name.localeCompare(b.name)
+                    })
+                }
+
+                ScrollBar.vertical: ScrollBar {
+                    policy: ScrollBar.AsNeeded
+                    contentItem: Rectangle {
+                        implicitWidth: 4
+                        radius: 2
+                        color: "#292e42"
+                    }
+                }
+
+                highlight: Rectangle {
+                    radius: 8
+                    color:  Qt.rgba(0x7a/255, 0xa2/255, 0xf7/255, 0.12)
+                    width:  listView.width
+                }
+                highlightFollowsCurrentItem: true
+                highlightMoveVelocity: 1200
+
+                delegate: Item {
+                    id: delegateRoot
+
+                    required property var modelData
+                    required property int index
+
+                    width:  listView.width
+                    height: listView.itemH
+
+                    function launchApp(): void {
+                        if (delegateRoot.modelData)
+                            Quickshell.execDetached({ command: delegateRoot.modelData.command })
+                    }
+
+                    Rectangle {
+                        anchors.fill: parent
+                        radius: 8
+                        color: hoverHandler.hovered ? Qt.rgba(0x7a/255, 0xa2/255, 0xf7/255, 0.12) : "transparent"
+                        Behavior on color { ColorAnimation { duration: 90 } }
+                    }
+
+                    RowLayout {
+                        anchors.fill:        parent
+                        anchors.leftMargin:  10
+                        anchors.rightMargin: 10
+                        spacing: 12
+
+                        IconImage {
+                            implicitSize: 28
+                            source: delegateRoot.modelData
+                                ? Quickshell.iconPath(delegateRoot.modelData.icon, "application-x-executable")
+                                : ""
+                            asynchronous: true
+                            Layout.alignment: Qt.AlignVCenter
+                        }
+
+                        Column {
+                            Layout.fillWidth: true
+                            Layout.alignment: Qt.AlignVCenter
+                            spacing: 2
+
+                            Text {
+                                text:           delegateRoot.modelData?.name ?? ""
+                                color:          (listView.currentIndex === delegateRoot.index || hoverHandler.hovered)
+                                                    ? "#7aa2f7" : "#c0caf5"
+                                font.family:    overlay.font
+                                font.pixelSize: 13
+                                font.weight:    Font.Medium
+                                elide:          Text.ElideRight
+                                width:          parent.width
+                                Behavior on color { ColorAnimation { duration: 110 } }
+                            }
+
+                            Text {
+                                visible:        !!text
+                                text:           delegateRoot.modelData?.comment
+                                                ?? delegateRoot.modelData?.genericName
+                                                ?? ""
+                                color:          "#565f89"
+                                font.family:    overlay.font
+                                font.pixelSize: 10
+                                elide:          Text.ElideRight
+                                width:          parent.width
+                            }
+                        }
+
+                        // terminal badge
+                        Text {
+                            visible:        delegateRoot.modelData?.runInTerminal ?? false
+                            text:           ""
+                            color:          "#9ece6a"
+                            font.family:    overlay.font
+                            font.pixelSize: 12
+                            Layout.alignment: Qt.AlignVCenter
+                        }
+                    }
+
+                    HoverHandler {
+                        id: hoverHandler
+                        cursorShape: Qt.PointingHandCursor
+                    }
+
+                    TapHandler {
+                        onTapped: {
+                            listView.currentIndex = delegateRoot.index
+                            delegateRoot.launchApp()
+                            root.launcherVisible = false
+                            searchField.text = ""
+                        }
+                    }
+                }
+            }
+
+            // ── search row (at bottom) ────────────────────────────────────────
             RowLayout {
                 id: searchRow
 
-                anchors.top:   parent.top
-                anchors.left:  parent.left
-                anchors.right: parent.right
+                anchors.bottom: parent.bottom
+                anchors.left:   parent.left
+                anchors.right:  parent.right
                 anchors.margins: 14
                 implicitHeight: 46
                 spacing: 10
@@ -161,164 +344,6 @@ Scope {
                         anchors.fill: parent
                         cursorShape:  Qt.PointingHandCursor
                         onClicked:    searchField.text = ""
-                    }
-                }
-            }
-
-            // ── divider ───────────────────────────────────────────────────────
-            Rectangle {
-                id: divider
-
-                anchors.top:   searchRow.bottom
-                anchors.left:  parent.left
-                anchors.right: parent.right
-                anchors.leftMargin:  14
-                anchors.rightMargin: 14
-                height: 1
-                color:  "#3b4261"
-            }
-
-            // ── app list ──────────────────────────────────────────────────────
-            ListView {
-                id: listView
-
-                anchors.top:         divider.bottom
-                anchors.left:        parent.left
-                anchors.right:       parent.right
-                anchors.topMargin:    6
-                anchors.bottomMargin: 6
-                anchors.leftMargin:   6
-                anchors.rightMargin:  6
-
-                clip: true
-
-                readonly property int itemH:    48
-                readonly property int maxItems:  8
-                implicitHeight: Math.min(count, maxItems) * itemH
-
-                spacing:      2
-                currentIndex: 0
-                onCountChanged: currentIndex = 0
-
-                model: {
-                    const q = searchField.text.toLowerCase()
-                    if (!q) return DesktopEntries.applications.values
-                    return DesktopEntries.applications.values.filter(a =>
-                        a.name.toLowerCase().includes(q)
-                        || (a.genericName && a.genericName.toLowerCase().includes(q))
-                        || (a.comment    && a.comment.toLowerCase().includes(q))
-                    )
-                }
-
-                ScrollBar.vertical: ScrollBar {
-                    policy: ScrollBar.AsNeeded
-                    contentItem: Rectangle {
-                        implicitWidth: 4
-                        radius: 2
-                        color: "#292e42"
-                    }
-                }
-
-                highlight: Rectangle {
-                    radius: 8
-                    color:  Qt.rgba(0x7a/255, 0xa2/255, 0xf7/255, 0.12)
-                    width:  listView.width
-                }
-                highlightFollowsCurrentItem: true
-                highlightMoveVelocity: 1200
-
-                delegate: Item {
-                    id: delegateRoot
-
-                    required property var modelData
-                    required property int index
-
-                    width:  listView.width
-                    height: listView.itemH
-
-                    function launchApp(): void {
-                        if (delegateRoot.modelData)
-                            Quickshell.execDetached({ command: delegateRoot.modelData.command })
-                    }
-
-                    Rectangle {
-                        anchors.fill: parent
-                        radius: 8
-                        color: hoverHandler.hovered ? "#7aa2f714" : "transparent"
-                        Behavior on color { ColorAnimation { duration: 90 } }
-                    }
-
-                    RowLayout {
-                        anchors.fill:        parent
-                        anchors.leftMargin:  10
-                        anchors.rightMargin: 10
-                        spacing: 12
-
-                        IconImage {
-                            implicitSize: 28
-                            source: delegateRoot.modelData
-                                ? Quickshell.iconPath(delegateRoot.modelData.icon, "application-x-executable")
-                                : ""
-                            asynchronous: true
-                            Layout.alignment: Qt.AlignVCenter
-                        }
-
-                        Column {
-                            Layout.fillWidth: true
-                            Layout.alignment: Qt.AlignVCenter
-                            spacing: 2
-
-                            Text {
-                                text:           delegateRoot.modelData?.name ?? ""
-                                color:          listView.currentIndex === delegateRoot.index
-                                                    ? "#7aa2f7" : "#c0caf5"
-                                font.family:    overlay.font
-                                font.pixelSize: 13
-                                font.weight:    Font.Medium
-                                elide:          Text.ElideRight
-                                width:          parent.width
-                                Behavior on color { ColorAnimation { duration: 110 } }
-                            }
-
-                            Text {
-                                visible:        !!text
-                                text:           delegateRoot.modelData?.comment
-                                                ?? delegateRoot.modelData?.genericName
-                                                ?? ""
-                                color:          "#565f89"
-                                font.family:    overlay.font
-                                font.pixelSize: 10
-                                elide:          Text.ElideRight
-                                width:          parent.width
-                            }
-                        }
-
-                        // terminal badge
-                        Text {
-                            visible:        delegateRoot.modelData?.runInTerminal ?? false
-                            text:           ""
-                            color:          "#9ece6a"
-                            font.family:    overlay.font
-                            font.pixelSize: 12
-                            Layout.alignment: Qt.AlignVCenter
-                        }
-                    }
-
-                    HoverHandler {
-                        id: hoverHandler
-                        cursorShape: Qt.PointingHandCursor
-                        onHoveredChanged: {
-                            if (hovered) listView.currentIndex = delegateRoot.index
-                        }
-                    }
-
-                    TapHandler {
-                        onTapped: {
-                            listView.currentIndex = delegateRoot.index
-                            delegateRoot.launchApp()
-                            root.launcherVisible = false
-                            searchField.text = ""
-                        }
                     }
                 }
             }
