@@ -21,16 +21,24 @@ Item {
     readonly property int  bodyFmt:    /[<*_`#\[\]]/.test(modelData.body)
                                             ? Text.MarkdownText : Text.PlainText
 
+    // Progress value from hints: notify-send -h int:value:75
+    readonly property int progressValue: {
+        const v = modelData.hints?.value ?? -1;
+        return (typeof v === "number") ? Math.max(-1, Math.min(100, Math.round(v))) : -1;
+    }
+    readonly property bool hasProgress: progressValue >= 0
+
     // Slide-in direction: "right" (default) or "left"
-    // Set by Notifications.qml based on which side the stack is on.
     property string slideFrom: "right"
 
-    // Smart resolvers for when apps use the wrong DBus fields (e.g. notify-send using image-path for icons)
+    // Expand/collapse state - collapses body preview when not expanded
+    property bool expanded: false
+
+    // Smart resolvers for when apps use the wrong DBus fields
     readonly property string actualIconName: {
         if (modelData.appIcon.length > 0) return modelData.appIcon;
         if (modelData.image.length > 0 && !modelData.image.startsWith("/") && !modelData.image.includes("://")) return modelData.image;
-        if (modelData.appName.length > 0) return modelData.appName.toLowerCase();
-        return "dialog-information";
+        return "";
     }
 
     readonly property string actualImageUrl: {
@@ -38,7 +46,8 @@ Item {
         return "";
     }
 
-    readonly property bool hasIcon: actualIconName !== "dialog-information" || actualImageUrl.length > 0
+    readonly property bool hasImage: actualImageUrl.length > 0
+    readonly property bool hasIcon:  actualIconName.length > 0 || hasImage
 
     // ── sizing ────────────────────────────────────────────────────────────────
     implicitWidth:  card.implicitWidth
@@ -53,12 +62,11 @@ Item {
 
     SequentialAnimation {
         id: slideIn
-        // Start fully off-screen
         PropertyAction  { target: card; property: "x"; value: slideFrom === "right" ? card.width + 20 : -(card.width + 20) }
         PropertyAction  { target: card; property: "opacity"; value: 0 }
         ParallelAnimation {
-            NumberAnimation { target: card; property: "x";       to: 0;   duration: 280; easing.type: Easing.OutQuint }
-            NumberAnimation { target: card; property: "opacity"; to: 1;   duration: 180; easing.type: Easing.OutCubic }
+            NumberAnimation { target: card; property: "x";       to: 0; duration: 280; easing.type: Easing.OutQuint }
+            NumberAnimation { target: card; property: "opacity"; to: 1; duration: 180; easing.type: Easing.OutCubic }
         }
     }
 
@@ -69,10 +77,23 @@ Item {
         implicitWidth:  380
         implicitHeight: inner.implicitHeight + 20
 
-        radius: 12
-        color: root.isCritical ? "#2d1017" : "#1a1b26"
+        radius: 14
+        color: root.isCritical ? "#1a0a0e" : "#1a1b26"
         border.color: root.isCritical ? "#f7768e" : root.isLow ? "#24283b" : "#3b4261"
-        border.width: 1
+        border.width: root.isCritical ? 1.5 : 1
+
+        // Left urgency accent bar
+        Rectangle {
+            anchors.left:   parent.left
+            anchors.top:    parent.top
+            anchors.bottom: parent.bottom
+            anchors.topMargin:    parent.radius
+            anchors.bottomMargin: parent.radius
+            width:  3
+            radius: 2
+            visible: !root.isLow
+            color: root.isCritical ? "#f7768e" : "#7aa2f7"
+        }
 
         // Snap-back behavior after swipe drag
         Behavior on x {
@@ -91,42 +112,59 @@ Item {
             anchors.right:   parent.right
             anchors.top:     parent.top
             anchors.margins: 14
+            anchors.leftMargin: 18 // account for accent bar
             spacing: 6
 
-            // Header row: icon | app name + summary | time + close
+            // Header row: icon | app name + summary | time + expand + close
             RowLayout {
                 Layout.fillWidth: true
                 spacing: 10
 
                 // App icon / image
                 Item {
-                    implicitWidth:  36
-                    implicitHeight: 36
+                    id: iconBox
+                    implicitWidth:  40
+                    implicitHeight: 40
 
                     Image {
+                        id: baseIcon
                         anchors.centerIn: parent
-                        width: 22
-                        height: 22
-                        sourceSize: Qt.size(22, 22)
-                        // Hide this base icon if an overlay image is taking its place
-                        visible: root.actualImageUrl.length === 0
-                        source: root.actualIconName.startsWith("/") || root.actualIconName.includes("://") 
-                                ? Qt.resolvedUrl(root.actualIconName)
-                                : "image://icon/" + root.actualIconName
+                        width: 32; height: 32
+                        sourceSize: Qt.size(32, 32)
+                        visible: root.actualIconName.length > 0 && overlayImage.status !== Image.Ready
+                        source: root.actualIconName.length > 0
+                                ? (root.actualIconName.startsWith("/") || root.actualIconName.includes("://")
+                                    ? Qt.resolvedUrl(root.actualIconName)
+                                    : Quickshell.iconPath(root.actualIconName))
+                                : ""
                         asynchronous: true
                         fillMode: Image.PreserveAspectFit
                     }
 
-                    // Overlay app image (e.g. album art)
+                    // Fallback: first letter of appName
+                    Text {
+                        anchors.centerIn: parent
+                        visible: root.actualIconName.length === 0 && overlayImage.status !== Image.Ready
+                        text: (root.modelData.appName || "?").charAt(0).toUpperCase()
+                        color: root.isCritical ? "#f7768e" : "#7aa2f7"
+                        font.family: "FiraMono Nerd Font"
+                        font.pixelSize: 18
+                        font.weight: Font.Bold
+                    }
+
+                    // Overlay: album art / arbitrary image
                     Image {
+                        id: overlayImage
                         anchors.fill: parent
-                        visible: root.actualImageUrl.length > 0
+                        visible: status === Image.Ready
                         source: root.actualImageUrl.length > 0 ? Qt.resolvedUrl(root.actualImageUrl) : ""
                         fillMode: Image.PreserveAspectCrop
                         asynchronous: true
                         layer.enabled: true
-                        layer.effect: null // clip via parent Item clipping
+                        layer.effect: null
                     }
+
+
                 }
 
                 // Text column: app name + summary
@@ -149,53 +187,152 @@ Item {
                         color: root.isCritical ? "#f7768e" : "#c0caf5"
                         font.family: "FiraMono Nerd Font"
                         font.pixelSize: 13
-                        font.weight:    Font.DemiBold
+                        font.weight: Font.DemiBold
                         elide: Text.ElideRight
                     }
                 }
 
-                // Close button
-                Text {
-                    text:  "×"
-                    color: closeHover.containsMouse ? "#c0caf5" : "#565f89"
-                    font.pixelSize: 20
+                // Time + expand + close cluster
+                RowLayout {
                     Layout.alignment: Qt.AlignTop
-                    topPadding: -3
+                    spacing: 4
 
-                    Behavior on color { ColorAnimation { duration: 80 } }
+                    // Elapsed time
+                    Text {
+                        text:  root.modelData.timeStr
+                        color: "#3b4261"
+                        font.family: "FiraMono Nerd Font"
+                        font.pixelSize: 9
+                        Layout.alignment: Qt.AlignVCenter
+                    }
 
-                    MouseArea {
-                        id: closeHover
-                        anchors.fill: parent
-                        hoverEnabled: true
-                        cursorShape:  Qt.PointingHandCursor
-                        onClicked: root.modelData.dismiss()
+                    // Expand/collapse (only shown when there's meaningful body)
+                    Rectangle {
+                        id: expandBtn
+                        visible: root.modelData.body.length > 0
+                        implicitWidth: 20; implicitHeight: 20
+                        radius: 4
+                        color: expandHover.containsMouse ? "#3b426166" : "transparent"
+                        Layout.alignment: Qt.AlignVCenter
+
+                        Behavior on color { ColorAnimation { duration: 80 } }
+
+                        Text {
+                            anchors.centerIn: parent
+                            text: root.expanded ? "▲" : "▼"
+                            color: expandHover.containsMouse ? "#c0caf5" : "#565f89"
+                            font.pixelSize: 8
+
+                            Behavior on color { ColorAnimation { duration: 80 } }
+                        }
+
+                        MouseArea {
+                            id: expandHover
+                            anchors.fill: parent
+                            hoverEnabled: true
+                            cursorShape: Qt.PointingHandCursor
+                            onClicked: root.expanded = !root.expanded
+                        }
+                    }
+
+                    // Close button
+                    Rectangle {
+                        implicitWidth: 20; implicitHeight: 20
+                        radius: 4
+                        color: closeHover.containsMouse ? "#f7768e22" : "transparent"
+                        Layout.alignment: Qt.AlignVCenter
+
+                        Behavior on color { ColorAnimation { duration: 80 } }
+
+                        Text {
+                            anchors.centerIn: parent
+                            text:  "×"
+                            color: closeHover.containsMouse ? "#f7768e" : "#565f89"
+                            font.pixelSize: 16
+                            topPadding: -1
+
+                            Behavior on color { ColorAnimation { duration: 80 } }
+                        }
+
+                        MouseArea {
+                            id: closeHover
+                            anchors.fill: parent
+                            hoverEnabled: true
+                            cursorShape:  Qt.PointingHandCursor
+                            onClicked: root.modelData.dismiss()
+                        }
                     }
                 }
             }
 
-            // Body text
+            // Body text — shows a 1-line preview when collapsed, full text when expanded
             Text {
+                id: bodyText
                 visible: root.modelData.body.length > 0
                 Layout.fillWidth: true
-                Layout.leftMargin: 46  // align under summary (36px icon + 10px gap)
+                Layout.leftMargin: 50  // align under summary (40px icon + 10px gap)
                 text:        root.modelData.body
                 color:       root.isCritical ? "#fca7b0" : root.isLow ? "#545c7e" : "#a9b1d6"
                 font.family: "FiraMono Nerd Font"
                 font.pixelSize: 11
                 textFormat:  root.bodyFmt
                 wrapMode:    Text.WrapAtWordBoundaryOrAnywhere
-                maximumLineCount: 4
-                elide:       Text.ElideRight
+                maximumLineCount: root.expanded ? 20 : 2
+                elide:       root.expanded ? Text.ElideNone : Text.ElideRight
+
+                Behavior on maximumLineCount { }
 
                 onLinkActivated: link => Quickshell.execDetached(["xdg-open", link])
+            }
+
+            // Progress bar (linear) — shown when hints.value present and not using ring
+            // Show as a supplementary bar under the body
+            Item {
+                visible: root.hasProgress
+                Layout.fillWidth: true
+                Layout.leftMargin: 50
+                implicitHeight: 20
+
+                // Label: "75%"
+                Text {
+                    id: progressLabel
+                    anchors.right: parent.right
+                    anchors.verticalCenter: parent.verticalCenter
+                    text: `${root.progressValue}%`
+                    color: root.isCritical ? "#f7768e" : "#7aa2f7"
+                    font.family: "FiraMono Nerd Font"
+                    font.pixelSize: 9
+                }
+
+                // Track
+                Rectangle {
+                    anchors.left: parent.left
+                    anchors.right: progressLabel.left
+                    anchors.rightMargin: 6
+                    anchors.verticalCenter: parent.verticalCenter
+                    height: 4
+                    radius: 2
+                    color: root.isCritical ? "#f7768e22" : "#7aa2f722"
+
+                    // Fill
+                    Rectangle {
+                        width: parent.width * (root.progressValue / 100)
+                        height: parent.height
+                        radius: 2
+                        color: root.isCritical ? "#f7768e" : "#7aa2f7"
+
+                        Behavior on width {
+                            NumberAnimation { duration: 300; easing.type: Easing.OutCubic }
+                        }
+                    }
+                }
             }
 
             // Action buttons
             Flow {
                 visible: root.hasActions
                 Layout.fillWidth: true
-                Layout.leftMargin: 46
+                Layout.leftMargin: 50
                 spacing: 6
 
                 Repeater {

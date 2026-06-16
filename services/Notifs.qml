@@ -49,6 +49,26 @@ Singleton {
         onNotification: notif => {
             notif.tracked = true
 
+            // Deduplicate spammy notifications (like Volume/Brightness sliders in scripts)
+            // Update them inline to avoid ListView add/remove animations
+            let isSpammy = (notif.appName === "Volume" || notif.appName === "Brightness");
+            let isDefaultApp = (notif.appName === "dunstify" || notif.appName === "notify-send");
+
+            if (isSpammy || isDefaultApp) {
+                for (const existing of root.popups) {
+                    if (existing.appName === notif.appName) {
+                        // For default apps, ensure the summary prefixes match before replacing
+                        if (isDefaultApp && !existing.summary.startsWith((notif.summary || "").split(":")[0])) {
+                            continue;
+                        }
+                        
+                        existing.updateFrom(notif);
+                        notif.tracked = true;
+                        return; // Successfully replaced inline, do not append a new one!
+                    }
+                }
+            }
+
             const data = notifComp.createObject(root, {
                 notification: notif,
                 popup: !root.dnd

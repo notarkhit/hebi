@@ -5,3 +5,5 @@ singleton Hypr     1.0 Hypr.qml
 singleton Screens  1.0 Screens.qml
 singleton Notifs   1.0 Notifs.qml
 NotifData          1.0 NotifData.qml
+singleton AudioService 1.0 AudioService.qml
+singleton BrightnessService 1.0 BrightnessService.qml

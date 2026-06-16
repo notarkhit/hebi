@@ -4,10 +4,14 @@
 import "modules/bar"
 import "modules/launcher"
 import "modules/notifications"
+import "modules/osd"
+import "services"
 import Quickshell
 
 ShellRoot {
     settings.watchFiles: true
+
+    property var _audioInit: AudioService.volume // Force singleton instantiation safely
 
     Bars {}
     Launcher {}
@@ -17,4 +21,7 @@ ShellRoot {
     Notifications {
         position: "top-right"
     }
+
+    // ── osd ──────────────────────────────────────────────────────────────────
+    OsdPopup {}
 }

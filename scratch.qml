@@ -1,37 +1,15 @@
 import QtQuick
 import Quickshell
-import Quickshell.Widgets
+import Quickshell.Io
 
 PanelWindow {
-    color: "transparent"
+    color: "black"
     width: 200
     height: 100
-
-    Row {
-        spacing: 10
-        anchors.centerIn: parent
-
-        // Standard IconImage
-        IconImage {
-            implicitSize: 32
-            source: Quickshell.iconPath("firefox")
-        }
-
-        // IconImage with fillMode
-        IconImage {
-            width: 32
-            height: 32
-            fillMode: Image.PreserveAspectFit
-            source: Quickshell.iconPath("firefox")
-        }
-        
-        // Standard Qt Image using image://icon/
-        Image {
-            width: 32
-            height: 32
-            sourceSize: Qt.size(32, 32)
-            source: "image://icon/firefox"
-            fillMode: Image.PreserveAspectFit
+    IpcHandler {
+        target: "osd"
+        function test(val: string) {
+            console.log("IPC RECEIVED:", val);
         }
     }
 }
