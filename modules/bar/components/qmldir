@@ -2,5 +2,6 @@ module hebi.modules.bar.components
 
 ActiveWindow    1.0 ActiveWindow.qml
 Clock           1.0 Clock.qml
+SysInfo         1.0 SysInfo.qml
 Workspaces      1.0 Workspaces.qml
 WorkspaceButton 1.0 WorkspaceButton.qml

@@ -69,8 +69,10 @@ PanelWindow {
             Layout.alignment:  Qt.AlignVCenter
         }
 
-        // Spacer
-        Item { Layout.fillWidth: true }
+        // System info: network · volume · battery
+        SysInfo {
+            Layout.alignment: Qt.AlignVCenter
+        }
 
         // Clock
         Clock {

@@ -74,7 +74,14 @@ Singleton {
 
     // Native backlight watcher: triggers an update whenever external tools (like brightnessctl) change the backlight
     readonly property Process watcherProc: Process {
-        command: ["sh", "-c", "stdbuf -oL udevadm monitor --subsystem-match=backlight | while read -r line; do qs ipc -p ~/.config/hebi call brightness refresh; done"]
+        command: ["udevadm", "monitor", "--subsystem-match=backlight"]
         running: true
+        stdout: SplitParser {
+            onRead: line => {
+                if (line.trim().length > 0) {
+                    initProc.running = true;
+                }
+            }
+        }
     }
 }

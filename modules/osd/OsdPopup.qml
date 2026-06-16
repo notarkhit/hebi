@@ -24,8 +24,8 @@ PanelWindow {
     }
 
     // Sizing: fixed pill size — no dynamic resize when switching
-    implicitWidth:  orientation === Qt.Horizontal ? 300 : 80
-    implicitHeight: orientation === Qt.Horizontal ? 80  : 300
+    implicitWidth:  orientation === Qt.Horizontal ? 260 : 52
+    implicitHeight: orientation === Qt.Horizontal ? 52  : 260
 
     anchors {
         bottom: position.includes("bottom")
@@ -97,12 +97,11 @@ PanelWindow {
             width:  root.implicitWidth
             height: root.implicitHeight
 
-            color:  "#cc1a1b26"
+            color:  "#e01a1b26"
             radius: Math.min(width, height) / 2
 
-            // No border — clean pill shape
             opacity: root.osdVisible ? 1 : 0
-            scale:   root.osdVisible ? 1 : 0.88
+            scale:   root.osdVisible ? 1 : 0.92
 
             Behavior on opacity {
                 NumberAnimation { duration: 140; easing.type: Easing.OutCubic }
@@ -126,9 +125,12 @@ PanelWindow {
                 to: 150
 
                 iconPath: {
-                    if (root.currentMuted) return "file:///home/notarkhit/.icons/custom/volume/muted.svg";
-                    let v = Math.min(150, Math.max(0, Math.round(root.currentVolume / 5) * 5));
-                    return `file:///home/notarkhit/.icons/custom/volume/vol-${v}.svg`;
+                    if (root.currentMuted) return Quickshell.iconPath("audio-volume-muted");
+                    const v = root.currentVolume;
+                    if (v <= 0)   return Quickshell.iconPath("audio-volume-muted");
+                    if (v <= 33)  return Quickshell.iconPath("audio-volume-low");
+                    if (v <= 66)  return Quickshell.iconPath("audio-volume-medium");
+                    return Quickshell.iconPath("audio-volume-high");
                 }
 
                 onMoved: {
@@ -140,7 +142,7 @@ PanelWindow {
             // ── brightness slider ──────────────────────────────────────────
             FilledSlider {
                 anchors.fill: parent
-                anchors.margins: 12
+                anchors.margins: 8
                 orientation: root.orientation
                 visible: root.activeOsd === "brightness"
                 opacity: root.activeOsd === "brightness" ? 1 : 0
@@ -151,10 +153,7 @@ PanelWindow {
                 from: 0
                 to: 100
 
-                iconPath: {
-                    let b = Math.min(100, Math.max(0, Math.round((root.currentBrightness * 100) / 5) * 5));
-                    return `file:///home/notarkhit/.icons/custom/brightness/br-${b}.svg`;
-                }
+                iconPath: Quickshell.iconPath("display-brightness-symbolic")
 
                 onMoved: {
                     BrightnessService.setBrightness(value / 100);

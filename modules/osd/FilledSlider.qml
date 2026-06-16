@@ -1,6 +1,9 @@
 import QtQuick
 import Quickshell
 
+// Elegant slim OSD slider.
+// Horizontal layout: [icon] [────track with fill────]
+// Vertical layout:   icon on top, thin track below
 Item {
     id: root
 
@@ -14,87 +17,156 @@ Item {
     readonly property real percent: (to > from) ? Math.max(0, Math.min(1, (value - from) / (to - from))) : 0
     readonly property bool isInteracting: dragArea.pressed
 
-    // Fill track
-    Rectangle {
-        id: fill
-        color: "#7aa2f7"
-        radius: root.orientation === Qt.Horizontal ? height / 2 : width / 2
+    // ── horizontal layout ────────────────────────────────────────────────
+    Row {
+        anchors.fill: parent
+        anchors.leftMargin:  root.orientation === Qt.Horizontal ? 2 : 0
+        anchors.rightMargin: root.orientation === Qt.Horizontal ? 2 : 0
+        spacing: 10
+        visible: root.orientation === Qt.Horizontal
 
-        x: 0
-        y: root.orientation === Qt.Horizontal ? 0 : parent.height * (1 - root.percent)
+        // Icon
+        Image {
+            id: hIcon
+            anchors.verticalCenter: parent.verticalCenter
+            width: 20; height: 20
+            sourceSize: Qt.size(20, 20)
+            source: root.iconPath
+            fillMode: Image.PreserveAspectFit
+            asynchronous: true
+            smooth: true
+        }
 
-        width:  root.orientation === Qt.Horizontal ? parent.width * root.percent : parent.width
-        height: root.orientation === Qt.Horizontal ? parent.height : parent.height * root.percent
+        // Track
+        Item {
+            id: hTrack
+            anchors.verticalCenter: parent.verticalCenter
+            width:  parent.width - hIcon.width - parent.spacing
+            height: 4
+
+            // Background
+            Rectangle {
+                anchors.fill: parent
+                radius: height / 2
+                color: "#2a2c3d"
+            }
+
+            // Fill
+            Rectangle {
+                width:  parent.width * root.percent
+                height: parent.height
+                radius: height / 2
+                color:  "#7aa2f7"
+
+                Behavior on width {
+                    enabled: !dragArea.pressed
+                    NumberAnimation { duration: 80; easing.type: Easing.OutCubic }
+                }
+            }
+
+            // Thumb dot
+            Rectangle {
+                x: (parent.width - width) * root.percent
+                y: (parent.height - height) / 2
+                width:  10
+                height: 10
+                radius: 5
+                color:  "#c0caf5"
+
+                scale: dragArea.pressed ? 1.4 : 1
+                Behavior on scale  { NumberAnimation { duration: 80; easing.type: Easing.OutCubic } }
+                Behavior on x {
+                    enabled: !dragArea.pressed
+                    NumberAnimation { duration: 80; easing.type: Easing.OutCubic }
+                }
+            }
+        }
     }
 
-    // Handle bubble
-    Rectangle {
-        id: handle
-        width:  root.orientation === Qt.Horizontal ? parent.height : parent.width
-        height: root.orientation === Qt.Horizontal ? parent.height : parent.width
-
-        x: root.orientation === Qt.Horizontal ? (parent.width - width) * root.percent : 0
-        y: root.orientation === Qt.Horizontal ? 0 : (parent.height - height) * (1 - root.percent)
-
-        radius: Math.min(width, height) / 2
-        color:  "#7aa2f7"
-
-        scale: dragArea.pressed ? 0.9 : 1
-        Behavior on scale { NumberAnimation { duration: 100; easing.type: Easing.OutCubic } }
+    // ── vertical layout ───────────────────────────────────────────────────
+    Column {
+        anchors.fill: parent
+        anchors.topMargin:    root.orientation === Qt.Vertical ? 2 : 0
+        anchors.bottomMargin: root.orientation === Qt.Vertical ? 2 : 0
+        spacing: 10
+        visible: root.orientation === Qt.Vertical
 
         Image {
-            id: icon
-            anchors.centerIn: parent
+            id: vIcon
+            anchors.horizontalCenter: parent.horizontalCenter
+            width: 20; height: 20
+            sourceSize: Qt.size(20, 20)
             source: root.iconPath
-            sourceSize: Qt.size(24, 24)
-
-            opacity: dragArea.pressed ? 0 : 1
-            scale:   dragArea.pressed ? 0.6 : 1
-
-            Behavior on opacity { NumberAnimation { duration: 100; easing.type: Easing.OutCubic } }
-            Behavior on scale   { NumberAnimation { duration: 100; easing.type: Easing.OutCubic } }
+            fillMode: Image.PreserveAspectFit
+            asynchronous: true
+            smooth: true
         }
 
-        Text {
-            anchors.centerIn: parent
-            text:  Math.round(root.value)
-            color: "#1a1b26"
-            font.bold: true
-            font.pixelSize: 13
+        Item {
+            id: vTrack
+            anchors.horizontalCenter: parent.horizontalCenter
+            width:  4
+            height: parent.height - vIcon.height - parent.spacing
 
-            opacity: dragArea.pressed ? 1 : 0
-            scale:   dragArea.pressed ? 1 : 0.6
+            Rectangle {
+                anchors.fill: parent
+                radius: width / 2
+                color: "#2a2c3d"
+            }
 
-            Behavior on opacity { NumberAnimation { duration: 100; easing.type: Easing.OutCubic } }
-            Behavior on scale   { NumberAnimation { duration: 100; easing.type: Easing.OutCubic } }
+            // Fill (grows from bottom)
+            Rectangle {
+                anchors.bottom: parent.bottom
+                width:  parent.width
+                height: parent.height * root.percent
+                radius: width / 2
+                color:  "#7aa2f7"
+
+                Behavior on height {
+                    enabled: !dragArea.pressed
+                    NumberAnimation { duration: 80; easing.type: Easing.OutCubic }
+                }
+            }
+
+            // Thumb dot
+            Rectangle {
+                x: (parent.width - width) / 2
+                y: (parent.height - height) * (1 - root.percent)
+                width:  10
+                height: 10
+                radius: 5
+                color:  "#c0caf5"
+
+                scale: dragArea.pressed ? 1.4 : 1
+                Behavior on scale { NumberAnimation { duration: 80; easing.type: Easing.OutCubic } }
+                Behavior on y {
+                    enabled: !dragArea.pressed
+                    NumberAnimation { duration: 80; easing.type: Easing.OutCubic }
+                }
+            }
         }
     }
 
+    // ── interaction ───────────────────────────────────────────────────────
     MouseArea {
         id: dragArea
         anchors.fill: parent
 
         onPositionChanged: (mouse) => {
-            if (dragArea.pressed) {
-                let p = root.orientation === Qt.Horizontal
-                    ? Math.max(0, Math.min(1, mouse.x / root.width))
-                    : Math.max(0, Math.min(1, 1 - (mouse.y / root.height)));
-                root.value = root.from + p * (root.to - root.from);
-                root.moved();
-            }
-        }
-
-        onPressed: (mouse) => {
+            if (!pressed) return;
             let p = root.orientation === Qt.Horizontal
-                ? Math.max(0, Math.min(1, mouse.x / root.width))
+                ? Math.max(0, Math.min(1, (mouse.x - hIcon.width - 10) / hTrack.width))
                 : Math.max(0, Math.min(1, 1 - (mouse.y / root.height)));
             root.value = root.from + p * (root.to - root.from);
             root.moved();
         }
-    }
 
-    Behavior on value {
-        enabled: !dragArea.pressed
-        NumberAnimation { duration: 120; easing.type: Easing.OutCubic }
+        onPressed: (mouse) => {
+            let p = root.orientation === Qt.Horizontal
+                ? Math.max(0, Math.min(1, (mouse.x - hIcon.width - 10) / hTrack.width))
+                : Math.max(0, Math.min(1, 1 - (mouse.y / root.height)));
+            root.value = root.from + p * (root.to - root.from);
+            root.moved();
+        }
     }
 }
