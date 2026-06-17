@@ -1,3 +1,4 @@
 .qmlls.ini
  
- env/
+env/
+env/**/*
