@@ -26,14 +26,6 @@ PanelWindow {
     WlrLayershell.exclusiveZone: barHeight
     WlrLayershell.layer: WlrLayer.Top
 
-    // ── bottom border ────────────────────────────────────────────────────────
-    Rectangle {
-        anchors.left:   parent.left
-        anchors.right:  parent.right
-        anchors.bottom: parent.bottom
-        height: 1
-        color: "#3b4261"
-    }
 
     // ── center clock ─────────────────────────────────────────────────────────
     Clock {
