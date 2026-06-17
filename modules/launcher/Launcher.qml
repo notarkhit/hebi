@@ -18,17 +18,7 @@ Scope {
     onLauncherVisibleChanged: {
         if (launcherVisible) {
             windowVisible = true
-            card.clipHeight = card.fullHeight
-        } else {
-            card.clipHeight = 0
-            closeTimer.restart()
         }
-    }
-
-    Timer {
-        id: closeTimer
-        interval: 280
-        onTriggered: root.windowVisible = false
     }
 
     IpcHandler {
@@ -38,8 +28,36 @@ Scope {
         }
     }
 
-    PanelWindow {
-        id: overlay
+    Loader {
+        id: loader
+        active: root.windowVisible
+        sourceComponent: Component {
+            PanelWindow {
+                id: overlay
+
+                Connections {
+                    target: root
+                    function onLauncherVisibleChanged() {
+                        if (root.launcherVisible) {
+                            card.clipHeight = card.fullHeight;
+                        } else {
+                            card.clipHeight = 0;
+                            closeTimer.restart();
+                        }
+                    }
+                }
+
+                Component.onCompleted: {
+                    if (root.launcherVisible) {
+                        card.clipHeight = card.fullHeight;
+                    }
+                }
+
+                Timer {
+                    id: closeTimer
+                    interval: 280
+                    onTriggered: root.windowVisible = false
+                }
 
         readonly property string font: "FiraMono Nerd Font"
 
@@ -351,6 +369,8 @@ Scope {
                         }
                     }
                 }
+            }
+        }
             }
         }
     }
