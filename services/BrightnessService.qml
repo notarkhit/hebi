@@ -38,7 +38,7 @@ Singleton {
     function setBrightness(value: real): void {
         value = Math.max(0, Math.min(1, value));
         const rounded = Math.round(value * 100);
-        
+
         if (Math.round(brightness * 100) === rounded)
             return;
 
@@ -49,10 +49,10 @@ Singleton {
 
         brightness = value;
         Quickshell.execDetached(["brightnessctl", "s", `${rounded}%`]);
-        
+
         debounceTimer.restart();
     }
-    
+
     // Allows external user scripts to force a refresh if they bypassed Quickshell
     IpcHandler {
         target: "brightness"

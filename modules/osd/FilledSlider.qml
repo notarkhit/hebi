@@ -9,13 +9,15 @@ Item {
 
     property int orientation: Qt.Horizontal
     property real value: 0
+    property real _dragValue: 0
     property real from: 0
     property real to: 100
     property string iconPath: ""
-    signal moved()
+    signal moved(real newValue)
 
-    readonly property real percent: (to > from) ? Math.max(0, Math.min(1, (value - from) / (to - from))) : 0
     readonly property bool isInteracting: dragArea.pressed
+    readonly property real effectiveValue: isInteracting ? _dragValue : value
+    readonly property real percent: (to > from) ? Math.max(0, Math.min(1, (effectiveValue - from) / (to - from))) : 0
 
     // ── horizontal layout ────────────────────────────────────────────────
     Row {
@@ -147,6 +149,11 @@ Item {
         }
     }
 
+    Timer {
+        id: throttleTimer
+        interval: 32 // ~30fps max IPC emission
+    }
+
     // ── interaction ───────────────────────────────────────────────────────
     MouseArea {
         id: dragArea
@@ -157,16 +164,25 @@ Item {
             let p = root.orientation === Qt.Horizontal
                 ? Math.max(0, Math.min(1, (mouse.x - hIcon.width - 10) / hTrack.width))
                 : Math.max(0, Math.min(1, 1 - (mouse.y / root.height)));
-            root.value = root.from + p * (root.to - root.from);
-            root.moved();
+            root._dragValue = root.from + p * (root.to - root.from);
+            
+            if (!throttleTimer.running) {
+                root.moved(root._dragValue);
+                throttleTimer.restart();
+            }
         }
 
         onPressed: (mouse) => {
             let p = root.orientation === Qt.Horizontal
                 ? Math.max(0, Math.min(1, (mouse.x - hIcon.width - 10) / hTrack.width))
                 : Math.max(0, Math.min(1, 1 - (mouse.y / root.height)));
-            root.value = root.from + p * (root.to - root.from);
-            root.moved();
+            root._dragValue = root.from + p * (root.to - root.from);
+            root.moved(root._dragValue);
+            throttleTimer.restart();
+        }
+        
+        onReleased: {
+            root.moved(root._dragValue);
         }
     }
 }

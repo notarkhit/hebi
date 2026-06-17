@@ -178,8 +178,8 @@ Scope {
                                 return Quickshell.iconPath("audio-volume-high");
                             }
 
-                            onMoved: {
-                                AudioService.setVolume(value / 100);
+                            onMoved: newValue => {
+                                AudioService.setVolume(newValue / 100);
                                 hideTimer.restart();
                             }
                         }
@@ -203,8 +203,8 @@ Scope {
 
                             iconPath: Quickshell.iconPath("display-brightness-symbolic")
 
-                            onMoved: {
-                                BrightnessService.setBrightness(value / 100);
+                            onMoved: newValue => {
+                                BrightnessService.setBrightness(newValue / 100);
                                 hideTimer.restart();
                             }
                         }

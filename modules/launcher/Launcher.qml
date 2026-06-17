@@ -38,18 +38,9 @@ Scope {
                 Connections {
                     target: root
                     function onLauncherVisibleChanged() {
-                        if (root.launcherVisible) {
-                            card.clipHeight = card.fullHeight;
-                        } else {
-                            card.clipHeight = 0;
+                        if (!root.launcherVisible) {
                             closeTimer.restart();
                         }
-                    }
-                }
-
-                Component.onCompleted: {
-                    if (root.launcherVisible) {
-                        card.clipHeight = card.fullHeight;
                     }
                 }
 
@@ -101,6 +92,10 @@ Scope {
 
             // Visible slice grows from the bottom upward
             property real clipHeight: 0
+
+            Component.onCompleted: {
+                clipHeight = Qt.binding(function() { return root.launcherVisible ? card.fullHeight : 0 })
+            }
 
             Behavior on clipHeight {
                 NumberAnimation {

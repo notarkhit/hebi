@@ -20,10 +20,29 @@ Singleton {
         console.log("AudioService volume changed to:", volume);
     }
 
-    function setVolume(newVolume: real): void {
-        if (Pipewire.defaultAudioSink && Pipewire.defaultAudioSink.audio) {
-            Pipewire.defaultAudioSink.audio.muted = false;
-            Pipewire.defaultAudioSink.audio.volume = Math.max(0, Math.min(1.5, newVolume));
+    property real queuedVolume: NaN
+
+    Timer {
+        id: debounceTimer
+        interval: 40
+        onTriggered: {
+            if (!isNaN(queuedVolume)) {
+                root.setVolume(queuedVolume);
+                queuedVolume = NaN;
+            }
         }
+    }
+
+    function setVolume(newVolume: real): void {
+        if (debounceTimer.running) {
+            queuedVolume = newVolume;
+            return;
+        }
+
+        let clamped = Math.max(0, Math.min(1.5, newVolume));
+        Quickshell.execDetached(["wpctl", "set-mute", "@DEFAULT_AUDIO_SINK@", "0"]);
+        Quickshell.execDetached(["wpctl", "set-volume", "@DEFAULT_AUDIO_SINK@", clamped.toString()]);
+        
+        debounceTimer.restart();
     }
 }
