@@ -1,0 +1,27 @@
+qml_module(hebi-services
+    URI Hebi.Services
+    SOURCES
+        service.cpp
+        serviceref.cpp
+        beattracker.cpp
+        audiocollector.cpp
+        audioprovider.cpp
+        cavaprovider.cpp
+        tickingservice.cpp
+        sensorslib.cpp
+        usagefmt.cpp
+        cpu.cpp
+        gpu.cpp
+        memory.cpp
+        diskinfo.cpp
+        storage.cpp
+        lyriccandidate.cpp
+        lyrics.cpp
+    LIBRARIES
+        PkgConfig::Pipewire
+        PkgConfig::Aubio
+        PkgConfig::Cava
+        Sensors::Sensors
+        hebi-config
+        hebi-internal
+)

@@ -165,16 +165,16 @@ Scope {
 
                             Behavior on opacity { NumberAnimation { duration: 100; easing.type: Easing.OutCubic } }
 
-                            value: root.currentVolume
+                            value: root.currentVolume * 100
                             from: 0
                             to: 150
 
                             iconPath: {
                                 if (root.currentMuted) return Quickshell.iconPath("audio-volume-muted");
                                 const v = root.currentVolume;
-                                if (v <= 0)   return Quickshell.iconPath("audio-volume-muted");
-                                if (v <= 33)  return Quickshell.iconPath("audio-volume-low");
-                                if (v <= 66)  return Quickshell.iconPath("audio-volume-medium");
+                                if (v <= 0)    return Quickshell.iconPath("audio-volume-muted");
+                                if (v <= 0.33) return Quickshell.iconPath("audio-volume-low");
+                                if (v <= 0.66) return Quickshell.iconPath("audio-volume-medium");
                                 return Quickshell.iconPath("audio-volume-high");
                             }
 

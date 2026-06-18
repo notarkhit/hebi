@@ -80,8 +80,8 @@ Item {
     readonly property string volIconName: {
         if (Services.AudioService.muted || Services.AudioService.volume <= 0)
             return "audio-volume-muted-symbolic"
-        if (Services.AudioService.volume <= 33) return "audio-volume-low-symbolic"
-        if (Services.AudioService.volume <= 66) return "audio-volume-medium-symbolic"
+        if (Services.AudioService.volume <= 0.33) return "audio-volume-low-symbolic"
+        if (Services.AudioService.volume <= 0.66) return "audio-volume-medium-symbolic"
         return "audio-volume-high-symbolic"
     }
 
