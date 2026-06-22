@@ -171,8 +171,22 @@ Scope {
                         }
 
                         Keys.onEscapePressed: { root.launcherVisible = false; text = "" }
-                        Keys.onUpPressed:     listView.decrementCurrentIndex()
-                        Keys.onDownPressed:   listView.incrementCurrentIndex()
+                        // BottomToTop layout: index 0 is at the bottom (best match).
+                        // Visually UP means going to higher indices; DOWN to lower.
+                        Keys.onUpPressed: {
+                            if (listView.count === 0) return
+                            if (listView.currentIndex >= listView.count - 1)
+                                listView.currentIndex = 0
+                            else
+                                listView.incrementCurrentIndex()
+                        }
+                        Keys.onDownPressed: {
+                            if (listView.count === 0) return
+                            if (listView.currentIndex <= 0)
+                                listView.currentIndex = listView.count - 1
+                            else
+                                listView.decrementCurrentIndex()
+                        }
                         Keys.onReturnPressed: {
                             const item = listView.currentItem
                             if (item) {
@@ -222,28 +236,63 @@ Scope {
                     currentIndex: 0
                     onCountChanged: currentIndex = 0
 
+                    // Fuzzy scorer: returns a score >= 0 if the query matches, or -1 if not.
+                    // Higher score = better match. Priorities:
+                    //  1000  exact name match
+                    //   900  name starts with query
+                    //   800  name contains query as substring
+                    //   750  word-initials start with query  (vmm → Virtual Machine Manager)
+                    //   700  word-initials contain query
+                    //   600  sequential fuzzy match in name  (zb → Zen Browser)
+                    //   500  substring match in genericName or comment
+                    //   400  fuzzy match in genericName
+                    function fuzzyScore(app, query) {
+                        const q = query.toLowerCase()
+                        const name = (app.name || "").toLowerCase()
+                        const generic = (app.genericName || "").toLowerCase()
+                        const comment = (app.comment || "").toLowerCase()
+
+                        if (name === q) return 1000
+                        if (name.startsWith(q)) return 900
+                        if (name.includes(q)) return 800
+
+                        // Word-initials match
+                        const initials = name.split(/[\s\-_]+/).map(w => w[0] || "").join("")
+                        if (initials.startsWith(q)) return 750
+                        if (initials.includes(q)) return 700
+
+                        // Sequential fuzzy in name: every char of q must appear in order
+                        let qi = 0
+                        for (let i = 0; i < name.length && qi < q.length; i++)
+                            if (name[i] === q[qi]) qi++
+                        if (qi === q.length) return 600 - Math.min(name.length - q.length, 99)
+
+                        // Substring in genericName / comment
+                        if (generic.includes(q) || comment.includes(q)) return 500
+
+                        // Sequential fuzzy across full string (name + generic)
+                        const combined = name + " " + generic
+                        let qi2 = 0
+                        for (let i = 0; i < combined.length && qi2 < q.length; i++)
+                            if (combined[i] === q[qi2]) qi2++
+                        if (qi2 === q.length) return 400
+
+                        return -1
+                    }
+
                     model: {
-                        const q = searchField.text.toLowerCase().trim()
+                        const q = searchField.text.trim()
                         const all = DesktopEntries.applications.values
                         if (!q)
                             return [...all].sort((a, b) => a.name.localeCompare(b.name))
 
-                        return all.filter(a => {
-                            const n = (a.name || "").toLowerCase()
-                            const g = (a.genericName || "").toLowerCase()
-                            const c = (a.comment || "").toLowerCase()
-                            return n.includes(q) || g.includes(q) || c.includes(q)
-                        }).sort((a, b) => {
-                            const nA = (a.name || "").toLowerCase()
-                            const nB = (b.name || "").toLowerCase()
-                            const aExact = nA === q, bExact = nB === q
-                            if (aExact !== bExact) return aExact ? -1 : 1
-                            const aStart = nA.startsWith(q), bStart = nB.startsWith(q)
-                            if (aStart !== bStart) return aStart ? -1 : 1
-                            const aNameMatch = nA.includes(q), bNameMatch = nB.includes(q)
-                            if (aNameMatch !== bNameMatch) return aNameMatch ? -1 : 1
-                            return a.name.localeCompare(b.name)
-                        })
+                        return all
+                            .map(a => ({ app: a, score: fuzzyScore(a, q) }))
+                            .filter(x => x.score >= 0)
+                            .sort((x, y) => y.score !== x.score
+                                ? y.score - x.score
+                                : x.app.name.localeCompare(y.app.name))
+                            .map(x => x.app)
                     }
 
                     ScrollBar.vertical: ScrollBar {
@@ -261,7 +310,7 @@ Scope {
                         width:  listView.width
                     }
                     highlightFollowsCurrentItem: true
-                    highlightMoveVelocity: 600
+                    highlightMoveDuration: 80
                     highlightResizeDuration: 0
 
                     add: Transition {
