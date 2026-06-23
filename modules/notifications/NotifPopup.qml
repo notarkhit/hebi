@@ -147,7 +147,7 @@ Item {
                         visible: root.actualIconName.length === 0 && overlayImage.status !== Image.Ready
                         text: (root.modelData.appName || "?").charAt(0).toUpperCase()
                         color: root.isCritical ? "#f7768e" : "#7aa2f7"
-                        font.family: "FiraMono Nerd Font"
+                        font.family: "JetBrainsMono Nerd Font"
                         font.pixelSize: 18
                         font.weight: Font.Bold
                     }
@@ -176,7 +176,7 @@ Item {
                         width: parent.width
                         text:  root.modelData.appName
                         color: root.isCritical ? "#ff9e64" : "#565f89"
-                        font.family: "FiraMono Nerd Font"
+                        font.family: "JetBrainsMono Nerd Font"
                         font.pixelSize: 10
                         elide: Text.ElideRight
                     }
@@ -185,7 +185,7 @@ Item {
                         width: parent.width
                         text:  root.modelData.summary
                         color: root.isCritical ? "#f7768e" : "#c0caf5"
-                        font.family: "FiraMono Nerd Font"
+                        font.family: "JetBrainsMono Nerd Font"
                         font.pixelSize: 13
                         font.weight: Font.DemiBold
                         elide: Text.ElideRight
@@ -201,7 +201,7 @@ Item {
                     Text {
                         text:  root.modelData.timeStr
                         color: "#3b4261"
-                        font.family: "FiraMono Nerd Font"
+                        font.family: "JetBrainsMono Nerd Font"
                         font.pixelSize: 9
                         Layout.alignment: Qt.AlignVCenter
                     }
@@ -273,7 +273,7 @@ Item {
                 Layout.leftMargin: 50  // align under summary (40px icon + 10px gap)
                 text:        root.modelData.body
                 color:       root.isCritical ? "#fca7b0" : root.isLow ? "#545c7e" : "#a9b1d6"
-                font.family: "FiraMono Nerd Font"
+                font.family: "JetBrainsMono Nerd Font"
                 font.pixelSize: 11
                 textFormat:  root.bodyFmt
                 wrapMode:    Text.WrapAtWordBoundaryOrAnywhere
@@ -300,7 +300,7 @@ Item {
                     anchors.verticalCenter: parent.verticalCenter
                     text: `${root.progressValue}%`
                     color: root.isCritical ? "#f7768e" : "#7aa2f7"
-                    font.family: "FiraMono Nerd Font"
+                    font.family: "JetBrainsMono Nerd Font"
                     font.pixelSize: 9
                 }
 
@@ -357,7 +357,7 @@ Item {
                             anchors.centerIn: parent
                             text:        modelData.text
                             color:       root.isCritical ? "#f7768e" : "#7aa2f7"
-                            font.family: "FiraMono Nerd Font"
+                            font.family: "JetBrainsMono Nerd Font"
                             font.pixelSize: 11
                         }
 

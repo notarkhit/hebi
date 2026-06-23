@@ -13,7 +13,7 @@ PanelWindow {
 
     required property ShellScreen screen
 
-    readonly property string font: "FiraMono Nerd Font"
+    readonly property string font: "JetBrainsMono Nerd Font"
     readonly property int    barHeight: 32
 
     screen: root.screen

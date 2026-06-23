@@ -12,7 +12,7 @@ Column {
         anchors.horizontalCenter: parent.horizontalCenter
         text: Time.format("h:mm AP")
         color: BarModule.Palette.text
-        font.family: "FiraMono Nerd Font"
+        font.family: "JetBrainsMono Nerd Font"
         font.pixelSize: 12
         font.weight: Font.Medium
     }
@@ -21,7 +21,7 @@ Column {
         anchors.horizontalCenter: parent.horizontalCenter
         text: Time.dateStr
         color: BarModule.Palette.subtext0
-        font.family: "FiraMono Nerd Font"
+        font.family: "JetBrainsMono Nerd Font"
         font.pixelSize: 9
     }
 }
