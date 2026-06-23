@@ -188,21 +188,6 @@ Scope {
                             }
 
                             Text {
-                                text: ""
-                                color: "#565f89"
-                                font.family: overlay.font
-                                font.pixelSize: 14
-                                visible: searchField.text.length === 0
-                                Layout.alignment: Qt.AlignVCenter
-
-                                HoverHandler {
-                                    id: infoHover
-                                }
-                                ToolTip.visible: infoHover.hovered
-                                ToolTip.text: "=calc  ·  :emoji  ·  ::nerdfont"
-                            }
-
-                            Text {
                                 text: ""
                                 color: "#565f89"
                                 font.family: overlay.font
