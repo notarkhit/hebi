@@ -44,7 +44,7 @@ Item {
         Text {
             anchors.centerIn: parent
             text: root.wsId
-            font.family:    "FiraMono Nerd Font"
+            font.family:    "JetBrainsMono Nerd Font"
             font.pixelSize: 9
             font.bold:      root.active
             color: root.active   ? Bar.Palette.base

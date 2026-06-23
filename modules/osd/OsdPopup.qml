@@ -136,7 +136,7 @@ Scope {
                                   ? `${Math.round(root.currentVolume)}%`
                                   : `${Math.round(root.currentBrightness * 100)}%`
                             color: "#c0caf5"
-                            font.family: "FiraMono Nerd Font"
+                            font.family: "JetBrainsMono Nerd Font"
                             font.pixelSize: 14
                             font.weight: Font.Medium
 

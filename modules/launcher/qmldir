@@ -1,3 +1,7 @@
 module hebi.modules.launcher
 
-Launcher   1.0 Launcher.qml
+Launcher         1.0 Launcher.qml
+LauncherApps     1.0 LauncherApps.qml
+LauncherCalc     1.0 LauncherCalc.qml
+LauncherEmoji    1.0 LauncherEmoji.qml
+LauncherNerdfont 1.0 LauncherNerdfont.qml

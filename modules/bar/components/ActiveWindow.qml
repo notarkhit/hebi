@@ -16,7 +16,7 @@ Text {
     text: title
     textFormat: !Hypr.activeToplevel?.title ? Text.StyledText : Text.PlainText
     color: "#c0caf5"
-    font.family: "FiraMono Nerd Font"
+    font.family: "JetBrainsMono Nerd Font"
     font.pixelSize: 12
     elide: Text.ElideRight
     verticalAlignment: Text.AlignVCenter

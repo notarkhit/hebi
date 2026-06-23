@@ -139,7 +139,7 @@ Item {
             Text {
                 text:  `${Math.round(root.batPct * 100)}%`
                 color: root.batLow ? "#f7768e" : "#565f89"
-                font.family:    "FiraMono Nerd Font"
+                font.family:    "JetBrainsMono Nerd Font"
                 font.pixelSize: 10
                 Layout.alignment: Qt.AlignVCenter
 
