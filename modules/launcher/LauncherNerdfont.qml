@@ -103,7 +103,6 @@ ListView {
 
             Text { text: delRoot.modelData.e; color: "#c0caf5"; font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 24; Layout.alignment: Qt.AlignVCenter }
             Text { text: delRoot.modelData.n; color: (nfList.currentIndex === delRoot.index || hoverHandler.hovered) ? "#7aa2f7" : "#c0caf5"; font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 13; elide: Text.ElideRight; Layout.fillWidth: true; Layout.alignment: Qt.AlignVCenter }
-            Text { text: "Type"; color: (nfList.currentIndex === delRoot.index || hoverHandler.hovered) ? "#7aa2f7" : "#3b4261"; font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 11; Layout.alignment: Qt.AlignVCenter }
         }
     }
 }

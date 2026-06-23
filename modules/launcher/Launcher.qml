@@ -130,10 +130,10 @@ Scope {
                                     if (contentItem.mode === "calc")
                                         return "󰃬";
                                     if (contentItem.mode === "nerdfont")
-                                        return "󰡨";
+                                        return "";
                                     if (contentItem.mode === "emoji")
-                                        return "󰞅";
-                                    return "";
+                                        return "";
+                                    return "󱓞";
                                 }
                                 color: "#7aa2f7"
                                 font.family: overlay.font
@@ -157,7 +157,7 @@ Scope {
 
                                 Text {
                                     anchors.fill: parent
-                                    text: "Search apps…  ·  =calc  ·  :emoji  ·  ::nerdfont"
+                                    text: "Search apps..."
                                     color: "#565f89"
                                     font.family: overlay.font
                                     font.pixelSize: 14
@@ -185,6 +185,21 @@ Scope {
                                     if (currentItem && currentItem.handleReturn)
                                         currentItem.handleReturn();
                                 }
+                            }
+
+                            Text {
+                                text: ""
+                                color: "#565f89"
+                                font.family: overlay.font
+                                font.pixelSize: 14
+                                visible: searchField.text.length === 0
+                                Layout.alignment: Qt.AlignVCenter
+
+                                HoverHandler {
+                                    id: infoHover
+                                }
+                                ToolTip.visible: infoHover.hovered
+                                ToolTip.text: "=calc  ·  :emoji  ·  ::nerdfont"
                             }
 
                             Text {
@@ -262,4 +277,3 @@ Scope {
         }
     }
 }
-🇷
