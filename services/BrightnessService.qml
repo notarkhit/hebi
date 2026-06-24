@@ -31,7 +31,7 @@ Singleton {
     }
 
     Timer {
-        interval: 50
+        interval: 250
         running: true
         repeat: true
         onTriggered: {
