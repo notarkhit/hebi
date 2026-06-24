@@ -136,7 +136,7 @@ Scope {
                         // ── value label ────────────────────────────────────────────────
                         Text {
                             text: root.activeOsd === "volume"
-                                  ? `${Math.round(root.currentVolume)}%`
+                                  ? `${Math.round(root.currentVolume * 100)}%`
                                   : `${Math.round(root.currentBrightness * 100)}%`
                             color: "#c0caf5"
                             font.family: "JetBrainsMono Nerd Font"
