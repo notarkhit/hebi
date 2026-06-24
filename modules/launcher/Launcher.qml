@@ -43,7 +43,7 @@ Scope {
 
                 Timer {
                     id: closeTimer
-                    interval: 280
+                    interval: 150
                     onTriggered: root.windowVisible = false
                 }
 
@@ -81,7 +81,6 @@ Scope {
 
                     anchors.horizontalCenter: parent.horizontalCenter
                     anchors.bottom: parent.bottom
-                    anchors.bottomMargin: 12
 
                     property real clipHeight: 0
 
@@ -93,8 +92,9 @@ Scope {
 
                     Behavior on clipHeight {
                         NumberAnimation {
-                            duration: 280
-                            easing.type: Easing.OutCubic
+                            duration: 150
+                            easing.type: Easing.OutBack
+                            easing.overshoot: 1.5
                         }
                     }
 
@@ -106,7 +106,11 @@ Scope {
                         clip: true
 
                         Rectangle {
-                            anchors.fill: parent
+                            anchors.left: parent.left
+                            anchors.right: parent.right
+                            anchors.top: parent.top
+                            anchors.bottom: parent.bottom
+                            anchors.bottomMargin: -12
                             color: "#1a1b26"
                             radius: 12
                             border.color: "#414868"

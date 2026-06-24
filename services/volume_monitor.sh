@@ -1,5 +1,12 @@
 #!/usr/bin/env bash
 
+# Kill any orphaned instances from previous hot-reloads
+for pid in $(pgrep -f "volume_monitor.sh"); do
+    if [ "$pid" != "$$" ] && [ "$pid" != "$PPID" ]; then
+        kill -9 "$pid" 2>/dev/null
+    fi
+done
+
 update_volume() {
     # Run pactl commands in parallel to cut execution time in half
     {

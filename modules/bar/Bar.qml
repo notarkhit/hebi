@@ -14,18 +14,17 @@ PanelWindow {
     required property ShellScreen screen
 
     readonly property string font: "JetBrainsMono Nerd Font"
-    readonly property int    barHeight: 32
+    readonly property int barHeight: 32
 
     screen: root.screen
-    anchors.top:   true
-    anchors.left:  true
+    anchors.top: true
+    anchors.left: true
     anchors.right: true
     implicitHeight: barHeight
-    color: Qt.rgba(0x1a/255, 0x1b/255, 0x26/255, 0.92)
+    color: Qt.rgba(0x1a / 255, 0x1b / 255, 0x26 / 255, 0.92)
 
     WlrLayershell.exclusiveZone: barHeight
     WlrLayershell.layer: WlrLayer.Top
-
 
     // ── center clock ─────────────────────────────────────────────────────────
     Clock {
@@ -35,25 +34,28 @@ PanelWindow {
 
     // ── left side ────────────────────────────────────────────────────────────
     RowLayout {
-        anchors.left:         parent.left
-        anchors.right:        centerClock.left
-        anchors.top:          parent.top
-        anchors.bottom:       parent.bottom
-        anchors.leftMargin:   12
-        anchors.rightMargin:  12
+        anchors.left: parent.left
+        anchors.right: centerClock.left
+        anchors.top: parent.top
+        anchors.bottom: parent.bottom
+        anchors.leftMargin: 12
+        anchors.rightMargin: 12
         spacing: 12
 
         // Logo
         Text {
-            text: "" 
+            text: ""
             color: "#7aa2f7"
             font.family: root.font
-            font.pixelSize: 20
+            font.pixelSize: 16
 
             opacity: 0
             NumberAnimation on opacity {
-                from: 0; to: 1; duration: 600
-                easing.type: Easing.OutCubic; running: true
+                from: 0
+                to: 1
+                duration: 600
+                easing.type: Easing.OutCubic
+                running: true
             }
         }
 
@@ -64,17 +66,17 @@ PanelWindow {
 
         // Active window title
         ActiveWindow {
-            Layout.fillWidth:  true
-            Layout.alignment:  Qt.AlignVCenter
+            Layout.fillWidth: true
+            Layout.alignment: Qt.AlignVCenter
         }
     }
 
     // ── right side ───────────────────────────────────────────────────────────
     RowLayout {
-        anchors.right:        parent.right
-        anchors.top:          parent.top
-        anchors.bottom:       parent.bottom
-        anchors.rightMargin:  12
+        anchors.right: parent.right
+        anchors.top: parent.top
+        anchors.bottom: parent.bottom
+        anchors.rightMargin: 12
         spacing: 12
 
         // System info: network · volume · battery
