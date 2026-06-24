@@ -50,7 +50,10 @@ Scope {
         target: "osd"
         function showBrightness(val: string) {
             let percent = parseFloat(val);
-            if (!isNaN(percent)) BrightnessService.setBrightness(percent / 100);
+            if (!isNaN(percent)) {
+                const monitor = BrightnessService.getMonitor("active");
+                if (monitor) monitor.brightness = percent / 100;
+            }
             root.activeOsd = "brightness";
             root.osdVisible = true;
             hideTimer.restart();

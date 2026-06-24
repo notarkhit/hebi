@@ -171,19 +171,19 @@ Scope {
                                 }
 
                                 Keys.onUpPressed: {
-                                    const currentItem = stack.children[stack.currentIndex];
-                                    if (currentItem && currentItem.handleUp)
-                                        currentItem.handleUp();
+                                    const activeView = stack.activeView;
+                                    if (activeView && activeView.handleUp)
+                                        activeView.handleUp();
                                 }
                                 Keys.onDownPressed: {
-                                    const currentItem = stack.children[stack.currentIndex];
-                                    if (currentItem && currentItem.handleDown)
-                                        currentItem.handleDown();
+                                    const activeView = stack.activeView;
+                                    if (activeView && activeView.handleDown)
+                                        activeView.handleDown();
                                 }
                                 Keys.onReturnPressed: {
-                                    const currentItem = stack.children[stack.currentIndex];
-                                    if (currentItem && currentItem.handleReturn)
-                                        currentItem.handleReturn();
+                                    const activeView = stack.activeView;
+                                    if (activeView && activeView.handleReturn)
+                                        activeView.handleReturn();
                                 }
                             }
 
@@ -214,7 +214,7 @@ Scope {
                             return "apps";
                         }
 
-                        StackLayout {
+                        Item {
                             id: stack
                             anchors.left: parent.left
                             anchors.right: parent.right
@@ -223,35 +223,48 @@ Scope {
                             anchors.leftMargin: 6
                             anchors.rightMargin: 6
 
-                            implicitHeight: currentItem ? currentItem.implicitHeight : 0
-
-                            currentIndex: {
-                                if (contentItem.mode === "calc")
-                                    return 1;
-                                if (contentItem.mode === "emoji")
-                                    return 2;
-                                if (contentItem.mode === "nerdfont")
-                                    return 3;
-                                return 0;
+                            readonly property var activeView: {
+                                if (contentItem.mode === "calc")      return calcView;
+                                if (contentItem.mode === "emoji")     return emojiView;
+                                if (contentItem.mode === "nerdfont")  return nerdfontView;
+                                return appsView;
                             }
+
+                            implicitHeight: activeView ? activeView.implicitHeight : 0
 
                             LauncherApps {
                                 id: appsView
+                                anchors.left: parent.left
+                                anchors.right: parent.right
+                                anchors.bottom: parent.bottom
+                                visible: contentItem.mode === "apps"
                                 query: contentItem.mode === "apps" ? searchField.text.trim() : ""
                                 onAction: root.launcherVisible = false
                             }
                             LauncherCalc {
                                 id: calcView
+                                anchors.left: parent.left
+                                anchors.right: parent.right
+                                anchors.bottom: parent.bottom
+                                visible: contentItem.mode === "calc"
                                 expr: contentItem.mode === "calc" ? searchField.text.slice(1).trim() : ""
                                 onAction: root.launcherVisible = false
                             }
                             LauncherEmoji {
                                 id: emojiView
+                                anchors.left: parent.left
+                                anchors.right: parent.right
+                                anchors.bottom: parent.bottom
+                                visible: contentItem.mode === "emoji"
                                 query: contentItem.mode === "emoji" ? searchField.text.slice(1).toLowerCase().trim() : ""
                                 onAction: root.launcherVisible = false
                             }
                             LauncherNerdfont {
                                 id: nerdfontView
+                                anchors.left: parent.left
+                                anchors.right: parent.right
+                                anchors.bottom: parent.bottom
+                                visible: contentItem.mode === "nerdfont"
                                 query: contentItem.mode === "nerdfont" ? searchField.text.slice(2).toLowerCase().trim() : ""
                                 onAction: root.launcherVisible = false
                             }
