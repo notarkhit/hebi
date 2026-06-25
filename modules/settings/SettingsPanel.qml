@@ -37,7 +37,9 @@ PanelWindow {
     WlrLayershell.layer:        WlrLayer.Overlay
     WlrLayershell.keyboardFocus: WlrKeyboardFocus.None
     // Only grab input when visible
-    mask: panelVisible ? null : Region {}
+    mask: panelVisible ? null : emptyRegion
+
+    Region { id: emptyRegion }
 
     // ── network state ─────────────────────────────────────────────────────────
     property bool   wifiEnabled:  true
