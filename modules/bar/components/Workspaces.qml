@@ -21,11 +21,11 @@ Row {
 
     WheelHandler {
         acceptedDevices: PointerDevice.Mouse | PointerDevice.TouchPad
-        onWheel: (event) => {
+        onWheel: event => {
             if (event.angleDelta.y > 0)
-                Hypr.dispatch("workspace -1")
+                Hypr.dispatch("workspace -1");
             else
-                Hypr.dispatch("workspace +1")
+                Hypr.dispatch("workspace +1");
         }
     }
 }

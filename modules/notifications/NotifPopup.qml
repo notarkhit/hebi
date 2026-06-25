@@ -16,10 +16,9 @@ Item {
 
     // ── convenience aliases ───────────────────────────────────────────────────
     readonly property bool isCritical: modelData.urgency === NotificationUrgency.Critical
-    readonly property bool isLow:      modelData.urgency === NotificationUrgency.Low
+    readonly property bool isLow: modelData.urgency === NotificationUrgency.Low
     readonly property bool hasActions: modelData.actions.length > 0
-    readonly property int  bodyFmt:    /[<*_`#\[\]]/.test(modelData.body)
-                                            ? Text.MarkdownText : Text.PlainText
+    readonly property int bodyFmt: /[<*_`#\[\]]/.test(modelData.body) ? Text.MarkdownText : Text.PlainText
 
     // Progress value from hints: notify-send -h int:value:75
     readonly property int progressValue: {
@@ -36,37 +35,60 @@ Item {
 
     // Smart resolvers for when apps use the wrong DBus fields
     readonly property string actualIconName: {
-        if (modelData.appIcon.length > 0) return modelData.appIcon;
-        if (modelData.image.length > 0 && !modelData.image.startsWith("/") && !modelData.image.includes("://")) return modelData.image;
+        if (modelData.appIcon.length > 0)
+            return modelData.appIcon;
+        if (modelData.image.length > 0 && !modelData.image.startsWith("/") && !modelData.image.includes("://"))
+            return modelData.image;
         return "";
     }
 
     readonly property string actualImageUrl: {
-        if (modelData.image.length > 0 && (modelData.image.startsWith("/") || modelData.image.includes("://"))) return modelData.image;
+        if (modelData.image.length > 0 && (modelData.image.startsWith("/") || modelData.image.includes("://")))
+            return modelData.image;
         return "";
     }
 
     readonly property bool hasImage: actualImageUrl.length > 0
-    readonly property bool hasIcon:  actualIconName.length > 0 || hasImage
+    readonly property bool hasIcon: actualIconName.length > 0 || hasImage
 
     // ── sizing ────────────────────────────────────────────────────────────────
-    implicitWidth:  card.implicitWidth
+    implicitWidth: card.implicitWidth
     implicitHeight: card.implicitHeight
 
     // ── slide-in on appear ────────────────────────────────────────────────────
     Component.onCompleted: {
-        slideIn.start()
-        modelData.lock(root)
+        slideIn.start();
+        modelData.lock(root);
     }
     Component.onDestruction: modelData.unlock(root)
 
     SequentialAnimation {
         id: slideIn
-        PropertyAction  { target: card; property: "x"; value: slideFrom === "right" ? card.width + 20 : -(card.width + 20) }
-        PropertyAction  { target: card; property: "opacity"; value: 0 }
+        PropertyAction {
+            target: card
+            property: "x"
+            value: slideFrom === "right" ? card.width + 20 : -(card.width + 20)
+        }
+        PropertyAction {
+            target: card
+            property: "opacity"
+            value: 0
+        }
         ParallelAnimation {
-            NumberAnimation { target: card; property: "x";       to: 0; duration: 280; easing.type: Easing.OutQuint }
-            NumberAnimation { target: card; property: "opacity"; to: 1; duration: 180; easing.type: Easing.OutCubic }
+            NumberAnimation {
+                target: card
+                property: "x"
+                to: 0
+                duration: 280
+                easing.type: Easing.OutQuint
+            }
+            NumberAnimation {
+                target: card
+                property: "opacity"
+                to: 1
+                duration: 180
+                easing.type: Easing.OutCubic
+            }
         }
     }
 
@@ -74,7 +96,7 @@ Item {
     Rectangle {
         id: card
 
-        implicitWidth:  380
+        implicitWidth: 380
         implicitHeight: inner.implicitHeight + 20
 
         radius: 14
@@ -85,10 +107,16 @@ Item {
         // Snap-back behavior after swipe drag
         Behavior on x {
             enabled: !drag.drag.active
-            NumberAnimation { duration: 300; easing.type: Easing.OutElastic; easing.amplitude: 0.8 }
+            NumberAnimation {
+                duration: 300
+                easing.type: Easing.OutElastic
+                easing.amplitude: 0.8
+            }
         }
         Behavior on opacity {
-            NumberAnimation { duration: 150 }
+            NumberAnimation {
+                duration: 150
+            }
         }
 
         // ── drag-to-dismiss area — declared FIRST so content layers above it ──
@@ -100,40 +128,45 @@ Item {
             // Do NOT set preventStealing=true — we need child MouseAreas to win
             acceptedButtons: Qt.LeftButton | Qt.MiddleButton
 
-            drag.target:   card
-            drag.axis:     Drag.XAxis
+            drag.target: card
+            drag.axis: Drag.XAxis
             drag.minimumX: -(card.implicitWidth * 2)
-            drag.maximumX:  card.implicitWidth * 2
+            drag.maximumX: card.implicitWidth * 2
 
             cursorShape: pressed ? Qt.ClosedHandCursor : Qt.ArrowCursor
 
             onEntered: root.modelData.pauseTimer()
-            onExited:  { if (!pressed) root.modelData.resumeTimer() }
+            onExited: {
+                if (!pressed)
+                    root.modelData.resumeTimer();
+            }
 
             onPressed: event => {
-                root.modelData.pauseTimer()
-                if (event.button === Qt.MiddleButton) root.modelData.dismiss()
+                root.modelData.pauseTimer();
+                if (event.button === Qt.MiddleButton)
+                    root.modelData.dismiss();
             }
 
             onReleased: {
-                const threshold = card.implicitWidth * 0.35
+                const threshold = card.implicitWidth * 0.35;
                 if (Math.abs(card.x) >= threshold) {
-                    root.modelData.dismiss()
+                    root.modelData.dismiss();
                 } else {
-                    card.x = 0  // snap back via Behavior
-                    if (!containsMouse) root.modelData.resumeTimer()
+                    card.x = 0;  // snap back via Behavior
+                    if (!containsMouse)
+                        root.modelData.resumeTimer();
                 }
             }
         }
 
         // Left urgency accent bar — above drag area
         Rectangle {
-            anchors.left:   parent.left
-            anchors.top:    parent.top
+            anchors.left: parent.left
+            anchors.top: parent.top
             anchors.bottom: parent.bottom
-            anchors.topMargin:    parent.radius
+            anchors.topMargin: parent.radius
             anchors.bottomMargin: parent.radius
-            width:  3
+            width: 3
             radius: 2
             visible: !root.isLow
             color: root.isCritical ? "#f7768e" : "#7aa2f7"
@@ -143,9 +176,9 @@ Item {
         ColumnLayout {
             id: inner
 
-            anchors.left:    parent.left
-            anchors.right:   parent.right
-            anchors.top:     parent.top
+            anchors.left: parent.left
+            anchors.right: parent.right
+            anchors.top: parent.top
             anchors.margins: 14
             anchors.leftMargin: 18 // account for accent bar
             spacing: 6
@@ -158,20 +191,17 @@ Item {
                 // App icon / image
                 Item {
                     id: iconBox
-                    implicitWidth:  40
+                    implicitWidth: 40
                     implicitHeight: 40
 
                     Image {
                         id: baseIcon
                         anchors.centerIn: parent
-                        width: 32; height: 32
+                        width: 32
+                        height: 32
                         sourceSize: Qt.size(32, 32)
                         visible: root.actualIconName.length > 0 && overlayImage.status !== Image.Ready
-                        source: root.actualIconName.length > 0
-                                ? (root.actualIconName.startsWith("/") || root.actualIconName.includes("://")
-                                    ? Qt.resolvedUrl(root.actualIconName)
-                                    : Quickshell.iconPath(root.actualIconName))
-                                : ""
+                        source: root.actualIconName.length > 0 ? (root.actualIconName.startsWith("/") || root.actualIconName.includes("://") ? Qt.resolvedUrl(root.actualIconName) : Quickshell.iconPath(root.actualIconName)) : ""
                         asynchronous: true
                         fillMode: Image.PreserveAspectFit
                     }
@@ -207,7 +237,7 @@ Item {
 
                     Text {
                         width: parent.width
-                        text:  root.modelData.appName
+                        text: root.modelData.appName
                         color: root.isCritical ? "#ff9e64" : "#565f89"
                         font.family: "JetBrainsMono Nerd Font"
                         font.pixelSize: 10
@@ -216,7 +246,7 @@ Item {
 
                     Text {
                         width: parent.width
-                        text:  root.modelData.summary
+                        text: root.modelData.summary
                         color: root.isCritical ? "#f7768e" : "#c0caf5"
                         font.family: "JetBrainsMono Nerd Font"
                         font.pixelSize: 13
@@ -232,7 +262,7 @@ Item {
 
                     // Elapsed time
                     Text {
-                        text:  root.modelData.timeStr
+                        text: root.modelData.timeStr
                         color: "#3b4261"
                         font.family: "JetBrainsMono Nerd Font"
                         font.pixelSize: 9
@@ -243,12 +273,17 @@ Item {
                     Rectangle {
                         id: expandBtn
                         visible: root.modelData.body.length > 0
-                        implicitWidth: 20; implicitHeight: 20
+                        implicitWidth: 20
+                        implicitHeight: 20
                         radius: 4
                         color: expandHover.containsMouse ? "#3b426166" : "transparent"
                         Layout.alignment: Qt.AlignVCenter
 
-                        Behavior on color { ColorAnimation { duration: 80 } }
+                        Behavior on color {
+                            ColorAnimation {
+                                duration: 80
+                            }
+                        }
 
                         Text {
                             anchors.centerIn: parent
@@ -256,7 +291,11 @@ Item {
                             color: expandHover.containsMouse ? "#c0caf5" : "#565f89"
                             font.pixelSize: 8
 
-                            Behavior on color { ColorAnimation { duration: 80 } }
+                            Behavior on color {
+                                ColorAnimation {
+                                    duration: 80
+                                }
+                            }
                         }
 
                         MouseArea {
@@ -270,28 +309,37 @@ Item {
 
                     // Close button
                     Rectangle {
-                        implicitWidth: 20; implicitHeight: 20
+                        implicitWidth: 20
+                        implicitHeight: 20
                         radius: 4
                         color: closeHover.containsMouse ? "#f7768e22" : "transparent"
                         Layout.alignment: Qt.AlignVCenter
 
-                        Behavior on color { ColorAnimation { duration: 80 } }
+                        Behavior on color {
+                            ColorAnimation {
+                                duration: 80
+                            }
+                        }
 
                         Text {
                             anchors.centerIn: parent
-                            text:  "×"
+                            text: "×"
                             color: closeHover.containsMouse ? "#f7768e" : "#565f89"
                             font.pixelSize: 16
                             topPadding: -1
 
-                            Behavior on color { ColorAnimation { duration: 80 } }
+                            Behavior on color {
+                                ColorAnimation {
+                                    duration: 80
+                                }
+                            }
                         }
 
                         MouseArea {
                             id: closeHover
                             anchors.fill: parent
                             hoverEnabled: true
-                            cursorShape:  Qt.PointingHandCursor
+                            cursorShape: Qt.PointingHandCursor
                             onClicked: root.modelData.dismiss()
                         }
                     }
@@ -304,16 +352,16 @@ Item {
                 visible: root.modelData.body.length > 0
                 Layout.fillWidth: true
                 Layout.leftMargin: 50  // align under summary (40px icon + 10px gap)
-                text:        root.modelData.body
-                color:       root.isCritical ? "#fca7b0" : root.isLow ? "#545c7e" : "#a9b1d6"
+                text: root.modelData.body
+                color: root.isCritical ? "#fca7b0" : root.isLow ? "#545c7e" : "#a9b1d6"
                 font.family: "JetBrainsMono Nerd Font"
                 font.pixelSize: 11
-                textFormat:  root.bodyFmt
-                wrapMode:    Text.WrapAtWordBoundaryOrAnywhere
+                textFormat: root.bodyFmt
+                wrapMode: Text.WrapAtWordBoundaryOrAnywhere
                 maximumLineCount: root.expanded ? 20 : 2
-                elide:       root.expanded ? Text.ElideNone : Text.ElideRight
+                elide: root.expanded ? Text.ElideNone : Text.ElideRight
 
-                Behavior on maximumLineCount { }
+                Behavior on maximumLineCount {}
 
                 onLinkActivated: link => Quickshell.execDetached(["xdg-open", link])
             }
@@ -354,7 +402,10 @@ Item {
                         color: root.isCritical ? "#f7768e" : "#7aa2f7"
 
                         Behavior on width {
-                            NumberAnimation { duration: 300; easing.type: Easing.OutCubic }
+                            NumberAnimation {
+                                duration: 300
+                                easing.type: Easing.OutCubic
+                            }
                         }
                     }
                 }
@@ -374,21 +425,23 @@ Item {
                         required property var modelData
 
                         implicitHeight: 26
-                        implicitWidth:  Math.max(64, btnText.implicitWidth + 20)
+                        implicitWidth: Math.max(64, btnText.implicitWidth + 20)
                         radius: 6
-                        color:  btnHover.containsMouse
-                                    ? (root.isCritical ? "#f7768e22" : "#7aa2f722")
-                                    : (root.isCritical ? "#f7768e0d" : "#7aa2f70d")
+                        color: btnHover.containsMouse ? (root.isCritical ? "#f7768e22" : "#7aa2f722") : (root.isCritical ? "#f7768e0d" : "#7aa2f70d")
                         border.color: root.isCritical ? "#f7768e55" : "#7aa2f755"
                         border.width: 1
 
-                        Behavior on color { ColorAnimation { duration: 80 } }
+                        Behavior on color {
+                            ColorAnimation {
+                                duration: 80
+                            }
+                        }
 
                         Text {
                             id: btnText
                             anchors.centerIn: parent
-                            text:        modelData.text
-                            color:       root.isCritical ? "#f7768e" : "#7aa2f7"
+                            text: modelData.text
+                            color: root.isCritical ? "#f7768e" : "#7aa2f7"
                             font.family: "JetBrainsMono Nerd Font"
                             font.pixelSize: 11
                         }
@@ -398,10 +451,10 @@ Item {
                             id: btnHover
                             anchors.fill: parent
                             hoverEnabled: true
-                            cursorShape:  Qt.PointingHandCursor
+                            cursorShape: Qt.PointingHandCursor
                             onClicked: {
-                                modelData.invoke()
-                                root.modelData.dismiss()
+                                modelData.invoke();
+                                root.modelData.dismiss();
                             }
                         }
                     }
@@ -409,7 +462,9 @@ Item {
             }
 
             // Bottom breathing room
-            Item { implicitHeight: 2 }
+            Item {
+                implicitHeight: 2
+            }
         }
     }
 }
