@@ -31,8 +31,8 @@ Item {
     // Slide-in direction: "right" (default) or "left"
     property string slideFrom: "right"
 
-    // Expand/collapse state - collapses body preview when not expanded
-    property bool expanded: false
+    // Expand/collapse state - auto-expand when there are action buttons
+    property bool expanded: hasActions
 
     // Smart resolvers for when apps use the wrong DBus fields
     readonly property string actualIconName: {
@@ -82,7 +82,51 @@ Item {
         border.color: root.isCritical ? "#f7768e" : root.isLow ? "#24283b" : "#3b4261"
         border.width: root.isCritical ? 1.5 : 1
 
-        // Left urgency accent bar
+        // Snap-back behavior after swipe drag
+        Behavior on x {
+            enabled: !drag.drag.active
+            NumberAnimation { duration: 300; easing.type: Easing.OutElastic; easing.amplitude: 0.8 }
+        }
+        Behavior on opacity {
+            NumberAnimation { duration: 150 }
+        }
+
+        // ── drag-to-dismiss area — declared FIRST so content layers above it ──
+        MouseArea {
+            id: drag
+
+            anchors.fill: parent
+            hoverEnabled: true
+            // Do NOT set preventStealing=true — we need child MouseAreas to win
+            acceptedButtons: Qt.LeftButton | Qt.MiddleButton
+
+            drag.target:   card
+            drag.axis:     Drag.XAxis
+            drag.minimumX: -(card.implicitWidth * 2)
+            drag.maximumX:  card.implicitWidth * 2
+
+            cursorShape: pressed ? Qt.ClosedHandCursor : Qt.ArrowCursor
+
+            onEntered: root.modelData.pauseTimer()
+            onExited:  { if (!pressed) root.modelData.resumeTimer() }
+
+            onPressed: event => {
+                root.modelData.pauseTimer()
+                if (event.button === Qt.MiddleButton) root.modelData.dismiss()
+            }
+
+            onReleased: {
+                const threshold = card.implicitWidth * 0.35
+                if (Math.abs(card.x) >= threshold) {
+                    root.modelData.dismiss()
+                } else {
+                    card.x = 0  // snap back via Behavior
+                    if (!containsMouse) root.modelData.resumeTimer()
+                }
+            }
+        }
+
+        // Left urgency accent bar — above drag area
         Rectangle {
             anchors.left:   parent.left
             anchors.top:    parent.top
@@ -95,16 +139,7 @@ Item {
             color: root.isCritical ? "#f7768e" : "#7aa2f7"
         }
 
-        // Snap-back behavior after swipe drag
-        Behavior on x {
-            enabled: !drag.drag.active
-            NumberAnimation { duration: 300; easing.type: Easing.OutElastic; easing.amplitude: 0.8 }
-        }
-        Behavior on opacity {
-            NumberAnimation { duration: 150 }
-        }
-
-        // ── contents ──────────────────────────────────────────────────────────
+        // ── contents — declared after drag so they are painted on top ──────────
         ColumnLayout {
             id: inner
 
@@ -163,8 +198,6 @@ Item {
                         layer.enabled: true
                         layer.effect: null
                     }
-
-
                 }
 
                 // Text column: app name + summary
@@ -285,8 +318,7 @@ Item {
                 onLinkActivated: link => Quickshell.execDetached(["xdg-open", link])
             }
 
-            // Progress bar (linear) — shown when hints.value present and not using ring
-            // Show as a supplementary bar under the body
+            // Progress bar (linear) — shown when hints.value present
             Item {
                 visible: root.hasProgress
                 Layout.fillWidth: true
@@ -330,7 +362,7 @@ Item {
 
             // Action buttons
             Flow {
-                visible: root.hasActions
+                visible: root.hasActions && root.expanded
                 Layout.fillWidth: true
                 Layout.leftMargin: 50
                 spacing: 6
@@ -361,6 +393,7 @@ Item {
                             font.pixelSize: 11
                         }
 
+                        // Button MouseArea — wins because it is painted above drag
                         MouseArea {
                             id: btnHover
                             anchors.fill: parent
@@ -377,41 +410,6 @@ Item {
 
             // Bottom breathing room
             Item { implicitHeight: 2 }
-        }
-    }
-
-    // ── hover + swipe-to-dismiss ──────────────────────────────────────────────
-    MouseArea {
-        id: drag
-
-        anchors.fill: card
-        hoverEnabled: true
-        preventStealing: true
-        acceptedButtons: Qt.LeftButton | Qt.MiddleButton
-
-        drag.target:   card
-        drag.axis:     Drag.XAxis
-        drag.minimumX: -(card.implicitWidth * 2)
-        drag.maximumX:  card.implicitWidth * 2
-
-        cursorShape: pressed ? Qt.ClosedHandCursor : Qt.ArrowCursor
-
-        onEntered: root.modelData.pauseTimer()
-        onExited:  { if (!pressed) root.modelData.resumeTimer() }
-
-        onPressed: event => {
-            root.modelData.pauseTimer()
-            if (event.button === Qt.MiddleButton) root.modelData.dismiss()
-        }
-
-        onReleased: {
-            const threshold = card.implicitWidth * 0.35
-            if (Math.abs(card.x) >= threshold) {
-                root.modelData.dismiss()
-            } else {
-                card.x = 0  // snap back via Behavior
-                if (!containsMouse) root.modelData.resumeTimer()
-            }
         }
     }
 }

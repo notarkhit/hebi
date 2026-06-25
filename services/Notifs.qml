@@ -14,10 +14,39 @@ Singleton {
     // Active popup list — only visible popups; reassigned triggers ListView update
     property var popups: []
     property bool dnd: false
+    property bool loaded: false
+
+    // ── save path ─────────────────────────────────────────────────────────────
+    readonly property string savePath: Qt.resolvedUrl(`file://${Quickshell.env("HOME")}/.local/state/hebi/notifs.json`)
 
     // ── helpers ───────────────────────────────────────────────────────────────
     function removePopup(notif: NotifData): void {
         root.popups = root.popups.filter(n => n !== notif);
+    }
+
+    // Debounced save — fires 1s after last change to avoid thrashing
+    Timer {
+        id: saveTimer
+        interval: 1000
+        onTriggered: {
+            const entries = root.popups.map(n => ({
+                id:            n.id,
+                summary:       n.summary,
+                body:          n.body,
+                appName:       n.appName,
+                appIcon:       n.appIcon,
+                image:         n.image,
+                urgency:       n.urgency,
+                expireTimeout: n.expireTimeout,
+                resident:      n.resident,
+                time:          n.time.getTime()
+            }));
+            storage.setText(JSON.stringify(entries));
+        }
+    }
+
+    function _triggerSave(): void {
+        if (root.loaded) saveTimer.restart();
     }
 
     // ── IPC ───────────────────────────────────────────────────────────────────
@@ -49,14 +78,12 @@ Singleton {
         onNotification: notif => {
             notif.tracked = true;
 
-            // 1. DBus replaces_id: the server assigns the same `notif.id` as
-            //    what the client passed via -r, so we look for an existing popup
-            //    whose *tracked* id matches. Quickshell guarantees that when
-            //    replaces_id > 0 the server reuses that same integer as the new
-            //    notification's id.
+            // 1. DBus replaces_id: Quickshell reuses the same integer id,
+            //    so find any existing popup whose id matches.
             for (const existing of root.popups) {
                 if (existing.id != 0 && existing.id == notif.id) {
                     existing.updateFrom(notif);
+                    root._triggerSave();
                     return;
                 }
             }
@@ -68,6 +95,7 @@ Singleton {
                     let extTag = (existing.hints && existing.hints["x-dunst-stack-tag"]) ? existing.hints["x-dunst-stack-tag"] : "";
                     if (extTag === stackTag) {
                         existing.updateFrom(notif);
+                        root._triggerSave();
                         return;
                     }
                 }
@@ -78,6 +106,7 @@ Singleton {
                 for (const existing of root.popups) {
                     if (existing.appName === notif.appName && existing.summary === notif.summary) {
                         existing.updateFrom(notif);
+                        root._triggerSave();
                         return;
                     }
                 }
@@ -89,8 +118,54 @@ Singleton {
                 popup: !root.dnd
             });
             root.popups = [data, ...root.popups];
+            root._triggerSave();
         }
     }
+
+    // ── persistent storage ────────────────────────────────────────────────────
+    FileView {
+        id: storage
+        path: root.savePath
+        printErrors: false
+
+        onLoaded: {
+            try {
+                const entries = JSON.parse(text());
+                const restored = [];
+                for (const e of entries) {
+                    const obj = notifComp.createObject(root, {
+                        popup:         false,   // restored notifs don't re-popup
+                        id:            e.id            ?? 0,
+                        summary:       e.summary       ?? "",
+                        body:          e.body          ?? "",
+                        appName:       e.appName       ?? "",
+                        appIcon:       e.appIcon       ?? "",
+                        image:         e.image         ?? "",
+                        urgency:       e.urgency       ?? 1,
+                        expireTimeout: e.expireTimeout ?? 5000,
+                        resident:      e.resident      ?? false,
+                        time:          new Date(e.time ?? Date.now())
+                    });
+                    restored.push(obj);
+                }
+                // Append restored (already newest-first from previous save)
+                root.popups = [...root.popups, ...restored];
+            } catch (err) {
+                // Corrupt or empty file — start fresh
+                storage.setText("[]");
+            }
+            root.loaded = true;
+        }
+
+        onLoadFailed: err => {
+            if (err === FileViewError.FileNotFound)
+                storage.setText("[]");
+            root.loaded = true;
+        }
+    }
+
+    // Watch popups changes and trigger a save
+    onPopupsChanged: root._triggerSave()
 
     Component {
         id: notifComp
