@@ -26,8 +26,8 @@ PanelWindow {
 
     // ── window setup ──────────────────────────────────────────────────────────
     anchors.right:  true
-    anchors.bottom: true
-    anchors.top:    false
+    anchors.bottom: false
+    anchors.top:    true
     anchors.left:   false
 
     implicitWidth:  360
@@ -109,8 +109,8 @@ PanelWindow {
 
         anchors.right:        parent.right
         anchors.rightMargin:  12
-        anchors.bottom:       parent.bottom
-        anchors.bottomMargin: 12
+        anchors.top:          parent.top
+        anchors.topMargin:    12
 
         implicitWidth:  336
         implicitHeight: col.implicitHeight + 28
@@ -122,8 +122,8 @@ PanelWindow {
 
         layer.enabled: true
 
-        // Slide up + fade animation
-        property real slideY: root.panelVisible ? 0 : 20
+        // Slide down + fade animation
+        property real slideY: root.panelVisible ? 0 : -20
         transform: Translate { y: content.slideY }
         Behavior on slideY { NumberAnimation { duration: 220; easing.type: Easing.OutCubic } }
 
