@@ -9,8 +9,11 @@ import "../../../services" as Services
 
 // System status pill: battery · network · volume
 // Sits on the right side of the bar, before the clock.
+// Click to open the settings panel.
 Item {
     id: root
+
+    signal clicked()
 
     implicitWidth:  row.implicitWidth + 20
     implicitHeight: row.implicitHeight
@@ -146,5 +149,12 @@ Item {
                 Behavior on color { ColorAnimation { duration: 200 } }
             }
         }
+    }
+
+    // Click anywhere on the pill to toggle settings
+    MouseArea {
+        anchors.fill: parent
+        cursorShape:  Qt.PointingHandCursor
+        onClicked:    root.clicked()
     }
 }

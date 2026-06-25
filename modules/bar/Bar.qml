@@ -82,6 +82,7 @@ PanelWindow {
         // System info: network · volume · battery
         SysInfo {
             Layout.alignment: Qt.AlignVCenter
+            onClicked: Quickshell.execDetached(["qs", "ipc", "-p", "/home/notarkhit/.config/hebi", "call", "settings", "toggle"])
         }
     }
 }

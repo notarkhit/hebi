@@ -5,6 +5,7 @@ import "modules/bar"
 import "modules/launcher"
 import "modules/notifications"
 import "modules/osd"
+import "modules/settings"
 import "services"
 import Quickshell
 
@@ -24,4 +25,9 @@ ShellRoot {
 
     // ── osd ──────────────────────────────────────────────────────────────────
     OsdPopup {}
+
+    // ── settings panel ───────────────────────────────────────────────────────
+    SettingsPanel {
+        id: settingsPanel
+    }
 }
