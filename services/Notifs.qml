@@ -17,7 +17,7 @@ Singleton {
 
     // ── helpers ───────────────────────────────────────────────────────────────
     function removePopup(notif: NotifData): void {
-        root.popups = root.popups.filter(n => n !== notif)
+        root.popups = root.popups.filter(n => n !== notif);
     }
 
     // ── IPC ───────────────────────────────────────────────────────────────────
@@ -26,14 +26,14 @@ Singleton {
 
         function clear(): void {
             for (const n of root.popups.slice())
-                n.dismiss()
+                n.dismiss();
         }
 
-        function toggleDnd(): void { root.dnd = !root.dnd }
-        function enableDnd(): void  { root.dnd = true       }
-        function disableDnd(): void { root.dnd = false      }
+        function toggleDnd(): void { root.dnd = !root.dnd; }
+        function enableDnd(): void  { root.dnd = true;      }
+        function disableDnd(): void { root.dnd = false;     }
 
-        function isDndEnabled(): bool { return root.dnd }
+        function isDndEnabled(): bool { return root.dnd; }
     }
 
     // ── DBus notification server ───────────────────────────────────────────────
@@ -47,34 +47,48 @@ Singleton {
         persistenceSupported: true
 
         onNotification: notif => {
-            notif.tracked = true
+            notif.tracked = true;
 
-            // Deduplicate spammy notifications (like Volume/Brightness sliders in scripts)
-            // Update them inline to avoid ListView add/remove animations
-            let isSpammy = (notif.appName === "Volume" || notif.appName === "Brightness");
-            let isDefaultApp = (notif.appName === "dunstify" || notif.appName === "notify-send");
+            // 1. DBus replaces_id: the server assigns the same `notif.id` as
+            //    what the client passed via -r, so we look for an existing popup
+            //    whose *tracked* id matches. Quickshell guarantees that when
+            //    replaces_id > 0 the server reuses that same integer as the new
+            //    notification's id.
+            for (const existing of root.popups) {
+                if (existing.id != 0 && existing.id == notif.id) {
+                    existing.updateFrom(notif);
+                    return;
+                }
+            }
 
-            if (isSpammy || isDefaultApp) {
+            // 2. Dunst stack-tag (x-dunst-stack-tag hint)
+            let stackTag = (notif.hints && notif.hints["x-dunst-stack-tag"]) ? notif.hints["x-dunst-stack-tag"] : "";
+            if (stackTag !== "") {
                 for (const existing of root.popups) {
-                    if (existing.appName === notif.appName) {
-                        // For default apps, ensure the summary prefixes match before replacing
-                        if (isDefaultApp && !existing.summary.startsWith((notif.summary || "").split(":")[0])) {
-                            continue;
-                        }
-                        
+                    let extTag = (existing.hints && existing.hints["x-dunst-stack-tag"]) ? existing.hints["x-dunst-stack-tag"] : "";
+                    if (extTag === stackTag) {
                         existing.updateFrom(notif);
-                        notif.tracked = true;
-                        return; // Successfully replaced inline, do not append a new one!
+                        return;
                     }
                 }
             }
 
+            // 3. Same app + same summary — dedup repeated identical notifications
+            if (notif.appName !== "" && notif.summary !== "") {
+                for (const existing of root.popups) {
+                    if (existing.appName === notif.appName && existing.summary === notif.summary) {
+                        existing.updateFrom(notif);
+                        return;
+                    }
+                }
+            }
+
+            // New notification — prepend so newest appears first
             const data = notifComp.createObject(root, {
                 notification: notif,
                 popup: !root.dnd
-            })
-            // Prepend so newest appears first (list is reversed per position)
-            root.popups = [data, ...root.popups]
+            });
+            root.popups = [data, ...root.popups];
         }
     }
 
