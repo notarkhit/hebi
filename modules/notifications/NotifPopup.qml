@@ -52,8 +52,9 @@ Item {
     readonly property bool hasIcon: actualIconName.length > 0 || hasImage
 
     // ── sizing ────────────────────────────────────────────────────────────────
-    implicitWidth: card.implicitWidth
-    implicitHeight: card.implicitHeight
+    visible: modelData.popup
+    implicitWidth: visible ? card.implicitWidth : 0
+    implicitHeight: visible ? card.implicitHeight : 0
 
     // ── slide-in on appear ────────────────────────────────────────────────────
     Component.onCompleted: {

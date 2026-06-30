@@ -2,3 +2,5 @@ module hebi.modules.sysinfo
 
 SysInfoPanel  1.0 SysInfoPanel.qml
 SysInfoButton 1.0 SysInfoButton.qml
+NotifManagerPanel 1.0 NotifManagerPanel.qml
+NotifManagerCard 1.0 NotifManagerCard.qml

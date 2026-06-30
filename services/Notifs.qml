@@ -15,6 +15,7 @@ Singleton {
     property var popups: []
     property bool dnd: false
     property bool loaded: false
+    property bool managerOpen: false
 
     // ── save path ─────────────────────────────────────────────────────────────
     readonly property string savePath: Qt.resolvedUrl(`file://${Quickshell.env("HOME")}/.local/state/hebi/notifs.json`)
@@ -24,24 +25,70 @@ Singleton {
         root.popups = root.popups.filter(n => n !== notif);
     }
 
+    function removeHistoryItem(item): void {
+        root.history = root.history.filter(h => {
+            if (h.id !== 0 && item.id !== 0 && h.id === item.id) return false;
+            if (h.time === item.time && h.appName === item.appName && h.summary === item.summary) return false;
+            return true;
+        });
+        storage.setText(JSON.stringify(root.history));
+    }
+
+    function clearHistory(): void {
+        root.history = [];
+        storage.setText("[]");
+    }
+
+    function clearPopups(): void {
+        for (const n of root.popups.slice())
+            n.dismiss();
+    }
+
+    property var history: []
+
+    function syncHistory(): void {
+        const activeEntries = root.popups.map(n => ({
+            id:            n.id,
+            summary:       n.summary,
+            body:          n.body,
+            appName:       n.appName,
+            appIcon:       n.appIcon,
+            image:         n.image,
+            urgency:       n.urgency,
+            expireTimeout: n.expireTimeout,
+            resident:      n.resident,
+            time:          n.time.getTime()
+        }));
+        
+        let newHistory = [...activeEntries];
+        let seen = new Set();
+        for (const e of activeEntries) {
+            let sig = e.id != 0 ? `id:${e.id}` : `app:${e.appName}|sum:${e.summary}`;
+            seen.add(sig);
+        }
+        
+        for (const h of root.history) {
+            let sig = h.id != 0 ? `id:${h.id}` : `app:${h.appName}|sum:${h.summary}`;
+            if (!seen.has(sig)) {
+                newHistory.push(h);
+                seen.add(sig);
+            }
+        }
+        
+        newHistory.sort((a, b) => b.time - a.time);
+        if (newHistory.length > 50) {
+            newHistory = newHistory.slice(0, 50);
+        }
+        
+        root.history = newHistory;
+    }
+
     // Debounced save — fires 1s after last change to avoid thrashing
     Timer {
         id: saveTimer
         interval: 1000
         onTriggered: {
-            const entries = root.popups.map(n => ({
-                id:            n.id,
-                summary:       n.summary,
-                body:          n.body,
-                appName:       n.appName,
-                appIcon:       n.appIcon,
-                image:         n.image,
-                urgency:       n.urgency,
-                expireTimeout: n.expireTimeout,
-                resident:      n.resident,
-                time:          n.time.getTime()
-            }));
-            storage.setText(JSON.stringify(entries));
+            storage.setText(JSON.stringify(root.history));
         }
     }
 
@@ -54,8 +101,7 @@ Singleton {
         target: "notifs"
 
         function clear(): void {
-            for (const n of root.popups.slice())
-                n.dismiss();
+            root.clearPopups();
         }
 
         function toggleDnd(): void { root.dnd = !root.dnd; }
@@ -115,7 +161,7 @@ Singleton {
             // New notification — prepend so newest appears first
             const data = notifComp.createObject(root, {
                 notification: notif,
-                popup: !root.dnd
+                popup: !root.dnd && !root.managerOpen
             });
             root.popups = [data, ...root.popups];
             root._triggerSave();
@@ -131,41 +177,29 @@ Singleton {
         onLoaded: {
             try {
                 const entries = JSON.parse(text());
-                const restored = [];
-                for (const e of entries) {
-                    const obj = notifComp.createObject(root, {
-                        popup:         false,   // restored notifs don't re-popup
-                        id:            e.id            ?? 0,
-                        summary:       e.summary       ?? "",
-                        body:          e.body          ?? "",
-                        appName:       e.appName       ?? "",
-                        appIcon:       e.appIcon       ?? "",
-                        image:         e.image         ?? "",
-                        urgency:       e.urgency       ?? 1,
-                        expireTimeout: e.expireTimeout ?? 5000,
-                        resident:      e.resident      ?? false,
-                        time:          new Date(e.time ?? Date.now())
-                    });
-                    restored.push(obj);
-                }
-                // Append restored (already newest-first from previous save)
-                root.popups = [...root.popups, ...restored];
+                root.history = Array.isArray(entries) ? entries : [];
             } catch (err) {
                 // Corrupt or empty file — start fresh
                 storage.setText("[]");
+                root.history = [];
             }
             root.loaded = true;
         }
 
         onLoadFailed: err => {
-            if (err === FileViewError.FileNotFound)
+            if (err === FileViewError.FileNotFound) {
                 storage.setText("[]");
+                root.history = [];
+            }
             root.loaded = true;
         }
     }
 
     // Watch popups changes and trigger a save
-    onPopupsChanged: root._triggerSave()
+    onPopupsChanged: {
+        root.syncHistory();
+        root._triggerSave();
+    }
 
     Component {
         id: notifComp

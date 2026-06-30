@@ -42,6 +42,8 @@ ShellRoot {
         onPanelVisibleChanged: {
             if (panelVisible && sysInfoPanel.panelVisible)
                 sysInfoPanel.panelVisible = false;
+            if (panelVisible && notifManagerPanel.panelVisible)
+                notifManagerPanel.panelVisible = false;
         }
     }
 
@@ -51,6 +53,19 @@ ShellRoot {
         onPanelVisibleChanged: {
             if (panelVisible && settingsPanel.panelVisible)
                 settingsPanel.panelVisible = false;
+            if (panelVisible && notifManagerPanel.panelVisible)
+                notifManagerPanel.panelVisible = false;
+        }
+    }
+
+    // ── notification manager panel ─────────────────────────────────────────────
+    NotifManagerPanel {
+        id: notifManagerPanel
+        onPanelVisibleChanged: {
+            if (panelVisible && settingsPanel.panelVisible)
+                settingsPanel.panelVisible = false;
+            if (panelVisible && sysInfoPanel.panelVisible)
+                sysInfoPanel.panelVisible = false;
         }
     }
 }

@@ -149,11 +149,31 @@ Item {
                 Behavior on color { ColorAnimation { duration: 200 } }
             }
         }
+
+        // Notification Manager Bell
+        Text {
+            text: "\u{f0f3}" // Bell icon
+            font.family: "JetBrainsMono Nerd Font"
+            font.pixelSize: 14
+            color: "#c0caf5"
+            Layout.alignment: Qt.AlignVCenter
+            
+            MouseArea {
+                anchors.fill: parent
+                // Increase click area slightly
+                anchors.margins: -4
+                cursorShape: Qt.PointingHandCursor
+                onClicked: {
+                    Quickshell.execDetached(["qs", "ipc", "-p", "/home/notarkhit/.config/hebi", "call", "notifmanager", "toggle"]);
+                }
+            }
+        }
     }
 
     // Click anywhere on the pill to toggle settings
     MouseArea {
         anchors.fill: parent
+        z: -1
         cursorShape:  Qt.PointingHandCursor
         onClicked:    root.clicked()
     }
