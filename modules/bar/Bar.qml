@@ -80,6 +80,19 @@ PanelWindow {
         anchors.rightMargin: 12
         spacing: 12
 
+        // System tray (SNI applets — qBittorrent, Telegram, etc.)
+        Tray {
+            Layout.alignment: Qt.AlignVCenter
+        }
+
+        // Thin divider
+        Rectangle {
+            implicitWidth:  1
+            implicitHeight: 14
+            color: "#2a2d3e"
+            Layout.alignment: Qt.AlignVCenter
+        }
+
         // System info stats button (opens SysInfoPanel)
         SysInfoButton {
             Layout.alignment: Qt.AlignVCenter
