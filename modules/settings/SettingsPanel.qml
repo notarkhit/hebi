@@ -37,17 +37,19 @@ PanelWindow {
     anchors.top: true
     anchors.left: false
 
-    implicitWidth: 360
+    implicitWidth: 404
     implicitHeight: content.implicitHeight + 80
     color: "transparent"
 
     WlrLayershell.layer: WlrLayer.Overlay
     WlrLayershell.keyboardFocus: WlrKeyboardFocus.None
-    
+
     // Only grab input over the actual panel when visible
     mask: panelVisible ? activeRegion : emptyRegion
 
-    Region { id: emptyRegion }
+    Region {
+        id: emptyRegion
+    }
     Region {
         id: activeRegion
         x: content.x
@@ -129,17 +131,17 @@ PanelWindow {
         BlobRect {
             id: panelBg
             group: bgGroup
-            
-            // Closed state: rough position/size of the SysInfo pill in the bar
+
+            // Closed state: position of the SysInfo pill in the bar
             property real closedX: root.width - 12 - 140
             property real closedY: 0
             property real closedW: 140
             property real closedH: 20
-            
-            // Open state: full settings panel sticking to the edges (pushed slightly out of bounds to hide radius)
-            property real openX: root.width - 336
+
+            // Open state: flush to top-right, pushed off-screen to hide radius
+            property real openX: root.width - 380
             property real openY: -20
-            property real openW: 356
+            property real openW: 400
             property real openH: col.implicitHeight + 52
 
             x: root.panelVisible ? openX : closedX
@@ -147,26 +149,57 @@ PanelWindow {
             width: root.panelVisible ? openW : closedW
             height: root.panelVisible ? openH : closedH
             radius: root.panelVisible ? 20 : 10
-            
-            // Physics: expansion will cause wild organic deformations
-            stiffness: 160
-            damping: 12
-            deformScale: 0.005
 
-            Behavior on x { NumberAnimation { duration: 250; easing.type: root.panelVisible ? Easing.OutBack : Easing.InCubic } }
-            Behavior on y { NumberAnimation { duration: 250; easing.type: root.panelVisible ? Easing.OutBack : Easing.InCubic } }
-            Behavior on width { NumberAnimation { duration: 250; easing.type: root.panelVisible ? Easing.OutBack : Easing.InCubic } }
-            Behavior on height { NumberAnimation { duration: 250; easing.type: root.panelVisible ? Easing.OutBack : Easing.InCubic } }
-            Behavior on radius { NumberAnimation { duration: 250; easing.type: root.panelVisible ? Easing.OutBack : Easing.InCubic } }
+            stiffness: 200
+            damping: 18
+            deformScale: 0.004
 
+            Behavior on x {
+                NumberAnimation {
+                    duration: 320
+                    easing.type: root.panelVisible ? Easing.OutQuint : Easing.InCubic
+                }
+            }
+            Behavior on y {
+                NumberAnimation {
+                    duration: 320
+                    easing.type: root.panelVisible ? Easing.OutQuint : Easing.InCubic
+                }
+            }
+            Behavior on width {
+                NumberAnimation {
+                    duration: 320
+                    easing.type: root.panelVisible ? Easing.OutQuint : Easing.InCubic
+                }
+            }
+            Behavior on height {
+                NumberAnimation {
+                    duration: 320
+                    easing.type: root.panelVisible ? Easing.OutQuint : Easing.InCubic
+                }
+            }
+            Behavior on radius {
+                NumberAnimation {
+                    duration: 320
+                    easing.type: root.panelVisible ? Easing.OutQuint : Easing.InCubic
+                }
+            }
+
+            // Fade in instantly, fade out slowly so the blob retract is visible
             opacity: root.panelVisible ? 1 : 0
-            Behavior on opacity { NumberAnimation { duration: root.panelVisible ? 100 : 250 } }
+            Behavior on opacity {
+                NumberAnimation {
+                    duration: root.panelVisible ? 80 : 280
+                }
+            }
         }
 
         // Overlay border matching the expanding BlobRect
         Rectangle {
-            x: panelBg.x; y: panelBg.y
-            width: panelBg.width; height: panelBg.height
+            x: panelBg.x
+            y: panelBg.y
+            width: panelBg.width
+            height: panelBg.height
             radius: panelBg.radius
             color: "transparent"
             border.color: "#2a2d3e"
@@ -176,8 +209,10 @@ PanelWindow {
 
         // Clip wrapper that bounds the content exactly to the expanding box
         Item {
-            x: panelBg.x; y: panelBg.y
-            width: panelBg.width; height: panelBg.height
+            x: panelBg.x
+            y: panelBg.y
+            width: panelBg.width
+            height: panelBg.height
             clip: true
 
             Item {
@@ -186,237 +221,275 @@ PanelWindow {
                 anchors.top: parent.top
                 width: panelBg.openW
                 height: panelBg.openH
-                
-                opacity: panelBg.opacity
-                
-                implicitWidth: 356
+
+                // Only become visible well after the blob has expanded
+                opacity: root.panelVisible ? 1 : 0
+                Behavior on opacity {
+                    SequentialAnimation {
+                        PauseAnimation {
+                            duration: root.panelVisible ? 300 : 0
+                        }
+                        NumberAnimation {
+                            duration: root.panelVisible ? 180 : 80
+                            easing.type: Easing.OutCubic
+                        }
+                    }
+                }
+
+                implicitWidth: 400
                 implicitHeight: col.implicitHeight + 52
-                
+
                 layer.enabled: true
                 // Do NOT clip the inner content, the wrapper handles it!
 
-        ColumnLayout {
-            id: col
-            anchors.left: parent.left
-            anchors.right: parent.right
-            anchors.top: parent.top
-            anchors.topMargin: 36 // 16px padding + 20px pushed off screen
-            anchors.rightMargin: 36 // 16px padding + 20px pushed off screen
-            anchors.leftMargin: 16
-            anchors.bottomMargin: 16
-            spacing: 14
+                ColumnLayout {
+                    id: col
+                    anchors.left: parent.left
+                    anchors.right: parent.right
+                    anchors.top: parent.top
+                    anchors.topMargin: 36
+                    anchors.rightMargin: 36
+                    anchors.leftMargin: 16
+                    anchors.bottomMargin: 16
+                    spacing: 12
 
-            // ── Header: battery + actions ─────────────────────────────────────
-            RowLayout {
-                Layout.fillWidth: true
-                spacing: 8
+                    // ── Header: battery + actions ─────────────────────────────────────
+                    RowLayout {
+                        Layout.fillWidth: true
+                        spacing: 8
 
-                // Battery icon + label
-                Image {
-                    sourceSize: Qt.size(18, 18)
-                    source: Quickshell.iconPath(root.hasBat ? (root.batCharging ? "battery-good-charging-symbolic" : "battery-full-symbolic") : "computer-symbolic")
-                    fillMode: Image.PreserveAspectFit
-                    Layout.alignment: Qt.AlignVCenter
-                    opacity: 0.8
-                }
-                Text {
-                    text: root.hasBat ? `${Math.round(root.batPct * 100)}%${root.batCharging ? " ⚡" : ""}` : "Desktop"
-                    color: "#c0caf5"
-                    font.family: "JetBrainsMono Nerd Font"
-                    font.pixelSize: 13
-                    font.weight: Font.Medium
-                    Layout.fillWidth: true
-                }
+                        // Battery icon + label
+                        Text {
+                            text: {
+                                if (!root.hasBat) return "\u{f109}";   // 󰄉 desktop
+                                if (root.batCharging) return "\u{f0e7}"; // ⚡ bolt
+                                const p = root.batPct;
+                                if (p >= 0.90) return "\u{f240}"; // 󰉀 full
+                                if (p >= 0.75) return "\u{f241}"; // 󰉁 3/4
+                                if (p >= 0.50) return "\u{f242}"; // 󰉂 half
+                                if (p >= 0.25) return "\u{f243}"; // 󰉃 1/4
+                                return "\u{f244}";                // 󰉄 empty
+                            }
+                            font.family: "JetBrainsMono Nerd Font"
+                            font.pixelSize: 18
+                            Layout.alignment: Qt.AlignVCenter
+                            color: root.hasBat && root.batPct < 0.20 && !root.batCharging ? "#f7768e" : "#ffffff"
+                            opacity: 1.0
+                            Behavior on color { ColorAnimation { duration: 300 } }
+                        }
+                        Text {
+                            text: root.hasBat ? `${Math.round(root.batPct * 100)}%${root.batCharging ? " ⚡" : ""}` : "Desktop"
+                            color: "#ffffff"
+                            font.family: "JetBrainsMono Nerd Font"
+                            font.pixelSize: 14
+                            font.weight: Font.DemiBold
+                            Layout.fillWidth: true
+                        }
 
-                // Lock button
-                Rectangle {
-                    implicitWidth: 32
-                    implicitHeight: 32
-                    radius: 16
-                    color: lockHov.containsMouse ? "#292e42" : "transparent"
-                    Behavior on color {
-                        ColorAnimation {
-                            duration: 100
+                        // Lock button
+                        Rectangle {
+                            implicitWidth: 32
+                            implicitHeight: 32
+                            radius: 16
+                            color: lockHov.containsMouse ? "#292e42" : "transparent"
+                            Behavior on color {
+                                ColorAnimation {
+                                    duration: 100
+                                }
+                            }
+                            Text {
+                                anchors.centerIn: parent
+                                text: ""
+                                font.family: "JetBrainsMono Nerd Font"
+                                font.pixelSize: 16
+                                color: "#ffffff"
+                                opacity: lockHov.containsMouse ? 1.0 : 0.9
+                                Behavior on color {
+                                    ColorAnimation {
+                                        duration: 100
+                                    }
+                                }
+                            }
+                            MouseArea {
+                                id: lockHov
+                                anchors.fill: parent
+                                hoverEnabled: true
+                                cursorShape: Qt.PointingHandCursor
+                                onClicked: {
+                                    root.panelVisible = false;
+                                    Quickshell.execDetached(["hyprlock"]);
+                                }
+                            }
+                        }
+
+                        // Power button
+                        Rectangle {
+                            implicitWidth: 32
+                            implicitHeight: 32
+                            radius: 16
+                            color: powerHov.containsMouse ? "#2a1020" : "transparent"
+                            Behavior on color {
+                                ColorAnimation {
+                                    duration: 100
+                                }
+                            }
+                            Text {
+                                anchors.centerIn: parent
+                                text: ""
+                                font.family: "JetBrainsMono Nerd Font"
+                                font.pixelSize: 16
+                                color: "#ffffff"
+                                opacity: powerHov.containsMouse ? 1.0 : 0.9
+                                Behavior on color {
+                                    ColorAnimation {
+                                        duration: 100
+                                    }
+                                }
+                            }
+                            MouseArea {
+                                id: powerHov
+                                anchors.fill: parent
+                                hoverEnabled: true
+                                cursorShape: Qt.PointingHandCursor
+                                onClicked: Quickshell.execDetached(["wlogout"])
+                            }
                         }
                     }
-                    Image {
-                        anchors.centerIn: parent
-                        sourceSize: Qt.size(16, 16)
-                        source: Quickshell.iconPath("system-lock-screen-symbolic")
-                        fillMode: Image.PreserveAspectFit
-                        opacity: 0.7
+
+                    // ── Divider ───────────────────────────────────────────────────────
+                    Rectangle {
+                        Layout.fillWidth: true
+                        implicitHeight: 1
+                        color: "#24283b"
                     }
-                    MouseArea {
-                        id: lockHov
-                        anchors.fill: parent
-                        hoverEnabled: true
-                        cursorShape: Qt.PointingHandCursor
-                        onClicked: {
-                            root.panelVisible = false;
-                            Quickshell.execDetached(["hyprlock"]);
+
+                    // ── Sliders ───────────────────────────────────────────────────────
+
+                    // Volume
+                    SliderRow {
+                        Layout.fillWidth: true
+                        iconText: AudioService.muted || AudioService.volume <= 0 ? "" : AudioService.volume <= 0.33 ? "" : AudioService.volume <= 0.66 ? "墳" : ""
+                        value: AudioService.volume
+                        maxValue: 1.5
+                        onChanged: v => AudioService.setVolume(v)
+                    }
+
+                    // Microphone (read-only for now — future: pactl set-source-volume)
+                    SliderRow {
+                        Layout.fillWidth: true
+                        iconText: ""
+                        value: 0.8
+                        maxValue: 1.0
+                        showArrow: true
+                        onArrowClicked: Quickshell.execDetached(["pavucontrol"])
+                    }
+
+                    // Brightness
+                    SliderRow {
+                        Layout.fillWidth: true
+                        iconText: ""
+                        value: BrightnessService.brightness
+                        maxValue: 1.0
+                        onChanged: v => BrightnessService.setBrightness(v)
+                    }
+
+                    // ── Divider ───────────────────────────────────────────────────────
+                    Rectangle {
+                        Layout.fillWidth: true
+                        implicitHeight: 1
+                        color: "#1e2235"
+                        opacity: 0.8
+                    }
+
+                    // ── Toggle pills grid ─────────────────────────────────────────────
+                    GridLayout {
+                        Layout.fillWidth: true
+                        columns: 2
+                        columnSpacing: 8
+                        rowSpacing: 8
+
+                        // Wi-Fi
+                        TogglePill {
+                            Layout.fillWidth: true
+                            iconText: root.ethUp ? "" : root.wifiUp ? "" : "睊"
+                            label: "Wi-Fi"
+                            sublabel: root.wifiSsid
+                            active: root.wifiEnabled
+                            showChevron: true
+                            onClicked: {
+                                root.wifiEnabled = !root.wifiEnabled;
+                                Quickshell.execDetached(["nmcli", "radio", "wifi", root.wifiEnabled ? "on" : "off"]);
+                            }
+                            onChevronClicked: Quickshell.execDetached(["nm-connection-editor"])
+                        }
+
+                        // Bluetooth
+                        TogglePill {
+                            Layout.fillWidth: true
+                            iconText: ""
+                            label: "Bluetooth"
+                            active: root.bluetoothEnabled
+                            showChevron: true
+                            onClicked: {
+                                root.bluetoothEnabled = !root.bluetoothEnabled;
+                                Quickshell.execDetached(["rfkill", root.bluetoothEnabled ? "unblock" : "block", "bluetooth"]);
+                            }
+                            onChevronClicked: Quickshell.execDetached(["blueman-manager"])
+                        }
+
+                        // Airplane Mode
+                        TogglePill {
+                            Layout.fillWidth: true
+                            iconText: ""
+                            label: "Airplane Mode"
+                            active: root.airplaneMode
+                            onClicked: {
+                                root.airplaneMode = !root.airplaneMode;
+                                Quickshell.execDetached(["nmcli", "radio", "all", root.airplaneMode ? "off" : "on"]);
+                            }
+                        }
+
+                        // Do Not Disturb
+                        TogglePill {
+                            Layout.fillWidth: true
+                            iconText: ""
+                            label: "Do Not Disturb"
+                            active: Notifs.dnd
+                            onClicked: Notifs.dnd = !Notifs.dnd
+                        }
+
+                        // Idle Inhibitor
+                        TogglePill {
+                            Layout.fillWidth: true
+                            iconText: ""
+                            label: "Idle Inhibitor"
+                            active: root.idleInhibited
+                            onClicked: {
+                                root.idleInhibited = !root.idleInhibited;
+                                if (root.idleInhibited)
+                                    inhibitProc.running = true;
+                                else {
+                                    inhibitProc.running = false;
+                                }
+                            }
+                        }
+
+                        // Night Light placeholder
+                        TogglePill {
+                            Layout.fillWidth: true
+                            iconText: ""
+                            label: "Night Light"
+                            active: false
+                            onClicked: Quickshell.execDetached(["hyprshade", "toggle", "blue-light-filter"])
                         }
                     }
-                }
 
-                // Power button
-                Rectangle {
-                    implicitWidth: 32
-                    implicitHeight: 32
-                    radius: 16
-                    color: powerHov.containsMouse ? "#2a1020" : "transparent"
-                    Behavior on color {
-                        ColorAnimation {
-                            duration: 100
-                        }
-                    }
-                    Image {
-                        anchors.centerIn: parent
-                        sourceSize: Qt.size(16, 16)
-                        source: Quickshell.iconPath("system-shutdown-symbolic")
-                        fillMode: Image.PreserveAspectFit
-                        opacity: powerHov.containsMouse ? 1 : 0.7
-                    }
-                    MouseArea {
-                        id: powerHov
-                        anchors.fill: parent
-                        hoverEnabled: true
-                        cursorShape: Qt.PointingHandCursor
-                        onClicked: Quickshell.execDetached(["wlogout"])
+                    // Bottom spacer
+                    Item {
+                        implicitHeight: 4
                     }
                 }
             }
-
-            // ── Divider ───────────────────────────────────────────────────────
-            Rectangle {
-                Layout.fillWidth: true
-                implicitHeight: 1
-                color: "#24283b"
-            }
-
-            // ── Sliders ───────────────────────────────────────────────────────
-
-            // Volume
-            SliderRow {
-                Layout.fillWidth: true
-                iconSource: Quickshell.iconPath(AudioService.muted || AudioService.volume <= 0 ? "audio-volume-muted-symbolic" : AudioService.volume <= 0.33 ? "audio-volume-low-symbolic" : AudioService.volume <= 0.66 ? "audio-volume-medium-symbolic" : "audio-volume-high-symbolic")
-                value: AudioService.volume
-                maxValue: 1.5
-                onChanged: v => AudioService.setVolume(v)
-            }
-
-            // Microphone (read-only for now — future: pactl set-source-volume)
-            SliderRow {
-                Layout.fillWidth: true
-                iconSource: Quickshell.iconPath("audio-input-microphone-symbolic")
-                value: 0.8
-                maxValue: 1.0
-                showArrow: true
-                onArrowClicked: Quickshell.execDetached(["pavucontrol"])
-            }
-
-            // Brightness
-            SliderRow {
-                Layout.fillWidth: true
-                iconSource: Quickshell.iconPath("display-brightness-symbolic")
-                value: BrightnessService.brightness
-                maxValue: 1.0
-                onChanged: v => BrightnessService.setBrightness(v)
-            }
-
-            // ── Divider ───────────────────────────────────────────────────────
-            Rectangle {
-                Layout.fillWidth: true
-                implicitHeight: 1
-                color: "#24283b"
-            }
-
-            // ── Toggle pills grid ─────────────────────────────────────────────
-            GridLayout {
-                Layout.fillWidth: true
-                columns: 2
-                columnSpacing: 8
-                rowSpacing: 8
-
-                // Wi-Fi
-                TogglePill {
-                    Layout.fillWidth: true
-                    iconSource: Quickshell.iconPath(root.ethUp ? "network-wired-symbolic" : root.wifiUp ? "network-wireless-symbolic" : "network-wireless-signal-none-symbolic")
-                    label: "Wi-Fi"
-                    sublabel: root.wifiSsid
-                    active: root.wifiEnabled
-                    showChevron: true
-                    onClicked: {
-                        root.wifiEnabled = !root.wifiEnabled;
-                        Quickshell.execDetached(["nmcli", "radio", "wifi", root.wifiEnabled ? "on" : "off"]);
-                    }
-                    onChevronClicked: Quickshell.execDetached(["nm-connection-editor"])
-                }
-
-                // Bluetooth
-                TogglePill {
-                    Layout.fillWidth: true
-                    iconSource: Quickshell.iconPath("bluetooth-symbolic")
-                    label: "Bluetooth"
-                    active: root.bluetoothEnabled
-                    showChevron: true
-                    onClicked: {
-                        root.bluetoothEnabled = !root.bluetoothEnabled;
-                        Quickshell.execDetached(["rfkill", root.bluetoothEnabled ? "unblock" : "block", "bluetooth"]);
-                    }
-                    onChevronClicked: Quickshell.execDetached(["blueman-manager"])
-                }
-
-                // Airplane Mode
-                TogglePill {
-                    Layout.fillWidth: true
-                    iconSource: Quickshell.iconPath("airplane-mode-symbolic")
-                    label: "Airplane Mode"
-                    active: root.airplaneMode
-                    onClicked: {
-                        root.airplaneMode = !root.airplaneMode;
-                        Quickshell.execDetached(["nmcli", "radio", "all", root.airplaneMode ? "off" : "on"]);
-                    }
-                }
-
-                // Do Not Disturb
-                TogglePill {
-                    Layout.fillWidth: true
-                    iconSource: Quickshell.iconPath("notifications-disabled-symbolic")
-                    label: "Do Not Disturb"
-                    active: Notifs.dnd
-                    onClicked: Notifs.dnd = !Notifs.dnd
-                }
-
-                // Idle Inhibitor
-                TogglePill {
-                    Layout.fillWidth: true
-                    iconSource: Quickshell.iconPath("caffeine-symbolic")
-                    label: "Idle Inhibitor"
-                    active: root.idleInhibited
-                    onClicked: {
-                        root.idleInhibited = !root.idleInhibited;
-                        if (root.idleInhibited)
-                            inhibitProc.running = true;
-                        else {
-                            inhibitProc.running = false;
-                        }
-                    }
-                }
-
-                // Night Light placeholder
-                TogglePill {
-                    Layout.fillWidth: true
-                    iconSource: Quickshell.iconPath("night-light-symbolic")
-                    label: "Night Light"
-                    active: false
-                    onClicked: Quickshell.execDetached(["hyprshade", "toggle", "blue-light-filter"])
-                }
-            }
-
-            // Bottom spacer
-            Item { implicitHeight: 4 }
-        }
-        }
         }
     }
 

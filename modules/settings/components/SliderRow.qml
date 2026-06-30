@@ -5,98 +5,136 @@ import QtQuick.Layouts
 Item {
     id: root
 
-    property string iconSource: ""
-    property real   value:      0.5        // 0.0–1.0
-    property real   maxValue:   1.0
-    property bool   showArrow:  false      // right-side action button
+    property string iconText: ""
+    property real value: 0.5        // 0.0–1.0
+    property real maxValue: 1.0
+    property bool showArrow: false      // right-side action button
 
     signal changed(real newValue)
-    signal arrowClicked()
+    signal arrowClicked
 
-    implicitHeight: 28
+    implicitHeight: 32
     Layout.fillWidth: true
 
     RowLayout {
         anchors.fill: parent
-        spacing: 10
+        spacing: 12
 
         // Icon
-        Image {
-            sourceSize: Qt.size(16, 16)
-            source:     root.iconSource
-            fillMode:   Image.PreserveAspectFit
+        Text {
+            text: root.iconText
+            font.family: "JetBrainsMono Nerd Font"
+            font.pixelSize: 16
             Layout.alignment: Qt.AlignVCenter
-            opacity: 0.7
+            color: "#7aa2f7"
+            opacity: 0.9
         }
 
         // Track + fill
         Item {
             Layout.fillWidth: true
-            implicitHeight:   4
+            implicitHeight: 6
             Layout.alignment: Qt.AlignVCenter
 
             // Track background
             Rectangle {
                 anchors.fill: parent
-                radius: 2
-                color: "#292e42"
+                radius: 3
+                color: "#2a2e45"
             }
 
             // Fill
             Rectangle {
-                width:  parent.width * Math.min(1, root.value / root.maxValue)
+                width: parent.width * Math.min(1, root.value / root.maxValue)
                 height: parent.height
-                radius: 2
-                color:  "#7aa2f7"
-                Behavior on width { NumberAnimation { duration: 80; easing.type: Easing.OutCubic } }
+                radius: 3
+                gradient: Gradient {
+                    orientation: Gradient.Horizontal
+                    GradientStop {
+                        position: 0.0
+                        color: "#5d7fcc"
+                    }
+                    GradientStop {
+                        position: 1.0
+                        color: "#7aa2f7"
+                    }
+                }
+                Behavior on width {
+                    NumberAnimation {
+                        duration: 100
+                        easing.type: Easing.OutCubic
+                    }
+                }
             }
 
             // Thumb
             Rectangle {
-                x:      parent.width * Math.min(1, root.value / root.maxValue) - width / 2
-                y:      (parent.height - height) / 2
-                width:  12; height: 12
-                radius: 6
-                color:  "#c0caf5"
-                Behavior on x { NumberAnimation { duration: 80; easing.type: Easing.OutCubic } }
+                x: parent.width * Math.min(1, root.value / root.maxValue) - width / 2
+                y: (parent.height - height) / 2
+                width: 14
+                height: 14
+                radius: 7
+                color: "#ffffff"
+                layer.enabled: true
+                layer.effect: null // just white for now
+                Behavior on x {
+                    NumberAnimation {
+                        duration: 100
+                        easing.type: Easing.OutCubic
+                    }
+                }
             }
 
             // Drag handler
             MouseArea {
                 anchors.fill: parent
-                anchors.margins: -8
+                anchors.margins: -10
                 function updateFromMouse(mx) {
-                    const clamped = Math.max(0, Math.min(parent.width, mx))
-                    const v = (clamped / parent.width) * root.maxValue
-                    root.changed(v)
+                    const clamped = Math.max(0, Math.min(parent.width, mx));
+                    const v = (clamped / parent.width) * root.maxValue;
+                    root.changed(v);
                 }
-                onPressed:       mouse => updateFromMouse(mouse.x)
-                onPositionChanged: mouse => { if (pressed) updateFromMouse(mouse.x) }
+                onPressed: mouse => updateFromMouse(mouse.x)
+                onPositionChanged: mouse => {
+                    if (pressed)
+                        updateFromMouse(mouse.x);
+                }
                 cursorShape: Qt.PointingHandCursor
             }
         }
 
-        // Optional arrow button (e.g. open pavucontrol)
+        // Arrow button
         Rectangle {
-            visible:       root.showArrow
-            implicitWidth: 24; implicitHeight: 24
-            radius:        12
-            color:         arrowHover.containsMouse ? "#3b4261" : "transparent"
-            Behavior on color { ColorAnimation { duration: 100 } }
+            visible: root.showArrow
+            implicitWidth: 24
+            implicitHeight: 24
+            radius: 12
+            color: arrowHover.containsMouse ? "#3b4261" : "transparent"
+            Behavior on color {
+                ColorAnimation {
+                    duration: 120
+                }
+            }
 
             Text {
                 anchors.centerIn: parent
                 text: "›"
-                color: "#7aa2f7"
+                color: arrowHover.containsMouse ? "#ffffff" : "#7aa2f7"
+                font.family: "JetBrainsMono Nerd Font"
                 font.pixelSize: 18
+                Behavior on color {
+                    ColorAnimation {
+                        duration: 120
+                    }
+                }
             }
 
             MouseArea {
                 id: arrowHover
                 anchors.fill: parent
                 hoverEnabled: true
-                cursorShape:  Qt.PointingHandCursor
-                onClicked:    root.arrowClicked()
+                cursorShape: Qt.PointingHandCursor
+                onClicked: root.arrowClicked()
             }
         }
     }

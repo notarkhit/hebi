@@ -1,0 +1,4 @@
+module hebi.modules.sysinfo
+
+SysInfoPanel  1.0 SysInfoPanel.qml
+SysInfoButton 1.0 SysInfoButton.qml

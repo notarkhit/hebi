@@ -6,6 +6,7 @@ import "modules/launcher"
 import "modules/notifications"
 import "modules/osd"
 import "modules/settings"
+import "modules/sysinfo"
 import "services"
 import Quickshell
 
@@ -29,5 +30,18 @@ ShellRoot {
     // ── settings panel ───────────────────────────────────────────────────────
     SettingsPanel {
         id: settingsPanel
+        onPanelVisibleChanged: {
+            if (panelVisible && sysInfoPanel.panelVisible)
+                sysInfoPanel.panelVisible = false;
+        }
+    }
+
+    // ── system info panel ─────────────────────────────────────────────────────
+    SysInfoPanel {
+        id: sysInfoPanel
+        onPanelVisibleChanged: {
+            if (panelVisible && settingsPanel.panelVisible)
+                settingsPanel.panelVisible = false;
+        }
     }
 }

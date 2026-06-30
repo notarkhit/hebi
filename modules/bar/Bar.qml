@@ -6,6 +6,7 @@ import Quickshell
 import Quickshell.Wayland
 import Quickshell.Hyprland
 import "components"
+import "../sysinfo"
 
 // Per-screen horizontal top bar
 PanelWindow {
@@ -79,7 +80,13 @@ PanelWindow {
         anchors.rightMargin: 12
         spacing: 12
 
-        // System info: network · volume · battery
+        // System info stats button (opens SysInfoPanel)
+        SysInfoButton {
+            Layout.alignment: Qt.AlignVCenter
+            onClicked: Quickshell.execDetached(["qs", "ipc", "-p", "/home/notarkhit/.config/hebi", "call", "sysinfo", "toggle"])
+        }
+
+        // System info: network · volume · battery (opens settings)
         SysInfo {
             Layout.alignment: Qt.AlignVCenter
             onClicked: Quickshell.execDetached(["qs", "ipc", "-p", "/home/notarkhit/.config/hebi", "call", "settings", "toggle"])
