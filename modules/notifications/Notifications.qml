@@ -24,6 +24,9 @@ PanelWindow {
     readonly property bool fromLeft:   position.endsWith("left")
     readonly property string slideDir: fromLeft ? "left" : "right"
 
+    // Extra top offset injected by shell.qml when a panel is open
+    property real topMargin: 0
+
     // ── layer shell anchoring ──────────────────────────────────────────────
     anchors.top:    !fromBottom
     anchors.bottom:  fromBottom
@@ -57,6 +60,11 @@ PanelWindow {
         anchors.top:    root.fromBottom ? undefined    : parent.top
         anchors.bottom: root.fromBottom ? parent.bottom : undefined
         anchors.margins: 12
+        anchors.topMargin: root.fromBottom ? 12 : 12 + root.topMargin
+
+        Behavior on anchors.topMargin {
+            NumberAnimation { duration: 320; easing.type: Easing.OutQuint }
+        }
 
         width:   380
         height:  contentHeight   // shrink-wrap; never clips content

@@ -148,7 +148,7 @@ PanelWindow {
                     anchors.top:         parent.top
                     anchors.topMargin:   36
                     anchors.leftMargin:  16
-                    anchors.rightMargin: 16
+                    anchors.rightMargin: 24
                     spacing: 0
 
                     // ── Heading ───────────────────────────────────────────────
@@ -174,49 +174,60 @@ PanelWindow {
                         label: "CPU Usage"
                         fillPct: SystemInfoService.cpuPercent
                         value: Math.round(SystemInfoService.cpuPercent) + "%"
+                        accentColor: SystemInfoService.cpuPercent > 85 ? "#f7768e"
+                                   : SystemInfoService.cpuPercent > 60 ? "#e0af68"
+                                   : "#ffffff"
                     }
                     InfoRow {
                         icon: "\u{efc5}"
                         label: "Memory Usage"
                         fillPct: SystemInfoService.ramPercent
                         value: Math.round(SystemInfoService.ramPercent) + "%"
+                        accentColor: SystemInfoService.ramPercent > 85 ? "#f7768e"
+                                   : SystemInfoService.ramPercent > 70 ? "#e0af68"
+                                   : "#ffffff"
                     }
                     InfoRow {
                         icon: "\u{f0e2}"
                         label: "Swap Usage"
                         fillPct: SystemInfoService.swapPercent
                         value: Math.round(SystemInfoService.swapPercent) + "%"
+                        accentColor: SystemInfoService.swapPercent > 80 ? "#f7768e"
+                                   : SystemInfoService.swapPercent > 50 ? "#e0af68"
+                                   : "#ffffff"
                     }
                     InfoRow {
                         icon: "\u{f2c7}"
                         label: "Temperature"
                         fillPct: -1
                         value: SystemInfoService.tempCelsius > 0
-                               ? Math.round(SystemInfoService.tempCelsius) + " °C" : "—"
+                               ? Math.round(SystemInfoService.tempCelsius) + " \u00b0C" : "\u2014"
+                        accentColor: SystemInfoService.tempCelsius > 85 ? "#f7768e"
+                                   : SystemInfoService.tempCelsius > 70 ? "#e0af68"
+                                   : "#ffffff"
                     }
                     InfoRow {
                         icon: "\u{f0a0}"
                         label: "Disk Usage /"
                         fillPct: SystemInfoService.diskPercent
                         value: Math.round(SystemInfoService.diskPercent) + "%"
-                    }
-                    InfoRow {
-                        icon: "\u{f015}"
-                        label: "IP Address"
-                        fillPct: -1
-                        value: SystemInfoService.ipAddress
+                        accentColor: SystemInfoService.diskPercent > 90 ? "#f7768e"
+                                   : SystemInfoService.diskPercent > 75 ? "#e0af68"
+                                   : "#ffffff"
                     }
                     InfoRow {
                         icon: "\u{f019}"
                         label: "Download Speed"
                         fillPct: -1
                         value: SystemInfoService.fmtSpeed(SystemInfoService.rxKbps)
+                        accentColor: "#ffffff"
                     }
                     InfoRow {
                         icon: "\u{f093}"
                         label: "Upload Speed"
                         fillPct: -1
                         value: SystemInfoService.fmtSpeed(SystemInfoService.txKbps)
+                        accentColor: "#ffffff"
                     }
 
                     // Bottom spacer
@@ -228,10 +239,11 @@ PanelWindow {
 
     // ── Inline row component ──────────────────────────────────────────────────
     component InfoRow: Item {
-        property string icon:    ""
-        property string label:   ""
-        property string value:   ""
-        property real   fillPct: -1
+        property string icon:        ""
+        property string label:       ""
+        property string value:       ""
+        property real   fillPct:     -1
+        property color  accentColor: "#ffffff"  // white by default, callers override per metric
 
         Layout.fillWidth: true
         implicitHeight: 30
@@ -240,16 +252,19 @@ PanelWindow {
             anchors.fill: parent
             spacing: 10
 
+            // Icon — white, tinted with accentColor when not nominal
             Text {
                 text: icon
                 font.family:    "JetBrainsMono Nerd Font"
                 font.pixelSize: 14
-                color: "#7aa2f7"
-                opacity: 0.85
+                color: accentColor
+                opacity: 0.9
                 Layout.alignment: Qt.AlignVCenter
                 Layout.preferredWidth: 20
+                Behavior on color { ColorAnimation { duration: 300 } }
             }
 
+            // Label — stays subtle grey
             Text {
                 text: label
                 font.family:    "JetBrainsMono Nerd Font"
@@ -270,21 +285,23 @@ PanelWindow {
                 Rectangle {
                     width: parent.width * Math.max(0, Math.min(100, fillPct)) / 100
                     height: parent.height; radius: 2
-                    color: fillPct > 85 ? "#f7768e" : fillPct > 60 ? "#e0af68" : "#7aa2f7"
+                    color: accentColor
                     Behavior on width { NumberAnimation { duration: 500; easing.type: Easing.OutCubic } }
                     Behavior on color { ColorAnimation { duration: 300 } }
                 }
             }
 
+            // Value — white, coloured when metric is elevated
             Text {
                 text: value
                 font.family:    "JetBrainsMono Nerd Font"
                 font.pixelSize: 12
-                color: "#c0caf5"
+                color: accentColor
                 font.weight: Font.Medium
                 horizontalAlignment: Text.AlignRight
                 Layout.alignment: Qt.AlignVCenter
                 Layout.preferredWidth: 72
+                Behavior on color { ColorAnimation { duration: 300 } }
             }
         }
     }

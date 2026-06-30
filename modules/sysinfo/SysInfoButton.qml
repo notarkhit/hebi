@@ -21,9 +21,12 @@ Item {
             text: "\u{f4bc}"
             font.family:    "JetBrainsMono Nerd Font"
             font.pixelSize: 12
-            color: "#7aa2f7"
-            opacity: 0.85
+            color: SystemInfoService.cpuPercent > 85 ? "#f7768e"
+                 : SystemInfoService.cpuPercent > 60 ? "#e0af68"
+                 : "#ffffff"
+            opacity: 0.9
             Layout.alignment: Qt.AlignVCenter
+            Behavior on color { ColorAnimation { duration: 200 } }
         }
 
         // CPU %
@@ -33,7 +36,7 @@ Item {
             font.pixelSize: 11
             color: SystemInfoService.cpuPercent > 85 ? "#f7768e"
                  : SystemInfoService.cpuPercent > 60 ? "#e0af68"
-                 : "#565f89"
+                 : "#ffffff"
             Layout.alignment: Qt.AlignVCenter
             Behavior on color { ColorAnimation { duration: 200 } }
         }
@@ -43,9 +46,12 @@ Item {
             text: "\u{efc5}"
             font.family:    "JetBrainsMono Nerd Font"
             font.pixelSize: 12
-            color: "#7aa2f7"
-            opacity: 0.85
+            color: SystemInfoService.ramPercent > 85 ? "#f7768e"
+                 : SystemInfoService.ramPercent > 70 ? "#e0af68"
+                 : "#ffffff"
+            opacity: 0.9
             Layout.alignment: Qt.AlignVCenter
+            Behavior on color { ColorAnimation { duration: 200 } }
         }
 
         // RAM %
@@ -54,13 +60,13 @@ Item {
             font.family:    "JetBrainsMono Nerd Font"
             font.pixelSize: 11
             color: SystemInfoService.ramPercent > 85 ? "#f7768e"
-                 : SystemInfoService.ramPercent > 60 ? "#e0af68"
-                 : "#565f89"
+                 : SystemInfoService.ramPercent > 70 ? "#e0af68"
+                 : "#ffffff"
             Layout.alignment: Qt.AlignVCenter
             Behavior on color { ColorAnimation { duration: 200 } }
         }
 
-        // Temp (only if available)
+        // Temp icon (only if sensor available)
         Text {
             visible: SystemInfoService.tempCelsius > 0
             text: "\u{f2c7}"
@@ -68,11 +74,13 @@ Item {
             font.pixelSize: 12
             color: SystemInfoService.tempCelsius > 85 ? "#f7768e"
                  : SystemInfoService.tempCelsius > 70 ? "#e0af68"
-                 : "#7aa2f7"
-            opacity: 0.85
+                 : "#ffffff"
+            opacity: 0.9
             Layout.alignment: Qt.AlignVCenter
             Behavior on color { ColorAnimation { duration: 200 } }
         }
+
+        // Temp value
         Text {
             visible: SystemInfoService.tempCelsius > 0
             text: Math.round(SystemInfoService.tempCelsius) + "°"
@@ -80,25 +88,27 @@ Item {
             font.pixelSize: 11
             color: SystemInfoService.tempCelsius > 85 ? "#f7768e"
                  : SystemInfoService.tempCelsius > 70 ? "#e0af68"
-                 : "#565f89"
+                 : "#ffffff"
             Layout.alignment: Qt.AlignVCenter
             Behavior on color { ColorAnimation { duration: 200 } }
         }
 
-        // Net speed
+        // Net download icon
         Text {
             text: "\u{f019}"
             font.family:    "JetBrainsMono Nerd Font"
             font.pixelSize: 12
-            color: "#7aa2f7"
-            opacity: 0.85
+            color: "#ffffff"
+            opacity: 0.9
             Layout.alignment: Qt.AlignVCenter
         }
+
+        // Net download speed
         Text {
             text: SystemInfoService.fmtSpeed(SystemInfoService.rxKbps)
             font.family:    "JetBrainsMono Nerd Font"
             font.pixelSize: 11
-            color: "#565f89"
+            color: "#ffffff"
             Layout.alignment: Qt.AlignVCenter
         }
     }

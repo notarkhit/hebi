@@ -21,7 +21,16 @@ ShellRoot {
     // ── notification popups ─────────────────────────────────────────────────
     // position: "top-right" | "bottom-right" | "top-left" | "bottom-left"
     Notifications {
+        id: notifs
         position: "top-right"
+        // Push notifications below whichever panel is open (+16px gap)
+        topMargin: {
+            if (settingsPanel.panelVisible)
+                return settingsPanel.implicitHeight - 80 + 4;
+            if (sysInfoPanel.panelVisible)
+                return sysInfoPanel.implicitHeight - 80 + 4;
+            return 0;
+        }
     }
 
     // ── osd ──────────────────────────────────────────────────────────────────
