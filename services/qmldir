@@ -8,3 +8,4 @@ NotifData          1.0 NotifData.qml
 singleton AudioService 1.0 AudioService.qml
 singleton BrightnessService 1.0 BrightnessService.qml
 singleton SystemInfoService 1.0 SystemInfoService.qml
+singleton Theme             1.0 Theme.qml

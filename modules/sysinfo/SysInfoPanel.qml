@@ -47,7 +47,7 @@ PanelWindow {
     // ── panel blob ────────────────────────────────────────────────────────────
     BlobGroup {
         id: bgGroup
-        color: Qt.rgba(0x1a / 255, 0x1b / 255, 0x26 / 255, 0.92)
+        color: Theme.surface
     }
 
     Item {

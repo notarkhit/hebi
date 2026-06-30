@@ -7,6 +7,7 @@ import Quickshell
 import Quickshell.Io
 import Quickshell.Widgets
 import Quickshell.Wayland
+import "../../services"
 
 Scope {
     id: root
@@ -111,7 +112,7 @@ Scope {
                             anchors.top: parent.top
                             anchors.bottom: parent.bottom
                             anchors.bottomMargin: -12
-                            color: "#1a1b26"
+                            color: Theme.surface
                             radius: 12
                             border.color: "#414868"
                             border.width: 1

@@ -7,6 +7,7 @@ import Quickshell.Wayland
 import Quickshell.Hyprland
 import "components"
 import "../sysinfo"
+import "../../services"
 
 // Per-screen horizontal top bar
 PanelWindow {
@@ -22,7 +23,7 @@ PanelWindow {
     anchors.left: true
     anchors.right: true
     implicitHeight: barHeight
-    color: Qt.rgba(0x1a / 255, 0x1b / 255, 0x26 / 255, 0.92)
+    color: Theme.surface
 
     WlrLayershell.exclusiveZone: barHeight
     WlrLayershell.layer: WlrLayer.Top
