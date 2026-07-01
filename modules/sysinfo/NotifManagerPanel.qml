@@ -174,7 +174,7 @@ PanelWindow {
                             implicitWidth: clearText.implicitWidth + 12
                             implicitHeight: 20
                             radius: 4
-                            color: clearHover.containsMouse ? "#f7768e22" : "transparent"
+                            color: clearHover.containsMouse ? "#22f7768e" : "transparent"
 
                             Behavior on color {
                                 ColorAnimation {

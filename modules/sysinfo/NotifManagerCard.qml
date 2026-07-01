@@ -168,7 +168,7 @@ Item {
                         implicitWidth: 20
                         implicitHeight: 20
                         radius: 4
-                        color: expandHover.containsMouse ? "#3b426166" : "transparent"
+                        color: expandHover.containsMouse ? "#663b4261" : "transparent"
                         Layout.alignment: Qt.AlignVCenter
 
                         Behavior on color {
@@ -204,7 +204,7 @@ Item {
                         implicitWidth: 20
                         implicitHeight: 20
                         radius: 4
-                        color: closeHover.containsMouse ? "#f7768e22" : "transparent"
+                        color: closeHover.containsMouse ? "#22f7768e" : "transparent"
                         Layout.alignment: Qt.AlignVCenter
 
                         Behavior on color {

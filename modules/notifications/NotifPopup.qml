@@ -277,7 +277,7 @@ Item {
                         implicitWidth: 20
                         implicitHeight: 20
                         radius: 4
-                        color: expandHover.containsMouse ? "#3b426166" : "transparent"
+                        color: expandHover.containsMouse ? "#663b4261" : "transparent"
                         Layout.alignment: Qt.AlignVCenter
 
                         Behavior on color {
@@ -313,7 +313,7 @@ Item {
                         implicitWidth: 20
                         implicitHeight: 20
                         radius: 4
-                        color: closeHover.containsMouse ? "#f7768e22" : "transparent"
+                        color: closeHover.containsMouse ? "#22f7768e" : "transparent"
                         Layout.alignment: Qt.AlignVCenter
 
                         Behavior on color {
@@ -393,7 +393,7 @@ Item {
                     anchors.verticalCenter: parent.verticalCenter
                     height: 4
                     radius: 2
-                    color: root.isCritical ? "#f7768e22" : "#7aa2f722"
+                    color: root.isCritical ? "#22f7768e" : "#227aa2f7"
 
                     // Fill
                     Rectangle {
@@ -428,8 +428,8 @@ Item {
                         implicitHeight: 26
                         implicitWidth: Math.max(64, btnText.implicitWidth + 20)
                         radius: 6
-                        color: btnHover.containsMouse ? (root.isCritical ? "#f7768e22" : "#7aa2f722") : (root.isCritical ? "#f7768e0d" : "#7aa2f70d")
-                        border.color: root.isCritical ? "#f7768e55" : "#7aa2f755"
+                        color: btnHover.containsMouse ? (root.isCritical ? "#22f7768e" : "#227aa2f7") : (root.isCritical ? "#0df7768e" : "#0d7aa2f7")
+                        border.color: root.isCritical ? "#55f7768e" : "#557aa2f7"
                         border.width: 1
 
                         Behavior on color {
