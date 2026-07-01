@@ -87,11 +87,42 @@ PanelWindow {
             property real openW: 412
             property real openH: Math.min(600, col.implicitHeight + 64)
 
-            x: openX
-            y: openY
-            width: openW
-            height: openH
-            radius: 20
+            x: root.panelVisible ? openX : closedX
+            y: root.panelVisible ? openY : closedY
+            width: root.panelVisible ? openW : closedW
+            height: root.panelVisible ? openH : closedH
+            radius: root.panelVisible ? 20 : 10
+
+            Behavior on x {
+                NumberAnimation {
+                    duration: 320
+                    easing.type: root.panelVisible ? Easing.OutQuint : Easing.InCubic
+                }
+            }
+            Behavior on y {
+                NumberAnimation {
+                    duration: 320
+                    easing.type: root.panelVisible ? Easing.OutQuint : Easing.InCubic
+                }
+            }
+            Behavior on width {
+                NumberAnimation {
+                    duration: 320
+                    easing.type: root.panelVisible ? Easing.OutQuint : Easing.InCubic
+                }
+            }
+            Behavior on height {
+                NumberAnimation {
+                    duration: 320
+                    easing.type: root.panelVisible ? Easing.OutQuint : Easing.InCubic
+                }
+            }
+            Behavior on radius {
+                NumberAnimation {
+                    duration: 320
+                    easing.type: root.panelVisible ? Easing.OutQuint : Easing.InCubic
+                }
+            }
 
             stiffness: 200
             damping: 18
