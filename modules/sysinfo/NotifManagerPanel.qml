@@ -25,18 +25,24 @@ PanelWindow {
 
     IpcHandler {
         target: "notifmanager"
-        function toggle(): void { root.panelVisible = !root.panelVisible }
-        function open():   void { root.panelVisible = true  }
-        function close():  void { root.panelVisible = false }
+        function toggle(): void {
+            root.panelVisible = !root.panelVisible;
+        }
+        function open(): void {
+            root.panelVisible = true;
+        }
+        function close(): void {
+            root.panelVisible = false;
+        }
     }
 
     // ── window setup ──────────────────────────────────────────────────────────
-    anchors.right:  true
-    anchors.top:    true
-    anchors.left:   false
+    anchors.right: true
+    anchors.top: true
+    anchors.left: false
     anchors.bottom: false
 
-    implicitWidth:  340
+    implicitWidth: 340
     implicitHeight: Math.min(800, content.implicitHeight + 80)
     color: "transparent"
 
@@ -44,11 +50,15 @@ PanelWindow {
     WlrLayershell.keyboardFocus: WlrKeyboardFocus.None
 
     mask: panelVisible ? activeRegion : emptyRegion
-    Region { id: emptyRegion }
+    Region {
+        id: emptyRegion
+    }
     Region {
         id: activeRegion
-        x: content.x; y: content.y
-        width: content.width; height: content.height
+        x: content.x
+        y: content.y
+        width: content.width
+        height: content.height
     }
 
     // ── panel blob ────────────────────────────────────────────────────────────
@@ -77,26 +87,30 @@ PanelWindow {
             property real openW: 332
             property real openH: Math.min(600, col.implicitHeight + 64)
 
-            x:      openX
-            y:      openY
-            width:  openW
+            x: openX
+            y: openY
+            width: openW
             height: openH
             radius: 20
 
-            stiffness:   200
-            damping:      18
+            stiffness: 200
+            damping: 18
             deformScale: 0.004
 
             opacity: root.panelVisible ? 1 : 0
             Behavior on opacity {
-                NumberAnimation { duration: 150 }
+                NumberAnimation {
+                    duration: 150
+                }
             }
         }
 
         // Overlay border
         Rectangle {
-            x: panelBg.x; y: panelBg.y
-            width: panelBg.width; height: panelBg.height
+            x: panelBg.x
+            y: panelBg.y
+            width: panelBg.width
+            height: panelBg.height
             radius: panelBg.radius
             color: "transparent"
             border.color: "#2a2d3e"
@@ -106,33 +120,37 @@ PanelWindow {
 
         // Clip wrapper
         Item {
-            x: panelBg.x; y: panelBg.y
-            width: panelBg.width; height: panelBg.height
+            x: panelBg.x
+            y: panelBg.y
+            width: panelBg.width
+            height: panelBg.height
             clip: true
 
             Item {
                 id: content
                 anchors.right: parent.right
-                anchors.top:   parent.top
-                width:  panelBg.openW
+                anchors.top: parent.top
+                width: panelBg.openW
                 height: panelBg.openH
 
                 opacity: root.panelVisible ? 1 : 0
                 Behavior on opacity {
-                    NumberAnimation { duration: 150 }
+                    NumberAnimation {
+                        duration: 150
+                    }
                 }
 
-                implicitWidth:  332
+                implicitWidth: 332
                 implicitHeight: col.implicitHeight + 64
                 layer.enabled: true
 
                 ColumnLayout {
                     id: col
-                    anchors.left:        parent.left
-                    anchors.right:       parent.right
-                    anchors.top:         parent.top
-                    anchors.topMargin:   36
-                    anchors.leftMargin:  16
+                    anchors.left: parent.left
+                    anchors.right: parent.right
+                    anchors.top: parent.top
+                    anchors.topMargin: 36
+                    anchors.leftMargin: 16
                     anchors.rightMargin: 16
                     spacing: 0
 
@@ -140,12 +158,12 @@ PanelWindow {
                     RowLayout {
                         Layout.fillWidth: true
                         Layout.bottomMargin: 10
-                        
+
                         Text {
                             text: "Notifications"
-                            font.family:    "JetBrainsMono Nerd Font"
+                            font.family: "JetBrainsMono Nerd Font"
                             font.pixelSize: 14
-                            font.weight:    Font.DemiBold
+                            font.weight: Font.DemiBold
                             color: "#c0caf5"
                             Layout.fillWidth: true
                         }
@@ -157,9 +175,13 @@ PanelWindow {
                             implicitHeight: 20
                             radius: 4
                             color: clearHover.containsMouse ? "#f7768e22" : "transparent"
-                            
-                            Behavior on color { ColorAnimation { duration: 150 } }
-                            
+
+                            Behavior on color {
+                                ColorAnimation {
+                                    duration: 150
+                                }
+                            }
+
                             Text {
                                 id: clearText
                                 anchors.centerIn: parent
@@ -167,10 +189,14 @@ PanelWindow {
                                 font.family: "JetBrainsMono Nerd Font"
                                 font.pixelSize: 11
                                 color: clearHover.containsMouse ? "#f7768e" : "#565f89"
-                                
-                                Behavior on color { ColorAnimation { duration: 150 } }
+
+                                Behavior on color {
+                                    ColorAnimation {
+                                        duration: 150
+                                    }
+                                }
                             }
-                            
+
                             MouseArea {
                                 id: clearHover
                                 anchors.fill: parent
@@ -180,7 +206,6 @@ PanelWindow {
                             }
                         }
                     }
-
 
                     // ── List ──────────────────────────────────────────────────
                     ScrollView {
@@ -223,7 +248,9 @@ PanelWindow {
                     }
 
                     // Bottom spacer
-                    Item { implicitHeight: 8 }
+                    Item {
+                        implicitHeight: 8
+                    }
                 }
             }
         }

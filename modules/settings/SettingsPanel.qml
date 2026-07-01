@@ -261,13 +261,19 @@ PanelWindow {
                         // Battery icon + label
                         Text {
                             text: {
-                                if (!root.hasBat) return "\u{f109}";   // 󰄉 desktop
-                                if (root.batCharging) return "\u{f0e7}"; // ⚡ bolt
+                                if (!root.hasBat)
+                                    return "\u{f109}";   // 󰄉 desktop
+                                if (root.batCharging)
+                                    return "\u{f0e7}"; // ⚡ bolt
                                 const p = root.batPct;
-                                if (p >= 0.90) return "\u{f240}"; // 󰉀 full
-                                if (p >= 0.75) return "\u{f241}"; // 󰉁 3/4
-                                if (p >= 0.50) return "\u{f242}"; // 󰉂 half
-                                if (p >= 0.25) return "\u{f243}"; // 󰉃 1/4
+                                if (p >= 0.90)
+                                    return "\u{f240}"; // 󰉀 full
+                                if (p >= 0.75)
+                                    return "\u{f241}"; // 󰉁 3/4
+                                if (p >= 0.50)
+                                    return "\u{f242}"; // 󰉂 half
+                                if (p >= 0.25)
+                                    return "\u{f243}"; // 󰉃 1/4
                                 return "\u{f244}";                // 󰉄 empty
                             }
                             font.family: "JetBrainsMono Nerd Font"
@@ -275,7 +281,11 @@ PanelWindow {
                             Layout.alignment: Qt.AlignVCenter
                             color: root.hasBat && root.batPct < 0.20 && !root.batCharging ? "#f7768e" : "#ffffff"
                             opacity: 1.0
-                            Behavior on color { ColorAnimation { duration: 300 } }
+                            Behavior on color {
+                                ColorAnimation {
+                                    duration: 300
+                                }
+                            }
                         }
                         Text {
                             text: root.hasBat ? `${Math.round(root.batPct * 100)}%${root.batCharging ? " ⚡" : ""}` : "Desktop"

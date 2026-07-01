@@ -229,9 +229,12 @@ Scope {
                             anchors.rightMargin: 6
 
                             readonly property var activeView: {
-                                if (contentItem.mode === "calc")      return calcView;
-                                if (contentItem.mode === "emoji")     return emojiView;
-                                if (contentItem.mode === "nerdfont")  return nerdfontView;
+                                if (contentItem.mode === "calc")
+                                    return calcView;
+                                if (contentItem.mode === "emoji")
+                                    return emojiView;
+                                if (contentItem.mode === "nerdfont")
+                                    return nerdfontView;
                                 return appsView;
                             }
 
