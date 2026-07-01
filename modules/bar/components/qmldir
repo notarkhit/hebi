@@ -6,3 +6,4 @@ SysInfo         1.0 SysInfo.qml
 Tray            1.0 Tray.qml
 Workspaces      1.0 Workspaces.qml
 WorkspaceButton 1.0 WorkspaceButton.qml
+Media           1.0 Media.qml

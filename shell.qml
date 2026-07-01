@@ -7,6 +7,7 @@ import "modules/notifications"
 import "modules/osd"
 import "modules/settings"
 import "modules/sysinfo"
+import "modules/media"
 import "services"
 import Quickshell
 
@@ -44,6 +45,8 @@ ShellRoot {
                 sysInfoPanel.panelVisible = false;
             if (panelVisible && notifManagerPanel.panelVisible)
                 notifManagerPanel.panelVisible = false;
+            if (panelVisible && mediaPanel.panelVisible)
+                mediaPanel.panelVisible = false;
         }
     }
 
@@ -55,6 +58,8 @@ ShellRoot {
                 settingsPanel.panelVisible = false;
             if (panelVisible && notifManagerPanel.panelVisible)
                 notifManagerPanel.panelVisible = false;
+            if (panelVisible && mediaPanel.panelVisible)
+                mediaPanel.panelVisible = false;
         }
     }
 
@@ -66,6 +71,21 @@ ShellRoot {
                 settingsPanel.panelVisible = false;
             if (panelVisible && sysInfoPanel.panelVisible)
                 sysInfoPanel.panelVisible = false;
+            if (panelVisible && mediaPanel.panelVisible)
+                mediaPanel.panelVisible = false;
+        }
+    }
+
+    // ── media panel ─────────────────────────────────────────────────────────────
+    MediaPanel {
+        id: mediaPanel
+        onPanelVisibleChanged: {
+            if (panelVisible && settingsPanel.panelVisible)
+                settingsPanel.panelVisible = false;
+            if (panelVisible && sysInfoPanel.panelVisible)
+                sysInfoPanel.panelVisible = false;
+            if (panelVisible && notifManagerPanel.panelVisible)
+                notifManagerPanel.panelVisible = false;
         }
     }
 }

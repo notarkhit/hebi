@@ -81,6 +81,11 @@ PanelWindow {
         anchors.rightMargin: 12
         spacing: 12
 
+        // Media control
+        Media {
+            Layout.alignment: Qt.AlignVCenter
+        }
+
         // System tray (SNI applets — qBittorrent, Telegram, etc.)
         Tray {
             Layout.alignment: Qt.AlignVCenter
