@@ -42,7 +42,7 @@ PanelWindow {
     anchors.left: false
     anchors.bottom: false
 
-    implicitWidth: 340
+    implicitWidth: 420
     implicitHeight: Math.min(800, content.implicitHeight + 80)
     color: "transparent"
 
@@ -82,9 +82,9 @@ PanelWindow {
             property real closedH: 20
 
             // Open position
-            property real openX: root.width - 320
+            property real openX: root.width - 400
             property real openY: -20
-            property real openW: 332
+            property real openW: 412
             property real openH: Math.min(600, col.implicitHeight + 64)
 
             x: openX
@@ -211,6 +211,7 @@ PanelWindow {
                     ScrollView {
                         Layout.fillWidth: true
                         Layout.preferredHeight: Math.min(500, list.contentHeight)
+                        visible: Notifs.history.length > 0
                         clip: true
 
                         ListView {
@@ -229,21 +230,21 @@ PanelWindow {
                                 width: ListView.view.width - 8
                                 anchors.horizontalCenter: parent.horizontalCenter
                             }
+                        }
+                    }
 
-                            // Empty state
-                            Item {
-                                visible: Notifs.history.length === 0
-                                width: parent.width
-                                implicitHeight: 100
+                    // Empty state
+                    Item {
+                        visible: Notifs.history.length === 0
+                        Layout.fillWidth: true
+                        implicitHeight: 84
 
-                                Text {
-                                    anchors.centerIn: parent
-                                    text: "No notifications"
-                                    color: "#565f89"
-                                    font.family: "JetBrainsMono Nerd Font"
-                                    font.pixelSize: 13
-                                }
-                            }
+                        Text {
+                            anchors.centerIn: parent
+                            text: "No notifications"
+                            color: "#565f89"
+                            font.family: "JetBrainsMono Nerd Font"
+                            font.pixelSize: 13
                         }
                     }
 

@@ -46,11 +46,11 @@ Item {
     Rectangle {
         id: card
 
-        implicitWidth: 280
+        implicitWidth: 360
         implicitHeight: inner.implicitHeight + 20
 
         radius: 14
-        color: root.isCritical ? "#cc1a0a0e" : "#cc1a1b26"
+        color: root.isCritical ? "#441a0a0e" : "#441a1b26"
         border.color: root.isCritical ? "#f7768e" : root.isLow ? "#24283b" : "#3b4261"
         border.width: root.isCritical ? 1.5 : 1
 
