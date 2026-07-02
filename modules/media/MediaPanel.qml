@@ -14,6 +14,7 @@ PanelWindow {
     id: root
 
     property bool panelVisible: false
+    property bool showLyrics: false
 
     IpcHandler {
         target: "media"
@@ -35,11 +36,27 @@ PanelWindow {
         else
             Lyrics.clearTrack();
     }
+    
+    Connections {
+        target: Lyrics
+        function onLoadingChanged() {
+            if (!Lyrics.loading && Lyrics.trackTitle !== "") {
+                // Automatically open panel when fetching finishes (whether success or fail)
+                root.showLyrics = true;
+            }
+        }
+    }
 
     Connections {
         target: Players.active
-        function onTrackArtistChanged() { root.updateLyrics(); }
-        function onTrackTitleChanged() { root.updateLyrics(); }
+        function onTrackArtistChanged() {
+            root.showLyrics = false;
+            Lyrics.clearTrack();
+        }
+        function onTrackTitleChanged() {
+            root.showLyrics = false;
+            Lyrics.clearTrack();
+        }
     }
 
     Connections {
@@ -49,16 +66,17 @@ PanelWindow {
 
     Component.onCompleted: root.updateLyrics()
 
-    anchors.left: false
+    anchors.left: true
     anchors.right: true
     anchors.top: true
     anchors.bottom: false
 
-    implicitWidth: 1200
+    // Window spans entire width and 800px height, but does NOT push windows (exclusiveZone: 0)
     implicitHeight: 800
     color: "transparent"
 
     WlrLayershell.layer: WlrLayer.Overlay
+    WlrLayershell.exclusiveZone: 0
     WlrLayershell.keyboardFocus: WlrKeyboardFocus.None
 
     mask: panelVisible ? activeRegion : emptyRegion
@@ -93,7 +111,8 @@ PanelWindow {
             property real closedY: 0
 
             property real openW: 392
-            property real openH: Math.min(680, contentArea.implicitHeight + 52)
+            // Height expands fully only when lyrics are fetched, otherwise just enough for the single line message
+            property real openH: root.showLyrics ? (Lyrics.hasLyrics ? 620 : 320) : 260
             property real openX: root.width - mediaCenterRight - (openW / 2)
             property real openY: -20
 
@@ -266,59 +285,90 @@ PanelWindow {
                     }
                 }
 
-                // Controls
-                RowLayout {
-                    Layout.alignment: Qt.AlignHCenter
-                    spacing: 24
+                Item {
+                    width: parent.width
+                    implicitHeight: 48
 
-                    Text {
-                        text: "󰒮"
-                        color: hoverPrev.hovered ? "#bb9af7" : "#7aa2f7"
-                        font.family: "JetBrainsMono Nerd Font"
-                        font.pixelSize: 24
-                        opacity: Players.active?.canGoPrevious ? 1 : 0.5
-                        HoverHandler { id: hoverPrev; cursorShape: Qt.PointingHandCursor }
-                        TapHandler { onTapped: Players.active?.previous() }
-                    }
+                    RowLayout {
+                        anchors.centerIn: parent
+                        spacing: 24
 
-                    Rectangle {
-                        implicitWidth: 48
-                        implicitHeight: 48
-                        radius: 24
-                        color: hoverPlay.hovered ? "#bb9af7" : "#7aa2f7"
-                        
                         Text {
-                            anchors.centerIn: parent
-                            text: Players.active?.isPlaying ? "󰏤" : "󰐊"
-                            color: "#1a1b26"
+                            text: "󰒮"
+                            color: hoverPrev.hovered ? "#bb9af7" : "#7aa2f7"
                             font.family: "JetBrainsMono Nerd Font"
-                            font.pixelSize: 28
-                            // Center the play icon slightly to the right to look balanced
-                            anchors.horizontalCenterOffset: Players.active?.isPlaying ? 0 : 2
+                            font.pixelSize: 24
+                            opacity: Players.active?.canGoPrevious ? 1 : 0.5
+                            HoverHandler { id: hoverPrev; cursorShape: Qt.PointingHandCursor }
+                            TapHandler { onTapped: Players.active?.previous() }
                         }
-                        HoverHandler { id: hoverPlay; cursorShape: Qt.PointingHandCursor }
-                        TapHandler { onTapped: Players.active?.togglePlaying() }
+
+                        Rectangle {
+                            implicitWidth: 48
+                            implicitHeight: 48
+                            radius: 24
+                            color: hoverPlay.hovered ? "#bb9af7" : "#7aa2f7"
+                            
+                            Text {
+                                anchors.centerIn: parent
+                                text: Players.active?.isPlaying ? "󰏤" : "󰐊"
+                                color: "#1a1b26"
+                                font.family: "JetBrainsMono Nerd Font"
+                                font.pixelSize: 28
+                                anchors.horizontalCenterOffset: Players.active?.isPlaying ? 0 : 2
+                            }
+                            HoverHandler { id: hoverPlay; cursorShape: Qt.PointingHandCursor }
+                            TapHandler { onTapped: Players.active?.togglePlaying() }
+                        }
+
+                        Text {
+                            text: "󰒭"
+                            color: hoverNext.hovered ? "#bb9af7" : "#7aa2f7"
+                            font.family: "JetBrainsMono Nerd Font"
+                            font.pixelSize: 24
+                            opacity: Players.active?.canGoNext ? 1 : 0.5
+                            HoverHandler { id: hoverNext; cursorShape: Qt.PointingHandCursor }
+                            TapHandler { onTapped: Players.active?.next() }
+                        }
                     }
 
+                    // Lyrics toggle button
                     Text {
-                        text: "󰒭"
-                        color: hoverNext.hovered ? "#bb9af7" : "#7aa2f7"
+                        anchors.right: parent.right
+                        anchors.verticalCenter: parent.verticalCenter
+                        text: "󰦨" // text icon
+                        color: hoverLyrics.hovered || root.showLyrics ? "#bb9af7" : "#7aa2f7"
                         font.family: "JetBrainsMono Nerd Font"
-                        font.pixelSize: 24
-                        opacity: Players.active?.canGoNext ? 1 : 0.5
-                        HoverHandler { id: hoverNext; cursorShape: Qt.PointingHandCursor }
-                        TapHandler { onTapped: Players.active?.next() }
+                        font.pixelSize: 24 // Match size of other controls
+                        opacity: Lyrics.hasLyrics ? 1 : 0.5
+                        HoverHandler { id: hoverLyrics; cursorShape: Qt.PointingHandCursor }
+                        TapHandler { 
+                            onTapped: {
+                                const p = Players.active;
+                                if (!p) return;
+                                
+                                if (Lyrics.trackTitle === p.trackTitle && Lyrics.trackArtist === p.trackArtist && Lyrics.trackTitle !== "") {
+                                    // Already fetched or attempted for this track, just toggle visibility
+                                    root.showLyrics = !root.showLyrics;
+                                } else {
+                                    // First time clicking for this track, attempt to fetch!
+                                    // The panel will auto-open when fetching finishes via onLoadingChanged
+                                    root.updateLyrics();
+                                }
+                            } 
+                        }
                     }
                 }
 
                 // Lyrics
                 Rectangle {
                     Layout.fillWidth: true
-                    implicitHeight: 340
-                    Layout.preferredHeight: 340
-                    color: "#1a1b26"
+                    implicitHeight: Lyrics.hasLyrics ? 340 : 40
+                    Layout.preferredHeight: Lyrics.hasLyrics ? 340 : 40
+                    color: "transparent"
                     radius: 10
                     clip: true
+                    visible: root.showLyrics
                     
                     Text {
                         anchors.centerIn: parent
