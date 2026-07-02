@@ -135,17 +135,7 @@ PanelWindow {
             Behavior on radius { NumberAnimation { duration: 320; easing.type: root.panelVisible ? Easing.OutQuint : Easing.InCubic } }
         }
 
-        Rectangle {
-            x: panelBg.x
-            y: panelBg.y
-            width: panelBg.width
-            height: panelBg.height
-            radius: panelBg.radius
-            color: "transparent"
-            border.color: "#2a2d3e"
-            border.width: 1
-            opacity: panelBg.opacity
-        }
+
 
         Item {
             id: contentWrapper
@@ -164,7 +154,18 @@ PanelWindow {
                 anchors.topMargin: 32
                 spacing: 20
                 opacity: root.panelVisible ? 1 : 0
-                Behavior on opacity { NumberAnimation { duration: 200 } }
+                Behavior on opacity {
+                    SequentialAnimation {
+                        PauseAnimation {
+                            duration: root.panelVisible ? 300 : 0
+                        }
+                        NumberAnimation {
+                            duration: root.panelVisible ? 180 : 80
+                            easing.type: Easing.OutCubic
+                        }
+                    }
+                }
+
 
                 // Album Art & Details
                 RowLayout {

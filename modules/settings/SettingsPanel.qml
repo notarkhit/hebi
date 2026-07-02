@@ -194,18 +194,7 @@ PanelWindow {
             }
         }
 
-        // Overlay border matching the expanding BlobRect
-        Rectangle {
-            x: panelBg.x
-            y: panelBg.y
-            width: panelBg.width
-            height: panelBg.height
-            radius: panelBg.radius
-            color: "transparent"
-            border.color: "#2a2d3e"
-            border.width: 1
-            opacity: panelBg.opacity
-        }
+
 
         // Clip wrapper that bounds the content exactly to the expanding box
         Item {

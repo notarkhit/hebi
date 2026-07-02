@@ -136,18 +136,7 @@ PanelWindow {
             }
         }
 
-        // Overlay border
-        Rectangle {
-            x: panelBg.x
-            y: panelBg.y
-            width: panelBg.width
-            height: panelBg.height
-            radius: panelBg.radius
-            color: "transparent"
-            border.color: "#2a2d3e"
-            border.width: 1
-            opacity: panelBg.opacity
-        }
+
 
         // Clip wrapper
         Item {
@@ -166,8 +155,14 @@ PanelWindow {
 
                 opacity: root.panelVisible ? 1 : 0
                 Behavior on opacity {
-                    NumberAnimation {
-                        duration: 150
+                    SequentialAnimation {
+                        PauseAnimation {
+                            duration: root.panelVisible ? 300 : 0
+                        }
+                        NumberAnimation {
+                            duration: root.panelVisible ? 180 : 80
+                            easing.type: Easing.OutCubic
+                        }
                     }
                 }
 
