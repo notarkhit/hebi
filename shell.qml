@@ -8,6 +8,7 @@ import "modules/osd"
 import "modules/settings"
 import "modules/sysinfo"
 import "modules/media"
+import "modules/calendar"
 import "services"
 import Quickshell
 
@@ -47,6 +48,8 @@ ShellRoot {
                 notifManagerPanel.panelVisible = false;
             if (panelVisible && mediaPanel.panelVisible)
                 mediaPanel.panelVisible = false;
+            if (panelVisible && calendarPanel.panelVisible)
+                calendarPanel.panelVisible = false;
         }
     }
 
@@ -60,6 +63,8 @@ ShellRoot {
                 notifManagerPanel.panelVisible = false;
             if (panelVisible && mediaPanel.panelVisible)
                 mediaPanel.panelVisible = false;
+            if (panelVisible && calendarPanel.panelVisible)
+                calendarPanel.panelVisible = false;
         }
     }
 
@@ -73,6 +78,8 @@ ShellRoot {
                 sysInfoPanel.panelVisible = false;
             if (panelVisible && mediaPanel.panelVisible)
                 mediaPanel.panelVisible = false;
+            if (panelVisible && calendarPanel.panelVisible)
+                calendarPanel.panelVisible = false;
         }
     }
 
@@ -86,6 +93,23 @@ ShellRoot {
                 sysInfoPanel.panelVisible = false;
             if (panelVisible && notifManagerPanel.panelVisible)
                 notifManagerPanel.panelVisible = false;
+            if (panelVisible && calendarPanel.panelVisible)
+                calendarPanel.panelVisible = false;
+        }
+    }
+
+    // ── calendar panel ──────────────────────────────────────────────────────────
+    CalendarPanel {
+        id: calendarPanel
+        onPanelVisibleChanged: {
+            if (panelVisible && settingsPanel.panelVisible)
+                settingsPanel.panelVisible = false;
+            if (panelVisible && sysInfoPanel.panelVisible)
+                sysInfoPanel.panelVisible = false;
+            if (panelVisible && notifManagerPanel.panelVisible)
+                notifManagerPanel.panelVisible = false;
+            if (panelVisible && mediaPanel.panelVisible)
+                mediaPanel.panelVisible = false;
         }
     }
 }
