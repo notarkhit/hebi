@@ -5,6 +5,7 @@ import QtQuick.Layouts
 import QtQuick.Controls
 import Quickshell
 import Quickshell.Io
+import "../../components"
 import Quickshell.Wayland
 import Hebi.Blobs
 import "../../services"
@@ -16,19 +17,32 @@ PanelWindow {
     property bool windowVisible: false
 
     onPanelVisibleChanged: {
-        Notifs.managerOpen = panelVisible
-        if (panelVisible) { windowVisible = true; Notifs.clearPopups() }
-        else closeTimer.restart()
+        Notifs.managerOpen = panelVisible;
+        if (panelVisible) {
+            windowVisible = true;
+            Notifs.clearPopups();
+        } else
+            closeTimer.restart();
     }
 
     IpcHandler {
         target: "notifmanager"
-        function toggle(): void { root.panelVisible = !root.panelVisible }
-        function open(): void   { root.panelVisible = true }
-        function close(): void  { root.panelVisible = false }
+        function toggle(): void {
+            root.panelVisible = !root.panelVisible;
+        }
+        function open(): void {
+            root.panelVisible = true;
+        }
+        function close(): void {
+            root.panelVisible = false;
+        }
     }
 
-    Timer { id: closeTimer; interval: 520; onTriggered: root.windowVisible = false }
+    Timer {
+        id: closeTimer
+        interval: 520
+        onTriggered: root.windowVisible = false
+    }
 
     anchors.right: true
     anchors.top: true
@@ -46,8 +60,16 @@ PanelWindow {
     WlrLayershell.exclusiveZone: 0
 
     mask: panelVisible ? activeRegion : emptyRegion
-    Region { id: emptyRegion }
-    Region { id: activeRegion; x: root.implicitWidth - wrapper.width; y: 0; width: wrapper.width; height: wrapper.height }
+    Region {
+        id: emptyRegion
+    }
+    Region {
+        id: activeRegion
+        x: root.implicitWidth - wrapper.width
+        y: 0
+        width: wrapper.width
+        height: wrapper.height
+    }
 
     // ── animated wrapper ───────────────────────────────────────────────────────
     Item {
@@ -59,52 +81,126 @@ PanelWindow {
 
         property real offsetScale: root.panelVisible ? 0 : 1
         Behavior on offsetScale {
-            NumberAnimation { duration: 500; easing.type: Easing.BezierSpline; easing.bezierCurve: [0.38, 1.21, 0.22, 1, 1, 1] }
+            Anim {}
         }
-        transform: Translate { y: (-wrapper.height - 5) * wrapper.offsetScale }
+        transform: Translate {
+            y: (-wrapper.height - 5) * wrapper.offsetScale
+        }
         opacity: 1 - offsetScale
 
-        BlobGroup { id: bgGroup; color: Theme.surface }
-        BlobRect { group: bgGroup; anchors.fill: parent; radius: 20; stiffness: 200; damping: 18; deformScale: 0.004 }
+        BlobGroup {
+            id: bgGroup
+            color: Theme.surface
+        }
+        BlobRect {
+            group: bgGroup
+            anchors.fill: parent
+            radius: 20
+            stiffness: 200
+            damping: 18
+            deformScale: 0.004
+        }
 
         ColumnLayout {
             id: col
-            anchors.left: parent.left; anchors.right: parent.right; anchors.top: parent.top
-            anchors.topMargin: 20; anchors.leftMargin: 16; anchors.rightMargin: 16; anchors.bottomMargin: 16
+            anchors.left: parent.left
+            anchors.right: parent.right
+            anchors.top: parent.top
+            anchors.topMargin: 20
+            anchors.leftMargin: 16
+            anchors.rightMargin: 16
+            anchors.bottomMargin: 16
             spacing: 0
 
             RowLayout {
-                Layout.fillWidth: true; Layout.bottomMargin: 10
-                Text { text: "Notifications"; font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 14; font.weight: Font.DemiBold; color: "#c0caf5"; Layout.fillWidth: true }
+                Layout.fillWidth: true
+                Layout.bottomMargin: 10
+                Text {
+                    text: "Notifications"
+                    font.family: "JetBrainsMono Nerd Font"
+                    font.pixelSize: 14
+                    font.weight: Font.DemiBold
+                    color: "#c0caf5"
+                    Layout.fillWidth: true
+                }
                 Rectangle {
                     visible: Notifs.history.length > 0
-                    implicitWidth: clearText.implicitWidth + 12; implicitHeight: 20; radius: 4
+                    implicitWidth: clearText.implicitWidth + 12
+                    implicitHeight: 20
+                    radius: 4
                     color: clearHover.containsMouse ? "#22f7768e" : "transparent"
-                    Behavior on color { ColorAnimation { duration: 150 } }
-                    Text { id: clearText; anchors.centerIn: parent; text: "Clear All"; font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 11; color: clearHover.containsMouse ? "#f7768e" : "#565f89"; Behavior on color { ColorAnimation { duration: 150 } } }
-                    MouseArea { id: clearHover; anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor; onClicked: Notifs.clearHistory() }
+                    Behavior on color {
+                        ColorAnimation {
+                            duration: 150
+                        }
+                    }
+                    Text {
+                        id: clearText
+                        anchors.centerIn: parent
+                        text: "Clear All"
+                        font.family: "JetBrainsMono Nerd Font"
+                        font.pixelSize: 11
+                        color: clearHover.containsMouse ? "#f7768e" : "#565f89"
+                        Behavior on color {
+                            ColorAnimation {
+                                duration: 150
+                            }
+                        }
+                    }
+                    MouseArea {
+                        id: clearHover
+                        anchors.fill: parent
+                        hoverEnabled: true
+                        cursorShape: Qt.PointingHandCursor
+                        onClicked: Notifs.clearHistory()
+                    }
                 }
             }
 
             ScrollView {
-                Layout.fillWidth: true; Layout.preferredHeight: Math.min(500, list.contentHeight)
-                visible: Notifs.history.length > 0; clip: true
+                Layout.fillWidth: true
+                Layout.preferredHeight: Math.min(500, list.contentHeight)
+                visible: Notifs.history.length > 0
+                clip: true
                 ListView {
-                    id: list; width: parent.width; implicitHeight: contentHeight
-                    spacing: 8; interactive: true; boundsBehavior: Flickable.StopAtBounds
-                    model: ScriptModel { values: Notifs.history }
-                    delegate: NotifManagerCard { width: ListView.view.width - 8; anchors.horizontalCenter: parent.horizontalCenter }
+                    id: list
+                    width: parent.width
+                    implicitHeight: contentHeight
+                    spacing: 8
+                    interactive: true
+                    boundsBehavior: Flickable.StopAtBounds
+                    model: ScriptModel {
+                        values: Notifs.history
+                    }
+                    delegate: NotifManagerCard {
+                        width: ListView.view.width - 8
+                        anchors.horizontalCenter: parent.horizontalCenter
+                    }
                 }
             }
 
             Item {
-                visible: Notifs.history.length === 0; Layout.fillWidth: true; implicitHeight: 84
-                Text { anchors.centerIn: parent; text: "No notifications"; color: "#565f89"; font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 13 }
+                visible: Notifs.history.length === 0
+                Layout.fillWidth: true
+                implicitHeight: 84
+                Text {
+                    anchors.centerIn: parent
+                    text: "No notifications"
+                    color: "#565f89"
+                    font.family: "JetBrainsMono Nerd Font"
+                    font.pixelSize: 13
+                }
             }
 
-            Item { implicitHeight: 8 }
+            Item {
+                implicitHeight: 8
+            }
         }
     }
 
-    MouseArea { anchors.fill: parent; z: -1; onClicked: root.panelVisible = false }
+    MouseArea {
+        anchors.fill: parent
+        z: -1
+        onClicked: root.panelVisible = false
+    }
 }

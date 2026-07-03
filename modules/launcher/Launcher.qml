@@ -5,6 +5,7 @@ import QtQuick.Layouts
 import QtQuick.Controls
 import Quickshell
 import Quickshell.Io
+import "../../components"
 import Quickshell.Widgets
 import Quickshell.Wayland
 import "../../services"
@@ -16,13 +17,14 @@ Scope {
     property bool windowVisible: false
 
     onLauncherVisibleChanged: {
-        if (launcherVisible) windowVisible = true
+        if (launcherVisible)
+            windowVisible = true;
     }
 
     IpcHandler {
         target: "launcher"
         function toggle(): void {
-            root.launcherVisible = !root.launcherVisible
+            root.launcherVisible = !root.launcherVisible;
         }
     }
 
@@ -48,17 +50,22 @@ Scope {
         WlrLayershell.exclusiveZone: 0
 
         mask: root.launcherVisible ? activeRegion : emptyRegion
-        Region { id: emptyRegion }
+        Region {
+            id: emptyRegion
+        }
         Region {
             id: activeRegion
-            x: (overlay.width - 560) / 2; y: 0
-            width: 560; height: card.fullHeight
+            x: (overlay.width - 560) / 2
+            y: 0
+            width: 560
+            height: card.fullHeight
         }
 
         Connections {
             target: root
             function onLauncherVisibleChanged() {
-                if (!root.launcherVisible) closeTimer.restart()
+                if (!root.launcherVisible)
+                    closeTimer.restart();
             }
         }
         Timer {
@@ -69,8 +76,8 @@ Scope {
 
         onVisibleChanged: {
             if (visible) {
-                searchField.text = ""
-                searchField.forceActiveFocus()
+                searchField.text = "";
+                searchField.forceActiveFocus();
             }
         }
 
@@ -94,13 +101,11 @@ Scope {
             // env/shell offsetScale animation — slides below the screen edge
             property real offsetScale: root.launcherVisible ? 0 : 1
             Behavior on offsetScale {
-                NumberAnimation {
-                    duration: 500
-                    easing.type: Easing.BezierSpline
-                    easing.bezierCurve: [0.38, 1.21, 0.22, 1, 1, 1]
-                }
+                Anim {}
             }
-            transform: Translate { y: (card.fullHeight + 5) * card.offsetScale }
+            transform: Translate {
+                y: (card.fullHeight + 5) * card.offsetScale
+            }
             opacity: 1 - offsetScale
 
             Item {
@@ -133,13 +138,17 @@ Scope {
 
                     Text {
                         text: {
-                            if (contentItem.mode === "calc")     return "󰃬"
-                            if (contentItem.mode === "nerdfont") return ""
-                            if (contentItem.mode === "emoji")    return ""
-                            return "󱓞"
+                            if (contentItem.mode === "calc")
+                                return "󰃬";
+                            if (contentItem.mode === "nerdfont")
+                                return "";
+                            if (contentItem.mode === "emoji")
+                                return "";
+                            return "󱓞";
                         }
                         color: "#7aa2f7"
-                        font.family: overlay.font; font.pixelSize: 16
+                        font.family: overlay.font
+                        font.pixelSize: 16
                         verticalAlignment: Text.AlignVCenter
                         Layout.alignment: Qt.AlignVCenter
                         Behavior on text {}
@@ -150,28 +159,46 @@ Scope {
                         Layout.fillWidth: true
                         Layout.alignment: Qt.AlignVCenter
                         color: "#c0caf5"
-                        font.family: overlay.font; font.pixelSize: 14
+                        font.family: overlay.font
+                        font.pixelSize: 14
                         clip: true
 
                         Text {
                             anchors.fill: parent
                             text: "Search apps..."
                             color: "#565f89"
-                            font.family: overlay.font; font.pixelSize: 14
+                            font.family: overlay.font
+                            font.pixelSize: 14
                             verticalAlignment: Text.AlignVCenter
                             visible: !searchField.text
                         }
 
-                        Keys.onEscapePressed: { root.launcherVisible = false; text = "" }
-                        Keys.onUpPressed:     { const v = stack.activeView; if (v?.handleUp)     v.handleUp() }
-                        Keys.onDownPressed:   { const v = stack.activeView; if (v?.handleDown)   v.handleDown() }
-                        Keys.onReturnPressed: { const v = stack.activeView; if (v?.handleReturn) v.handleReturn() }
+                        Keys.onEscapePressed: {
+                            root.launcherVisible = false;
+                            text = "";
+                        }
+                        Keys.onUpPressed: {
+                            const v = stack.activeView;
+                            if (v?.handleUp)
+                                v.handleUp();
+                        }
+                        Keys.onDownPressed: {
+                            const v = stack.activeView;
+                            if (v?.handleDown)
+                                v.handleDown();
+                        }
+                        Keys.onReturnPressed: {
+                            const v = stack.activeView;
+                            if (v?.handleReturn)
+                                v.handleReturn();
+                        }
                     }
 
                     Text {
                         text: ""
                         color: "#565f89"
-                        font.family: overlay.font; font.pixelSize: 14
+                        font.family: overlay.font
+                        font.pixelSize: 14
                         visible: searchField.text.length > 0
                         Layout.alignment: Qt.AlignVCenter
                         MouseArea {
@@ -183,11 +210,14 @@ Scope {
                 }
 
                 readonly property string mode: {
-                    const t = searchField.text
-                    if (t.startsWith("="))  return "calc"
-                    if (t.startsWith("::")) return "nerdfont"
-                    if (t.startsWith(":"))  return "emoji"
-                    return "apps"
+                    const t = searchField.text;
+                    if (t.startsWith("="))
+                        return "calc";
+                    if (t.startsWith("::"))
+                        return "nerdfont";
+                    if (t.startsWith(":"))
+                        return "emoji";
+                    return "apps";
                 }
 
                 Item {
@@ -200,38 +230,49 @@ Scope {
                     anchors.rightMargin: 6
 
                     readonly property var activeView: {
-                        if (contentItem.mode === "calc")     return calcView
-                        if (contentItem.mode === "emoji")    return emojiView
-                        if (contentItem.mode === "nerdfont") return nerdfontView
-                        return appsView
+                        if (contentItem.mode === "calc")
+                            return calcView;
+                        if (contentItem.mode === "emoji")
+                            return emojiView;
+                        if (contentItem.mode === "nerdfont")
+                            return nerdfontView;
+                        return appsView;
                     }
 
                     implicitHeight: activeView ? activeView.implicitHeight : 0
 
                     LauncherApps {
                         id: appsView
-                        anchors.left: parent.left; anchors.right: parent.right; anchors.bottom: parent.bottom
+                        anchors.left: parent.left
+                        anchors.right: parent.right
+                        anchors.bottom: parent.bottom
                         visible: contentItem.mode === "apps"
                         query: contentItem.mode === "apps" ? searchField.text.trim() : ""
                         onAction: root.launcherVisible = false
                     }
                     LauncherCalc {
                         id: calcView
-                        anchors.left: parent.left; anchors.right: parent.right; anchors.bottom: parent.bottom
+                        anchors.left: parent.left
+                        anchors.right: parent.right
+                        anchors.bottom: parent.bottom
                         visible: contentItem.mode === "calc"
                         expr: contentItem.mode === "calc" ? searchField.text.slice(1).trim() : ""
                         onAction: root.launcherVisible = false
                     }
                     LauncherEmoji {
                         id: emojiView
-                        anchors.left: parent.left; anchors.right: parent.right; anchors.bottom: parent.bottom
+                        anchors.left: parent.left
+                        anchors.right: parent.right
+                        anchors.bottom: parent.bottom
                         visible: contentItem.mode === "emoji"
                         query: contentItem.mode === "emoji" ? searchField.text.slice(1).toLowerCase().trim() : ""
                         onAction: root.launcherVisible = false
                     }
                     LauncherNerdfont {
                         id: nerdfontView
-                        anchors.left: parent.left; anchors.right: parent.right; anchors.bottom: parent.bottom
+                        anchors.left: parent.left
+                        anchors.right: parent.right
+                        anchors.bottom: parent.bottom
                         visible: contentItem.mode === "nerdfont"
                         query: contentItem.mode === "nerdfont" ? searchField.text.slice(2).toLowerCase().trim() : ""
                         onAction: root.launcherVisible = false

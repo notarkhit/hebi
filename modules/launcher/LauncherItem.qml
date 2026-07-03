@@ -4,6 +4,7 @@ import QtQuick
 import QtQuick.Layouts
 import QtQuick.Controls
 import Quickshell
+import "../../components"
 import Quickshell.Widgets
 import "../../services"
 
@@ -23,19 +24,21 @@ Item {
 
     onLauncherVisibleChanged: {
         if (launcherVisible) {
-            searchField.text = ""
-            searchField.forceActiveFocus()
+            searchField.text = "";
+            searchField.forceActiveFocus();
         }
     }
 
     // env/shell offsetScale animation — slides below the screen bottom
     property real offsetScale: root.launcherVisible ? 0 : 1
     Behavior on offsetScale {
-        NumberAnimation { duration: 500; easing.type: Easing.BezierSpline; easing.bezierCurve: [0.38, 1.21, 0.22, 1, 1, 1] }
+        Anim {}
     }
     // blobY: visual y for MainWindow's shared BlobRect (launcher slides from bottom)
     readonly property real blobY: parent ? parent.height - implicitHeight + (card.fullHeight + 5) * offsetScale : 0
-    transform: Translate { y: (card.fullHeight + 5) * root.offsetScale }
+    transform: Translate {
+        y: (card.fullHeight + 5) * root.offsetScale
+    }
 
     // ── card ──────────────────────────────────────────────────────────────────
     Item {
@@ -60,13 +63,17 @@ Item {
 
             Text {
                 text: {
-                    if (contentItem.mode === "calc")     return "󰃬"
-                    if (contentItem.mode === "nerdfont") return ""
-                    if (contentItem.mode === "emoji")    return ""
-                    return "󱓞"
+                    if (contentItem.mode === "calc")
+                        return "󰃬";
+                    if (contentItem.mode === "nerdfont")
+                        return "";
+                    if (contentItem.mode === "emoji")
+                        return "";
+                    return "󱓞";
                 }
                 color: "#7aa2f7"
-                font.family: root.font; font.pixelSize: 16
+                font.family: root.font
+                font.pixelSize: 16
                 verticalAlignment: Text.AlignVCenter
                 Layout.alignment: Qt.AlignVCenter
             }
@@ -76,28 +83,46 @@ Item {
                 Layout.fillWidth: true
                 Layout.alignment: Qt.AlignVCenter
                 color: "#c0caf5"
-                font.family: root.font; font.pixelSize: 14
+                font.family: root.font
+                font.pixelSize: 14
                 clip: true
 
                 Text {
                     anchors.fill: parent
                     text: "Search apps..."
                     color: "#565f89"
-                    font.family: root.font; font.pixelSize: 14
+                    font.family: root.font
+                    font.pixelSize: 14
                     verticalAlignment: Text.AlignVCenter
                     visible: !searchField.text
                 }
 
-                Keys.onEscapePressed: { root.closeRequested(); text = "" }
-                Keys.onUpPressed:     { const v = stack.activeView; if (v?.handleUp)     v.handleUp() }
-                Keys.onDownPressed:   { const v = stack.activeView; if (v?.handleDown)   v.handleDown() }
-                Keys.onReturnPressed: { const v = stack.activeView; if (v?.handleReturn) v.handleReturn() }
+                Keys.onEscapePressed: {
+                    root.closeRequested();
+                    text = "";
+                }
+                Keys.onUpPressed: {
+                    const v = stack.activeView;
+                    if (v?.handleUp)
+                        v.handleUp();
+                }
+                Keys.onDownPressed: {
+                    const v = stack.activeView;
+                    if (v?.handleDown)
+                        v.handleDown();
+                }
+                Keys.onReturnPressed: {
+                    const v = stack.activeView;
+                    if (v?.handleReturn)
+                        v.handleReturn();
+                }
             }
 
             Text {
                 text: ""
                 color: "#565f89"
-                font.family: root.font; font.pixelSize: 14
+                font.family: root.font
+                font.pixelSize: 14
                 visible: searchField.text.length > 0
                 Layout.alignment: Qt.AlignVCenter
                 MouseArea {
@@ -112,11 +137,14 @@ Item {
             id: contentItem
 
             readonly property string mode: {
-                const t = searchField.text
-                if (t.startsWith("="))  return "calc"
-                if (t.startsWith("::")) return "nerdfont"
-                if (t.startsWith(":"))  return "emoji"
-                return "apps"
+                const t = searchField.text;
+                if (t.startsWith("="))
+                    return "calc";
+                if (t.startsWith("::"))
+                    return "nerdfont";
+                if (t.startsWith(":"))
+                    return "emoji";
+                return "apps";
             }
 
             anchors.left: parent.left
@@ -127,41 +155,55 @@ Item {
 
             Item {
                 id: stack
-                anchors.left: parent.left; anchors.right: parent.right; anchors.bottom: parent.bottom
-                anchors.leftMargin: 6; anchors.rightMargin: 6
+                anchors.left: parent.left
+                anchors.right: parent.right
+                anchors.bottom: parent.bottom
+                anchors.leftMargin: 6
+                anchors.rightMargin: 6
 
                 readonly property var activeView: {
-                    if (contentItem.mode === "calc")     return calcView
-                    if (contentItem.mode === "emoji")    return emojiView
-                    if (contentItem.mode === "nerdfont") return nerdfontView
-                    return appsView
+                    if (contentItem.mode === "calc")
+                        return calcView;
+                    if (contentItem.mode === "emoji")
+                        return emojiView;
+                    if (contentItem.mode === "nerdfont")
+                        return nerdfontView;
+                    return appsView;
                 }
                 implicitHeight: activeView ? activeView.implicitHeight : 0
 
                 LauncherApps {
                     id: appsView
-                    anchors.left: parent.left; anchors.right: parent.right; anchors.bottom: parent.bottom
+                    anchors.left: parent.left
+                    anchors.right: parent.right
+                    anchors.bottom: parent.bottom
                     visible: contentItem.mode === "apps"
                     query: contentItem.mode === "apps" ? searchField.text.trim() : ""
                     onAction: root.closeRequested()
                 }
                 LauncherCalc {
                     id: calcView
-                    anchors.left: parent.left; anchors.right: parent.right; anchors.bottom: parent.bottom
+                    anchors.left: parent.left
+                    anchors.right: parent.right
+                    anchors.bottom: parent.bottom
                     visible: contentItem.mode === "calc"
                     expr: contentItem.mode === "calc" ? searchField.text.slice(1).trim() : ""
                     onAction: root.closeRequested()
                 }
                 LauncherEmoji {
                     id: emojiView
-                    anchors.left: parent.left; anchors.right: parent.right; anchors.bottom: parent.bottom
+                    anchors.left: parent.left
+                    anchors.right: parent.right
+                    anchors.bottom: parent.bottom
                     visible: contentItem.mode === "emoji"
                     query: contentItem.mode === "emoji" ? searchField.text.slice(1).toLowerCase().trim() : ""
                     onAction: root.closeRequested()
                 }
                 LauncherNerdfont {
                     id: nerdfontView
-                    anchors.left: parent.left; anchors.right: parent.right; anchors.bottom: parent.bottom
+                    anchors.left: parent.left
+                    anchors.right: parent.right
+                    anchors.bottom: parent.bottom
                     visible: contentItem.mode === "nerdfont"
                     query: contentItem.mode === "nerdfont" ? searchField.text.slice(2).toLowerCase().trim() : ""
                     onAction: root.closeRequested()
