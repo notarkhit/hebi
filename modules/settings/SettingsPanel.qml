@@ -194,8 +194,6 @@ PanelWindow {
             }
         }
 
-
-
         // Clip wrapper that bounds the content exactly to the expanding box
         Item {
             x: panelBg.x

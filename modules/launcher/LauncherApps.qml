@@ -8,7 +8,7 @@ import Quickshell.Wayland
 ListView {
     id: appsList
     property string query: ""
-    signal action()
+    signal action
 
     clip: true
     verticalLayoutDirection: ListView.BottomToTop
@@ -27,61 +27,87 @@ ListView {
         const generic = (app.genericName || "").toLowerCase();
         const comment = (app.comment || "").toLowerCase();
 
-        if (name === ql) return 1000;
-        if (name.startsWith(ql)) return 900;
-        
-        const words = name.split(/[\s\-_:]+/);
-        if (words.includes(ql)) return 850;
+        if (name === ql)
+            return 1000;
+        if (name.startsWith(ql))
+            return 900;
 
-        if (name.includes(ql)) return 800;
+        const words = name.split(/[\s\-_:]+/);
+        if (words.includes(ql))
+            return 850;
+
+        if (name.includes(ql))
+            return 800;
 
         const initials = words.map(w => w[0] || "").join("");
-        if (initials.startsWith(ql)) return 750;
-        if (initials.includes(ql)) return 700;
+        if (initials.startsWith(ql))
+            return 750;
+        if (initials.includes(ql))
+            return 700;
 
         let qi = 0;
         for (let i = 0; i < name.length && qi < ql.length; i++)
-            if (name[i] === ql[qi]) qi++;
-        if (qi === ql.length) return 600 - Math.min(name.length - ql.length, 99);
+            if (name[i] === ql[qi])
+                qi++;
+        if (qi === ql.length)
+            return 600 - Math.min(name.length - ql.length, 99);
 
-        if (generic.split(/[\s\-_:]+/).includes(ql) || comment.split(/[\s\-_:]+/).includes(ql)) return 550;
-        if (generic.includes(ql) || comment.includes(ql)) return 500;
+        if (generic.split(/[\s\-_:]+/).includes(ql) || comment.split(/[\s\-_:]+/).includes(ql))
+            return 550;
+        if (generic.includes(ql) || comment.includes(ql))
+            return 500;
         return -1;
     }
 
     model: {
         const q = appsList.query;
         const all = DesktopEntries.applications.values;
-        if (!q) return [...all].sort((a, b) => a.name.localeCompare(b.name));
-        return all.map(a => ({ app: a, score: fuzzyScore(a, q) }))
-                  .filter(x => x.score >= 0)
-                  .sort((x, y) => y.score !== x.score ? y.score - x.score : x.app.name.localeCompare(y.app.name))
-                  .map(x => x.app);
+        if (!q)
+            return [...all].sort((a, b) => a.name.localeCompare(b.name));
+        return all.map(a => ({
+                    app: a,
+                    score: fuzzyScore(a, q)
+                })).filter(x => x.score >= 0).sort((x, y) => y.score !== x.score ? y.score - x.score : x.app.name.localeCompare(y.app.name)).map(x => x.app);
     }
 
     function handleUp() {
-        if (count === 0) return;
-        if (currentIndex >= count - 1) currentIndex = 0;
-        else incrementCurrentIndex();
+        if (count === 0)
+            return;
+        if (currentIndex >= count - 1)
+            currentIndex = 0;
+        else
+            incrementCurrentIndex();
     }
 
     function handleDown() {
-        if (count === 0) return;
-        if (currentIndex <= 0) currentIndex = count - 1;
-        else decrementCurrentIndex();
+        if (count === 0)
+            return;
+        if (currentIndex <= 0)
+            currentIndex = count - 1;
+        else
+            decrementCurrentIndex();
     }
 
     function handleReturn() {
         const item = currentItem;
-        if (item) item.activate();
+        if (item)
+            item.activate();
     }
 
     ScrollBar.vertical: ScrollBar {
         policy: ScrollBar.AsNeeded
-        contentItem: Rectangle { implicitWidth: 4; radius: 2; color: "#3b4261" }
+        contentItem: Rectangle {
+            implicitWidth: 4
+            radius: 2
+            color: "#3b4261"
+        }
     }
 
-    highlight: Rectangle { radius: 8; color: Qt.rgba(0x7a/255, 0xa2/255, 0xf7/255, 0.12); width: appsList.width }
+    highlight: Rectangle {
+        radius: 8
+        color: Qt.rgba(0x7a / 255, 0xa2 / 255, 0xf7 / 255, 0.12)
+        width: appsList.width
+    }
     highlightFollowsCurrentItem: true
     highlightMoveDuration: 80
 
@@ -94,11 +120,19 @@ ListView {
 
         function activate() {
             appsList.action();
-            Quickshell.execDetached({ command: modelData.command });
+            modelData.execute();
         }
 
-        HoverHandler { id: hoverHandler; cursorShape: Qt.PointingHandCursor }
-        TapHandler { onTapped: { appsList.currentIndex = delRoot.index; delRoot.activate(); } }
+        HoverHandler {
+            id: hoverHandler
+            cursorShape: Qt.PointingHandCursor
+        }
+        TapHandler {
+            onTapped: {
+                appsList.currentIndex = delRoot.index;
+                delRoot.activate();
+            }
+        }
 
         RowLayout {
             anchors.fill: parent

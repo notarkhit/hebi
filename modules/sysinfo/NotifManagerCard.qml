@@ -255,7 +255,7 @@ Item {
 
                 Behavior on maximumLineCount {}
 
-                onLinkActivated: link => Quickshell.execDetached(["xdg-open", link])
+                onLinkActivated: link => Qt.openUrlExternally(link)
             }
 
             // Bottom breathing room
