@@ -5,7 +5,6 @@ import QtQuick.Layouts
 import QtQuick.Controls
 import Quickshell
 import Quickshell.Widgets
-import Hebi.Blobs
 import "../../services"
 
 Item {
@@ -34,8 +33,9 @@ Item {
     Behavior on offsetScale {
         NumberAnimation { duration: 500; easing.type: Easing.BezierSpline; easing.bezierCurve: [0.38, 1.21, 0.22, 1, 1, 1] }
     }
+    // blobY: visual y for MainWindow's shared BlobRect (launcher slides from bottom)
+    readonly property real blobY: parent ? parent.height - implicitHeight + (card.fullHeight + 5) * offsetScale : 0
     transform: Translate { y: (card.fullHeight + 5) * root.offsetScale }
-    opacity: 1 - offsetScale
 
     // ── card ──────────────────────────────────────────────────────────────────
     Item {
@@ -47,10 +47,6 @@ Item {
         anchors.bottom: parent.bottom
         width: 560
         height: fullHeight
-
-        // Blob background for the card
-        BlobGroup { id: bgGroup; color: Theme.surface }
-        BlobRect { group: bgGroup; anchors.fill: parent; radius: 12; stiffness: 200; damping: 18; deformScale: 0.006 }
 
         RowLayout {
             id: searchRow

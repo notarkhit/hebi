@@ -5,7 +5,6 @@ import QtQuick.Layouts
 import Quickshell
 import Quickshell.Io
 import Quickshell.Services.UPower
-import Hebi.Blobs
 import "components"
 import "../../services"
 
@@ -81,12 +80,10 @@ Item {
     Behavior on offsetScale {
         NumberAnimation { duration: 500; easing.type: Easing.BezierSpline; easing.bezierCurve: [0.38, 1.21, 0.22, 1, 1, 1] }
     }
-    transform: Translate { y: (-root.implicitHeight - 5) * root.offsetScale }
-    opacity: 1 - offsetScale
+    // blobY: visual y-position used by MainWindow's shared BlobRect to track this panel
+    readonly property real blobY: y + (-implicitHeight - 5) * offsetScale
 
-    // ── blob background ────────────────────────────────────────────────────────
-    BlobGroup { id: bgGroup; color: Theme.surface }
-    BlobRect { group: bgGroup; anchors.fill: parent; radius: 20; stiffness: 200; damping: 18; deformScale: 0.006 }
+    transform: Translate { y: (-root.implicitHeight - 5) * root.offsetScale }
 
     // ── content ───────────────────────────────────────────────────────────────
     ColumnLayout {
