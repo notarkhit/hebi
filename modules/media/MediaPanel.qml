@@ -68,12 +68,13 @@ PanelWindow {
 
     mask: panelVisible ? activeRegion : emptyRegion
     Region { id: emptyRegion }
-    Region { id: activeRegion; x: 0; y: 0; width: root.implicitWidth; height: wrapper.height }
+    Region { id: activeRegion; x: (root.implicitWidth - wrapper.width) / 2; y: 0; width: wrapper.width; height: wrapper.height }
 
     // ── animated wrapper ───────────────────────────────────────────────────────
     Item {
         id: wrapper
-        anchors.top: parent.top; anchors.horizontalCenter: parent.horizontalCenter
+        anchors.horizontalCenter: parent.horizontalCenter
+        y: 0
         width: 392
         height: root.showLyrics ? (Lyrics.hasLyrics ? 620 : 320) : 260
         Behavior on height { NumberAnimation { duration: 300; easing.type: Easing.OutCubic } }
@@ -82,7 +83,7 @@ PanelWindow {
         Behavior on offsetScale {
             NumberAnimation { duration: 500; easing.type: Easing.BezierSpline; easing.bezierCurve: [0.38, 1.21, 0.22, 1, 1, 1] }
         }
-        anchors.topMargin: (-height - 5) * offsetScale
+        transform: Translate { y: (-wrapper.height - 5) * wrapper.offsetScale }
         opacity: 1 - offsetScale
 
         BlobGroup { id: bgGroup; color: Theme.surface }

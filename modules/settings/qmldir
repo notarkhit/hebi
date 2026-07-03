@@ -1,2 +1,3 @@
 module settings
-SettingsPanel 1.0 SettingsPanel.qml
+SettingsPanel     1.0 SettingsPanel.qml
+SettingsPanelItem 1.0 SettingsPanelItem.qml

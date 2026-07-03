@@ -48,7 +48,7 @@ PanelWindow {
 
     mask: panelVisible ? activeRegion : emptyRegion
     Region { id: emptyRegion }
-    Region { id: activeRegion; x: 0; y: 0; width: root.implicitWidth; height: wrapper.height }
+    Region { id: activeRegion; x: root.implicitWidth - wrapper.width; y: 0; width: wrapper.width; height: wrapper.height }
 
     // ── network state ─────────────────────────────────────────────────────────
     property bool wifiEnabled: true
@@ -106,8 +106,8 @@ PanelWindow {
     // ── animated wrapper (animation on Item, not PanelWindow) ─────────────────
     Item {
         id: wrapper
-        anchors.top: parent.top
         anchors.right: parent.right
+        y: 0
         width: 400
         height: col.implicitHeight + 52
 
@@ -115,7 +115,7 @@ PanelWindow {
         Behavior on offsetScale {
             NumberAnimation { duration: 500; easing.type: Easing.BezierSpline; easing.bezierCurve: [0.38, 1.21, 0.22, 1, 1, 1] }
         }
-        anchors.topMargin: (-height - 5) * offsetScale
+        transform: Translate { y: (-wrapper.height - 5) * wrapper.offsetScale }
         opacity: 1 - offsetScale
 
         BlobGroup { id: bgGroup; color: Theme.surface }

@@ -1,2 +1,3 @@
 module calendar
-CalendarPanel 1.0 CalendarPanel.qml
+CalendarPanel     1.0 CalendarPanel.qml
+CalendarPanelItem 1.0 CalendarPanelItem.qml

@@ -80,18 +80,18 @@ Scope {
             onClicked: root.launcherVisible = false
         }
 
-        // ── card (animation lives here, not on PanelWindow) ───────────────────
+        // ── card (animation lives here, not on PanelWindow) ─────────────────────
         Item {
             id: card
 
             readonly property int fullHeight: stack.implicitHeight + 56
 
             anchors.horizontalCenter: parent.horizontalCenter
-            anchors.bottom: parent.bottom
+            y: parent.height - fullHeight
             width: 560
             height: fullHeight
 
-            // env/shell offsetScale animation
+            // env/shell offsetScale animation — slides below the screen edge
             property real offsetScale: root.launcherVisible ? 0 : 1
             Behavior on offsetScale {
                 NumberAnimation {
@@ -100,7 +100,7 @@ Scope {
                     easing.bezierCurve: [0.38, 1.21, 0.22, 1, 1, 1]
                 }
             }
-            anchors.bottomMargin: (-fullHeight - 5) * offsetScale
+            transform: Translate { y: (card.fullHeight + 5) * card.offsetScale }
             opacity: 1 - offsetScale
 
             Item {
