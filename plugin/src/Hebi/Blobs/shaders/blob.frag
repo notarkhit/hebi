@@ -263,7 +263,16 @@ void main() {
         discard;
 
     float fw = fwidth(mergedSdf);
-    float shapeAlpha = 1.0 - smoothstep(-fw, fw, mergedSdf);
+    
+    // Detect if the edge is a straight horizontal or vertical line
+    vec2 grad = vec2(dFdx(mergedSdf), dFdy(mergedSdf));
+    float axisAlignment = max(abs(grad.x), abs(grad.y)) / (length(grad) + 1e-5);
+    float isStraight = smoothstep(0.98, 1.0, axisAlignment);
+    
+    float smoothAlpha = 1.0 - smoothstep(-fw, fw, mergedSdf);
+    float sharpAlpha = mergedSdf <= 0.0 ? 1.0 : 0.0;
+    
+    float shapeAlpha = mix(smoothAlpha, sharpAlpha, isStraight);
     float alpha = shapeAlpha * color.a;
     fragColor = vec4(color.rgb * alpha, alpha) * qt_Opacity;
 }
