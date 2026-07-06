@@ -8,10 +8,10 @@ import Quickshell
 Singleton {
     id: root
 
-    // Wait 100ms before querying Hyprland to prevent IPC stalls on the very first frame
+    // Wait 1 frame before querying Hyprland to prevent IPC stalls
     property bool dynamicOpacityReady: false
     Timer {
-        interval: 100
+        interval: 0
         running: true
         onTriggered: root.dynamicOpacityReady = true
     }
@@ -21,6 +21,7 @@ Singleton {
     property color surface: Qt.rgba(0, 0, 0, hasActiveWindow ? 0.98 : 0.80)
 
     Behavior on surface {
+        enabled: root.dynamicOpacityReady
         ColorAnimation {
             duration: 300
             easing.type: Easing.OutCubic

@@ -45,15 +45,6 @@ Item {
             color: "#7aa2f7"
             font.family: root.font
             font.pixelSize: 16
-
-            opacity: 0
-            NumberAnimation on opacity {
-                from: 0
-                to: 1
-                duration: 600
-                easing.type: Easing.OutCubic
-                running: true
-            }
         }
 
         // Workspaces
