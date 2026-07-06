@@ -8,8 +8,16 @@ import Quickshell
 Singleton {
     id: root
 
-    // ── Surface background ────────────────────────────────────────────────────
-    readonly property bool hasActiveWindow: Hypr.activeToplevel && Hypr.activeToplevel.workspace === Hypr.focusedWorkspace
+    // Wait 100ms before querying Hyprland to prevent IPC stalls on the very first frame
+    property bool dynamicOpacityReady: false
+    Timer {
+        interval: 100
+        running: true
+        onTriggered: root.dynamicOpacityReady = true
+    }
+
+    // Short-circuit the Hyprland property checks if we aren't ready yet
+    readonly property bool hasActiveWindow: dynamicOpacityReady && Hypr.activeToplevel && Hypr.activeToplevel.workspace === Hypr.focusedWorkspace
     property color surface: Qt.rgba(0, 0, 0, hasActiveWindow ? 0.98 : 0.80)
 
     Behavior on surface {
