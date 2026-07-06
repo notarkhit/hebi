@@ -256,11 +256,10 @@ void main() {
         }
     }
 
-    // Each renderer only outputs pixels it owns, but allow rendering
-    // blend zones to prevent gaps (mergedSdf < smoothFactor means in blend)
-    // myIndex == -1: inverted rect renders border-owned pixels
-    // myIndex >= 0: individual rect renders its owned pixels
-    if (owner != myIndex && mergedSdf > smoothFactor)
+    // Each renderer only outputs pixels it strictly owns.
+    // This perfectly partitions the space without gaps because the merged SDF and color
+    // are identical for all renderers, and it prevents double-drawing transparent pixels.
+    if (owner != myIndex)
         discard;
 
     float fw = fwidth(mergedSdf);
