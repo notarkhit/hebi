@@ -9,8 +9,7 @@ Singleton {
     id: root
 
     // ── Surface background ────────────────────────────────────────────────────
-    // Used by: Bar, SettingsPanel BlobGroup, SysInfoPanel BlobGroup, Launcher card
-    readonly property color surface: Qt.rgba(0, 0, 0, 0.80)
+    readonly property color surface: Qt.rgba(0, 0, 0, 0.65)
 
     // Opaque hex variant for components that don't support alpha directly
     readonly property string surfaceHex: "#000000"

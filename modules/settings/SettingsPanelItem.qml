@@ -85,12 +85,6 @@ Item {
     Behavior on offsetScale {
         Anim {}
     }
-    // blobY: visual y-position used by MainWindow's shared BlobRect to track this panel
-    readonly property real blobY: y + (-implicitHeight - 60) * offsetScale
-
-    transform: Translate {
-        y: (-root.implicitHeight - 60) * root.offsetScale
-    }
 
     // ── content ───────────────────────────────────────────────────────────────
     ColumnLayout {

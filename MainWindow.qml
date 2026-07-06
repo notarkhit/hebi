@@ -34,6 +34,16 @@ PanelWindow {
 
     readonly property bool anyPanelVisible: settingsVisible || sysInfoVisible || notifMgrVisible || mediaVisible || calendarVisible || launcherVisible
 
+    // ── fullscreen detection ──────────────────────────────────────────────────
+    readonly property var activeMonitor: Hypr.monitorFor(root.screen)
+    readonly property bool hasFullscreenOnNormalWs: activeMonitor?.activeWorkspace?.toplevels.values.some(t => t.lastIpcObject.fullscreen > 1) ?? false
+    readonly property bool hasFullscreen: {
+        const specialWs = activeMonitor?.lastIpcObject.specialWorkspace.name;
+        if (specialWs?.length > 0)
+            return Hypr.workspaces.values.find(w => w.name === specialWs)?.toplevels.values.some(t => t.lastIpcObject.fullscreen > 1) ?? false;
+        return hasFullscreenOnNormalWs;
+    }
+
     // Mutual exclusion: opening one closes others (launcher is independent)
     onSettingsVisibleChanged: if (settingsVisible) {
         sysInfoVisible = false;
@@ -143,7 +153,7 @@ PanelWindow {
 
     color: "transparent"
 
-    WlrLayershell.layer: WlrLayer.Overlay
+    WlrLayershell.layer: root.hasFullscreen ? WlrLayer.Bottom : WlrLayer.Overlay
     WlrLayershell.exclusiveZone: 0
     WlrLayershell.keyboardFocus: root.launcherVisible ? WlrKeyboardFocus.Exclusive : WlrKeyboardFocus.None
 
@@ -190,14 +200,16 @@ PanelWindow {
             deformScale: 0
         }
 
-        // Settings blob — tracks settingsItem's visual bounds
+        // Settings blob — pinned at bar edge, grows down as panel opens
         BlobRect {
             group: blobGroup
-            x: root.width - settingsItem.width
-            y: settingsItem.blobY
-            width: settingsItem.width
-            height: settingsItem.height
+            x: root.width - settingsItem.implicitWidth
+            y: root.barHeight
+            width: settingsItem.offsetScale < 1 ? settingsItem.implicitWidth : 0
+            height: settingsItem.implicitHeight * (1 - settingsItem.offsetScale)
             radius: 20
+            topLeftRadius: 0
+            topRightRadius: 0
             stiffness: 200
             damping: 18
             deformScale: (0.15 * Config.appearance.deformScale) / 10000
@@ -207,11 +219,13 @@ PanelWindow {
         // SysInfo blob
         BlobRect {
             group: blobGroup
-            x: root.width - sysInfoItem.width
-            y: sysInfoItem.blobY
-            width: sysInfoItem.width
-            height: sysInfoItem.height
+            x: root.width - sysInfoItem.implicitWidth
+            y: root.barHeight
+            width: sysInfoItem.offsetScale < 1 ? sysInfoItem.implicitWidth : 0
+            height: sysInfoItem.implicitHeight * (1 - sysInfoItem.offsetScale)
             radius: 20
+            topLeftRadius: 0
+            topRightRadius: 0
             stiffness: 200
             damping: 18
             deformScale: (0.15 * Config.appearance.deformScale) / 10000
@@ -221,11 +235,13 @@ PanelWindow {
         // NotifManager blob
         BlobRect {
             group: blobGroup
-            x: root.width - notifMgrItem.width
-            y: notifMgrItem.blobY
-            width: notifMgrItem.width
-            height: notifMgrItem.height
+            x: root.width - notifMgrItem.implicitWidth
+            y: root.barHeight
+            width: notifMgrItem.offsetScale < 1 ? notifMgrItem.implicitWidth : 0
+            height: notifMgrItem.implicitHeight * (1 - notifMgrItem.offsetScale)
             radius: 20
+            topLeftRadius: 0
+            topRightRadius: 0
             stiffness: 200
             damping: 18
             deformScale: (0.15 * Config.appearance.deformScale) / 10000
@@ -235,11 +251,13 @@ PanelWindow {
         // Media blob — center-aligned
         BlobRect {
             group: blobGroup
-            x: (root.width - mediaItem.width) / 2
-            y: mediaItem.blobY
-            width: mediaItem.width
-            height: mediaItem.height
+            x: (root.width - mediaItem.implicitWidth) / 2
+            y: root.barHeight
+            width: mediaItem.offsetScale < 1 ? mediaItem.implicitWidth : 0
+            height: mediaItem.implicitHeight * (1 - mediaItem.offsetScale)
             radius: 20
+            topLeftRadius: 0
+            topRightRadius: 0
             stiffness: 200
             damping: 18
             deformScale: (0.15 * Config.appearance.deformScale) / 10000
@@ -249,11 +267,13 @@ PanelWindow {
         // Calendar blob — center-aligned
         BlobRect {
             group: blobGroup
-            x: (root.width - calendarItem.width) / 2
-            y: calendarItem.blobY
-            width: calendarItem.width
-            height: calendarItem.height
+            x: (root.width - calendarItem.implicitWidth) / 2
+            y: root.barHeight
+            width: calendarItem.offsetScale < 1 ? calendarItem.implicitWidth : 0
+            height: calendarItem.implicitHeight * (1 - calendarItem.offsetScale)
             radius: 24
+            topLeftRadius: 0
+            topRightRadius: 0
             stiffness: 200
             damping: 18
             deformScale: (0.15 * Config.appearance.deformScale) / 10000
@@ -281,48 +301,88 @@ PanelWindow {
     }
 
     // ── panel content items ───────────────────────────────────────────────────
-    // Panels are positioned at y=barHeight (just below the bar).
-    // Their slide animation (offsetScale via Translate) slides them in/out from
-    // behind the bar edge. blobY is exposed so the shared BlobRect above can track them.
+    // Each panel lives in a clip:true wrapper at y=barHeight.
+    // The wrapper grows from height=0 to full panel height as the panel opens,
+    // revealing content top-to-bottom — panels feel like extensions of the bar.
 
-    SettingsPanelItem {
-        id: settingsItem
-        panelVisible: root.settingsVisible
+    Item {
+        id: settingsWrapper
+        clip: true
         anchors.right: parent.right
         y: root.barHeight
-        onCloseRequested: root.settingsVisible = false
+        width: settingsItem.implicitWidth
+        height: settingsItem.implicitHeight * (1 - settingsItem.offsetScale)
+
+        SettingsPanelItem {
+            id: settingsItem
+            panelVisible: root.settingsVisible
+            width: parent.width
+            onCloseRequested: root.settingsVisible = false
+        }
     }
 
-    SysInfoPanelItem {
-        id: sysInfoItem
-        panelVisible: root.sysInfoVisible
+    Item {
+        id: sysInfoWrapper
+        clip: true
         anchors.right: parent.right
         y: root.barHeight
-        onCloseRequested: root.sysInfoVisible = false
+        width: sysInfoItem.implicitWidth
+        height: sysInfoItem.implicitHeight * (1 - sysInfoItem.offsetScale)
+
+        SysInfoPanelItem {
+            id: sysInfoItem
+            panelVisible: root.sysInfoVisible
+            width: parent.width
+            onCloseRequested: root.sysInfoVisible = false
+        }
     }
 
-    NotifManagerPanelItem {
-        id: notifMgrItem
-        panelVisible: root.notifMgrVisible
+    Item {
+        id: notifMgrWrapper
+        clip: true
         anchors.right: parent.right
         y: root.barHeight
-        onCloseRequested: root.notifMgrVisible = false
+        width: notifMgrItem.implicitWidth
+        height: notifMgrItem.implicitHeight * (1 - notifMgrItem.offsetScale)
+
+        NotifManagerPanelItem {
+            id: notifMgrItem
+            panelVisible: root.notifMgrVisible
+            width: parent.width
+            onCloseRequested: root.notifMgrVisible = false
+        }
     }
 
-    MediaPanelItem {
-        id: mediaItem
-        panelVisible: root.mediaVisible
+    Item {
+        id: mediaWrapper
+        clip: true
         anchors.horizontalCenter: parent.horizontalCenter
         y: root.barHeight
-        onCloseRequested: root.mediaVisible = false
+        width: mediaItem.implicitWidth
+        height: mediaItem.implicitHeight * (1 - mediaItem.offsetScale)
+
+        MediaPanelItem {
+            id: mediaItem
+            panelVisible: root.mediaVisible
+            width: parent.width
+            onCloseRequested: root.mediaVisible = false
+        }
     }
 
-    CalendarPanelItem {
-        id: calendarItem
-        panelVisible: root.calendarVisible
+    Item {
+        id: calendarWrapper
+        clip: true
         anchors.horizontalCenter: parent.horizontalCenter
         y: root.barHeight
-        onCloseRequested: root.calendarVisible = false
+        width: calendarItem.implicitWidth
+        height: calendarItem.implicitHeight * (1 - calendarItem.offsetScale)
+
+        CalendarPanelItem {
+            id: calendarItem
+            panelVisible: root.calendarVisible
+            width: parent.width
+            onCloseRequested: root.calendarVisible = false
+        }
     }
 
     LauncherItem {

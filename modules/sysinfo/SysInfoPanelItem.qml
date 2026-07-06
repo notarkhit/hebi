@@ -23,10 +23,6 @@ Item {
     Behavior on offsetScale {
         Anim {}
     }
-    readonly property real blobY: y + (-implicitHeight - 60) * offsetScale
-    transform: Translate {
-        y: (-root.implicitHeight - 60) * root.offsetScale
-    }
 
     ColumnLayout {
         id: col
