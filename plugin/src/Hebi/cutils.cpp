@@ -8,6 +8,7 @@
 #include <qfuturewatcher.h>
 #include <qloggingcategory.h>
 #include <qqmlengine.h>
+#include <QRegularExpression>
 
 Q_LOGGING_CATEGORY(lcCUtils, "hebi.cutils", QtInfoMsg)
 
