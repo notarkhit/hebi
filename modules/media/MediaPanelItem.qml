@@ -6,6 +6,7 @@ import QtQuick.Controls
 import Quickshell
 import "../../components"
 import Hebi.Services
+import QtQml
 import "../../services"
 
 Item {
@@ -72,6 +73,13 @@ Item {
         Anim {}
     }
 
+    MouseArea {
+        anchors.fill: parent
+        hoverEnabled: true
+        preventStealing: true
+        onClicked: {}
+    }
+
     ColumnLayout {
         anchors.left: parent.left
         anchors.right: parent.right
@@ -125,6 +133,46 @@ Item {
                     Layout.fillWidth: true
                 }
             }
+            Button {
+                Layout.alignment: Qt.AlignTop | Qt.AlignRight
+                text: Players.active ? Players.getIdentity(Players.active) : "No Players"
+                font.family: "JetBrainsMono Nerd Font"
+                font.pixelSize: 12
+                visible: Players.list.length > 0
+                background: Rectangle {
+                    color: "#1a1b26"
+                    radius: 6
+                }
+                contentItem: Text {
+                    text: parent.text
+                    color: "#7aa2f7"
+                    font: parent.font
+                    verticalAlignment: Text.AlignVCenter
+                    horizontalAlignment: Text.AlignHCenter
+                }
+                onClicked: playerMenu.open()
+                Menu {
+                    id: playerMenu
+                    y: parent.height
+                    background: Rectangle { color: "#1a1b26"; radius: 6 }
+                    Instantiator {
+                        model: Players.list
+                        MenuItem {
+                            text: Players.getIdentity(modelData)
+                            font.family: "JetBrainsMono Nerd Font"
+                            contentItem: Text {
+                                text: parent.text
+                                color: Players.active === modelData ? "#bb9af7" : "#c0caf5"
+                                font: parent.font
+                            }
+                            background: Rectangle { color: parent.hovered ? "#292e42" : "transparent"; radius: 4 }
+                            onTriggered: Players.manualActive = modelData
+                        }
+                        onObjectAdded: (index, object) => playerMenu.insertItem(index, object)
+                        onObjectRemoved: (index, object) => playerMenu.removeItem(object)
+                    }
+                }
+            }
         }
 
         RowLayout {
@@ -142,26 +190,62 @@ Item {
                 from: 0
                 to: Math.max(1, Players.active?.length ?? 1)
                 enabled: Players.active?.canSeek ?? false
+                property real phase: 0
+                NumberAnimation on phase {
+                    running: Players.active?.isPlaying ?? false
+                    loops: Animation.Infinite
+                    from: 0
+                    to: Math.PI * 2
+                    duration: 1000
+                }
                 Binding {
                     target: progressSlider
                     property: "value"
                     value: Players.active?.position ?? 0
                     when: !progressSlider.pressed
                 }
-                background: Rectangle {
+                background: Item {
                     x: progressSlider.leftPadding
-                    y: progressSlider.topPadding + progressSlider.availableHeight / 2 - height / 2
-                    implicitWidth: 200
-                    implicitHeight: 4
+                    y: progressSlider.topPadding
                     width: progressSlider.availableWidth
-                    height: implicitHeight
-                    radius: 2
-                    color: "#292e42"
-                    Rectangle {
-                        width: progressSlider.visualPosition * parent.width
-                        height: parent.height
-                        color: "#7aa2f7"
-                        radius: 2
+                    height: progressSlider.availableHeight
+                    Canvas {
+                        id: canvas
+                        anchors.fill: parent
+                        onPaint: {
+                            var ctx = getContext("2d");
+                            ctx.clearRect(0, 0, width, height);
+                            var filledWidth = width * progressSlider.visualPosition;
+                            
+                            ctx.beginPath();
+                            ctx.lineWidth = 4;
+                            ctx.strokeStyle = "#7aa2f7";
+                            ctx.lineCap = "round";
+                            ctx.lineJoin = "round";
+                            
+                            var amp = 4;
+                            var freq = 0.1;
+                            for (var x = 0; x <= filledWidth; x += 2) {
+                                var y = height / 2 + Math.sin(x * freq - progressSlider.phase) * amp;
+                                if (x === 0) ctx.moveTo(x, y);
+                                else ctx.lineTo(x, y);
+                            }
+                            ctx.stroke();
+
+                            if (filledWidth < width) {
+                                ctx.beginPath();
+                                ctx.lineWidth = 4;
+                                ctx.strokeStyle = "#292e42";
+                                ctx.moveTo(filledWidth, height / 2);
+                                ctx.lineTo(width, height / 2);
+                                ctx.stroke();
+                            }
+                        }
+                        Connections {
+                            target: progressSlider
+                            function onPhaseChanged() { canvas.requestPaint(); }
+                            function onVisualPositionChanged() { canvas.requestPaint(); }
+                        }
                     }
                 }
                 handle: Rectangle {
@@ -191,6 +275,23 @@ Item {
             RowLayout {
                 anchors.centerIn: parent
                 spacing: 24
+                Text {
+                    text: "󰒝"
+                    color: Players.active?.shuffle ? "#bb9af7" : (hoverShuffle.hovered ? "#c0caf5" : "#7aa2f7")
+                    font.family: "JetBrainsMono Nerd Font"
+                    font.pixelSize: 20
+                    opacity: Players.active?.shuffleSupported ? 1 : 0.5
+                    HoverHandler {
+                        id: hoverShuffle
+                        cursorShape: Qt.PointingHandCursor
+                    }
+                    TapHandler {
+                        onTapped: {
+                            if (Players.active && Players.active.shuffleSupported)
+                                Players.active.shuffle = !Players.active.shuffle;
+                        }
+                    }
+                }
                 Text {
                     text: "󰒮"
                     color: hoverPrev.hovered ? "#bb9af7" : "#7aa2f7"
@@ -238,6 +339,24 @@ Item {
                     }
                     TapHandler {
                         onTapped: Players.active?.next()
+                    }
+                }
+                Text {
+                    text: Players.active?.loopState === 1 ? "󰑘" : "󰑖"
+                    color: Players.active?.loopState !== 0 ? "#bb9af7" : (hoverLoop.hovered ? "#c0caf5" : "#7aa2f7")
+                    font.family: "JetBrainsMono Nerd Font"
+                    font.pixelSize: 20
+                    opacity: Players.active?.loopSupported ? 1 : 0.5
+                    HoverHandler {
+                        id: hoverLoop
+                        cursorShape: Qt.PointingHandCursor
+                    }
+                    TapHandler {
+                        onTapped: {
+                            if (!Players.active || !Players.active.loopSupported) return;
+                            const s = Players.active.loopState;
+                            Players.active.loopState = s === 0 ? 2 : (s === 2 ? 1 : 0);
+                        }
                     }
                 }
             }
