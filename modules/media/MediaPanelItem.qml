@@ -36,54 +36,28 @@ Item {
             showLyrics = false;
     }
 
-    readonly property var _lyricsUpdater: {
+    property var _lyricsUpdater: {
         const p = Players.active;
         if (p) {
-            // Accessing these properties creates the binding dependencies
-            const artist = p.trackArtist;
-            const title = p.trackTitle;
-            const album = p.trackAlbum;
-            const len = p.length;
-            Lyrics.setTrack(artist, title, album, len);
+            Lyrics.setTrack(p.trackArtist || "", p.trackTitle || "", p.trackAlbum || "", p.length || 0);
         } else {
             Lyrics.clearTrack();
         }
+        return null;
     }
 
-    function updateLyrics() {
-        // Kept for manual triggers if needed
-        const p = Players.active;
-        if (p)
-            Lyrics.setTrack(p.trackArtist, p.trackTitle, p.trackAlbum, p.length);
-        else
-            Lyrics.clearTrack();
+    Component.onCompleted: {
+        currentIndex = Qt.binding(() => Lyrics.indexForTime(Players.active?.position || 0));
     }
-
+    
     Connections {
         target: Lyrics
         function onLoadingChanged() {
-            if (!Lyrics.loading && Lyrics.trackTitle !== "")
+            if (!Lyrics.loading && Lyrics.trackTitle !== "" && Lyrics.hasLyrics) {
                 root.showLyrics = true;
+            }
         }
     }
-    Connections {
-        target: Players.active
-        function onTrackArtistChanged() {
-            root.showLyrics = false;
-            Lyrics.clearTrack();
-        }
-        function onTrackTitleChanged() {
-            root.showLyrics = false;
-            Lyrics.clearTrack();
-        }
-    }
-    Connections {
-        target: Players
-        function onActiveChanged() {
-            root.updateLyrics();
-        }
-    }
-    Component.onCompleted: root.updateLyrics()
 
     property real offsetScale: root.panelVisible ? 0 : 1
     Behavior on offsetScale {
@@ -118,6 +92,8 @@ Item {
             Layout.fillWidth: true
             spacing: 16
             Item {
+                width: 128
+                height: 128
                 Layout.preferredWidth: 128
                 Layout.preferredHeight: 128
                 
@@ -126,37 +102,60 @@ Item {
                     bars: 40
                 }
                 
-                Repeater {
-                    model: cava.bars
-                    Shape {
+                ServiceRef {
+                    service: cava
+                }
+                
+                Shape {
+                    id: visualizerShape
+                    anchors.fill: parent
+                    asynchronous: true
+                    preferredRendererType: Shape.CurveRenderer
+                    data: bars.instances
+                }
+                
+                Variants {
+                    id: bars
+                    model: Array.from({ length: cava.bars }, (_, i) => i)
+
+                    ShapePath {
                         id: barShape
-                        anchors.fill: parent
-                        required property int index
+                        required property int modelData
                         
-                        readonly property real value: cava.values.length > index ? Math.max(0.01, Math.min(1.0, cava.values[index])) : 0.01
-                        readonly property real angle: index * 2 * Math.PI / cava.bars
+                        readonly property var vals: cava.values
+                        readonly property real rawVal: vals[modelData] !== undefined ? vals[modelData] : 0.0
+                        readonly property real value: Math.max(0.01, Math.min(1.0, rawVal))
+                        readonly property real punchyValue: Math.pow(value, 0.6) // Boosts smaller values for a more aggressive look
+                        readonly property real angle: modelData * 2 * Math.PI / cava.bars
                         
                         readonly property real coverRadius: 48
                         readonly property real barDistance: coverRadius + 4
-                        readonly property real barHeight: value * 12
+                        readonly property real barHeight: punchyValue * 24 // Doubled the max height
                         
                         readonly property real cosA: Math.cos(angle)
                         readonly property real sinA: Math.sin(angle)
                         
-                        ShapePath {
-                            strokeColor: "#bb9af7"
-                            strokeWidth: 3
-                            capStyle: ShapePath.RoundCap
-                            
-                            startX: parent.width / 2 + barDistance * barShape.cosA
-                            startY: parent.height / 2 + barDistance * barShape.sinA
-                            
-                            PathLine {
-                                x: parent.width / 2 + (barDistance + barShape.barHeight) * barShape.cosA
-                                y: parent.height / 2 + (barDistance + barShape.barHeight) * barShape.sinA
-                            }
+                        strokeColor: "#bb9af7"
+                        strokeWidth: 3
+                        capStyle: ShapePath.RoundCap
+                        
+                        startX: visualizerShape.width / 2 + barDistance * cosA
+                        startY: visualizerShape.height / 2 + barDistance * sinA
+                        
+                        PathLine {
+                            x: visualizerShape.width / 2 + (barDistance + barHeight) * cosA
+                            y: visualizerShape.height / 2 + (barDistance + barHeight) * sinA
                         }
                     }
+                }
+                
+                Rectangle {
+                    id: coverMask
+                    width: 96
+                    height: 96
+                    radius: 48
+                    visible: false
+                    layer.enabled: true
                 }
                 
                 Image {
@@ -169,11 +168,7 @@ Item {
                     layer.enabled: true
                     layer.effect: MultiEffect {
                         maskEnabled: true
-                        maskSource: Rectangle {
-                            width: cover.width
-                            height: cover.height
-                            radius: cover.width / 2
-                        }
+                        maskSource: coverMask
                     }
                 }
                 
@@ -559,7 +554,8 @@ Item {
                 }
                 
                 Component.onCompleted: {
-                    currentIndex = Qt.binding(() => Lyrics.indexForTime(Players.active?.position ?? 0));
+                    root.updateLyrics();
+                    currentIndex = Qt.binding(() => Lyrics.indexForTime(Players.active?.position ? Players.active.position / 1000000 : 0));
                 }
                 onCurrentIndexChanged: positionViewAtIndex(currentIndex, ListView.Center)
                 preferredHighlightBegin: height / 2 - 10
