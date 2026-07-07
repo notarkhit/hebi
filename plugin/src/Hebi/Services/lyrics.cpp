@@ -33,7 +33,7 @@ constexpr qreal kIndexFudge = 0.1;
 
 [[nodiscard]] const QHash<QByteArray, QByteArray>& lrclibHeaders() {
     static const QHash<QByteArray, QByteArray> h = {
-        { "User-Agent"_ba, "hebi-shell (https://github.com/hebi-dots/shell)"_ba },
+        { "User-Agent"_ba, "hebi-shell (https://github.com/notarkhit/hebi)"_ba },
     };
     return h;
 }
