@@ -251,7 +251,7 @@ PanelWindow {
         // Media blob
         BlobRect {
             group: blobGroup
-            x: barItem.mediaX + (barItem.mediaWidth - mediaItem.implicitWidth) / 2
+            x: (barItem.mediaX + barItem.mediaWidth) - width + 40
             y: root.barHeight
             width: mediaItem.offsetScale < 1 ? mediaItem.implicitWidth : 0
             height: mediaItem.implicitHeight * (1 - mediaItem.offsetScale)
@@ -356,7 +356,7 @@ PanelWindow {
     Item {
         id: mediaWrapper
         clip: true
-        x: barItem.mediaX + (barItem.mediaWidth - mediaItem.implicitWidth) / 2
+        x: (barItem.mediaX + barItem.mediaWidth) - width + 40
         y: root.barHeight
         width: mediaItem.implicitWidth
         height: mediaItem.implicitHeight * (1 - mediaItem.offsetScale)

@@ -77,7 +77,11 @@ Item {
         anchors.fill: parent
         hoverEnabled: true
         preventStealing: true
-        onClicked: {}
+        onClicked: {
+            if (playerDropdown.visible) {
+                playerDropdown.visible = false;
+            }
+        }
     }
 
     ColumnLayout {
@@ -133,43 +137,81 @@ Item {
                     Layout.fillWidth: true
                 }
             }
-            Button {
+            Item {
                 Layout.alignment: Qt.AlignTop | Qt.AlignRight
-                text: Players.active ? Players.getIdentity(Players.active) : "No Players"
-                font.family: "JetBrainsMono Nerd Font"
-                font.pixelSize: 12
+                implicitWidth: playerBtn.implicitWidth + 20
+                implicitHeight: 28
                 visible: Players.list.length > 0
-                background: Rectangle {
+                z: 100
+                
+                Button {
+                    id: playerBtn
+                    anchors.fill: parent
+                    text: Players.active ? Players.getIdentity(Players.active) : "No Players"
+                    font.family: "JetBrainsMono Nerd Font"
+                    font.pixelSize: 12
+                    background: Rectangle {
+                        color: "#1a1b26"
+                        radius: 6
+                    }
+                    contentItem: Text {
+                        text: parent.text
+                        color: "#7aa2f7"
+                        font: parent.font
+                        verticalAlignment: Text.AlignVCenter
+                        horizontalAlignment: Text.AlignHCenter
+                    }
+                    onClicked: playerDropdown.visible = !playerDropdown.visible
+                }
+                
+                Rectangle {
+                    id: playerDropdown
+                    visible: false
+                    anchors.top: playerBtn.bottom
+                    anchors.topMargin: 8
+                    anchors.right: playerBtn.right
+                    width: Math.max(120, playerBtn.width)
+                    implicitHeight: contentCol.implicitHeight + 8
                     color: "#1a1b26"
                     radius: 6
-                }
-                contentItem: Text {
-                    text: parent.text
-                    color: "#7aa2f7"
-                    font: parent.font
-                    verticalAlignment: Text.AlignVCenter
-                    horizontalAlignment: Text.AlignHCenter
-                }
-                onClicked: playerMenu.open()
-                Menu {
-                    id: playerMenu
-                    y: parent.height
-                    background: Rectangle { color: "#1a1b26"; radius: 6 }
-                    Instantiator {
-                        model: Players.list
-                        MenuItem {
-                            text: Players.getIdentity(modelData)
-                            font.family: "JetBrainsMono Nerd Font"
-                            contentItem: Text {
-                                text: parent.text
-                                color: Players.active === modelData ? "#bb9af7" : "#c0caf5"
-                                font: parent.font
+                    border.color: "#292e42"
+                    border.width: 1
+                    
+                    ColumnLayout {
+                        id: contentCol
+                        anchors.top: parent.top
+                        anchors.left: parent.left
+                        anchors.right: parent.right
+                        anchors.margins: 4
+                        spacing: 2
+                        
+                        Repeater {
+                            model: Players.list
+                            Rectangle {
+                                required property var modelData
+                                
+                                Layout.fillWidth: true
+                                implicitHeight: 28
+                                color: playerHover.hovered ? "#292e42" : "transparent"
+                                radius: 4
+                                
+                                Text {
+                                    anchors.centerIn: parent
+                                    text: Players.getIdentity(modelData)
+                                    color: Players.active === modelData ? "#bb9af7" : "#c0caf5"
+                                    font.family: "JetBrainsMono Nerd Font"
+                                    font.pixelSize: 12
+                                }
+                                
+                                HoverHandler { id: playerHover }
+                                TapHandler {
+                                    onTapped: {
+                                        Players.manualActive = modelData;
+                                        playerDropdown.visible = false;
+                                    }
+                                }
                             }
-                            background: Rectangle { color: parent.hovered ? "#292e42" : "transparent"; radius: 4 }
-                            onTriggered: Players.manualActive = modelData
                         }
-                        onObjectAdded: (index, object) => playerMenu.insertItem(index, object)
-                        onObjectRemoved: (index, object) => playerMenu.removeItem(object)
                     }
                 }
             }
