@@ -46,10 +46,7 @@ Item {
         return null;
     }
 
-    Component.onCompleted: {
-        currentIndex = Qt.binding(() => Lyrics.indexForTime(Players.active?.position || 0));
-    }
-    
+
     Connections {
         target: Lyrics
         function onLoadingChanged() {
@@ -183,9 +180,17 @@ Item {
             }
             ColumnLayout {
                 Layout.fillWidth: true
-                spacing: 4
-                Text {
-                    text: Players.active?.trackTitle || "No Media Playing"
+                Layout.fillHeight: true
+                spacing: 8
+                
+                RowLayout {
+                    Layout.fillWidth: true
+                    
+                    ColumnLayout {
+                        Layout.fillWidth: true
+                        spacing: 4
+                        Text {
+                            text: Players.active?.trackTitle || "No Media Playing"
                     color: "#c0caf5"
                     font.family: "JetBrainsMono Nerd Font"
                     font.pixelSize: 16
@@ -377,7 +382,7 @@ Item {
         }
 
         Item {
-            width: parent.width
+            Layout.fillWidth: true
             implicitHeight: 48
             RowLayout {
                 anchors.centerIn: parent
@@ -486,6 +491,8 @@ Item {
                 }
             }
         }
+            }
+        }
 
         Rectangle {
             id: lyricsContainer
@@ -554,8 +561,7 @@ Item {
                 }
                 
                 Component.onCompleted: {
-                    root.updateLyrics();
-                    currentIndex = Qt.binding(() => Lyrics.indexForTime(Players.active?.position ? Players.active.position / 1000000 : 0));
+                    currentIndex = Qt.binding(() => Lyrics.indexForTime(Players.active?.position || 0));
                 }
                 onCurrentIndexChanged: positionViewAtIndex(currentIndex, ListView.Center)
                 preferredHighlightBegin: height / 2 - 10

@@ -356,7 +356,7 @@ PanelWindow {
     Item {
         id: mediaWrapper
         clip: true
-        x: (barItem.mediaX + barItem.mediaWidth) - width + 40
+        x: barItem.mediaContainerCenter - width / 2
         y: root.barHeight
         width: mediaItem.implicitWidth
         height: mediaItem.implicitHeight * (1 - mediaItem.offsetScale)

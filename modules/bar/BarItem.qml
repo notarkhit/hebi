@@ -16,8 +16,7 @@ Item {
     readonly property string font: "JetBrainsMono Nerd Font"
     readonly property int barHeight: 32
     
-    readonly property real mediaX: rightSide.x + mediaControl.x
-    readonly property real mediaWidth: mediaControl.width
+    readonly property real mediaContainerCenter: mediaContainer.x + mediaContainer.width / 2
 
     anchors.top: parent.top
     anchors.left: parent.left
@@ -30,6 +29,20 @@ Item {
     Clock {
         id: centerClock
         anchors.centerIn: parent
+    }
+
+    // ── middle section (media) ───────────────────────────────────────────────
+    Item {
+        id: mediaContainer
+        anchors.left: centerClock.right
+        anchors.right: rightSide.left
+        anchors.top: parent.top
+        anchors.bottom: parent.bottom
+
+        Media {
+            id: mediaControl
+            anchors.centerIn: parent
+        }
     }
 
     // ── left side ────────────────────────────────────────────────────────────
@@ -71,11 +84,6 @@ Item {
         anchors.rightMargin: 12
         spacing: 12
 
-        // Media control
-        Media {
-            id: mediaControl
-            Layout.alignment: Qt.AlignVCenter
-        }
 
         // System tray (SNI applets — qBittorrent, Telegram, etc.)
         Tray {
