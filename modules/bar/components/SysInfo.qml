@@ -127,26 +127,31 @@ Item {
         }
 
         // Battery (only shown if device has one)
-        RowLayout {
+        Item {
             visible: root.hasBat
-            spacing: 3
+            Layout.preferredWidth: 38
+            implicitHeight: 14
+            Row {
+                anchors.centerIn: parent
+                spacing: 3
 
-            Image {
-                sourceSize: Qt.size(14, 14)
-                source:     Quickshell.iconPath(root.batIconName)
-                fillMode:   Image.PreserveAspectFit
-                asynchronous: true
-                Layout.alignment: Qt.AlignVCenter
-            }
+                Image {
+                    sourceSize: Qt.size(14, 14)
+                    source:     Quickshell.iconPath(root.batIconName)
+                    fillMode:   Image.PreserveAspectFit
+                    asynchronous: true
+                    anchors.verticalCenter: parent.verticalCenter
+                }
 
-            Text {
-                text:  `${Math.round(root.batPct * 100)}%`
-                color: root.batLow ? "#f7768e" : "#565f89"
-                font.family:    "JetBrainsMono Nerd Font"
-                font.pixelSize: 10
-                Layout.alignment: Qt.AlignVCenter
+                Text {
+                    text:  `${Math.round(root.batPct * 100)}%`
+                    color: root.batLow ? "#f7768e" : "#565f89"
+                    font.family:    "JetBrainsMono Nerd Font"
+                    font.pixelSize: 10
+                    anchors.verticalCenter: parent.verticalCenter
 
-                Behavior on color { ColorAnimation { duration: 200 } }
+                    Behavior on color { ColorAnimation { duration: 200 } }
+                }
             }
         }
 
