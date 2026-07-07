@@ -65,7 +65,6 @@ Rectangle {
             font.family: "JetBrainsMono Nerd Font"
             font.pixelSize: 12
             Layout.alignment: Qt.AlignVCenter
-            Layout.maximumWidth: 200
             elide: Text.ElideRight
         }
     }

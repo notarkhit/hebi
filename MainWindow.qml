@@ -251,7 +251,7 @@ PanelWindow {
         // Media blob
         BlobRect {
             group: blobGroup
-            x: (barItem.mediaX + barItem.mediaWidth) - width + 40
+            x: barItem.mediaContainerCenter - width / 2
             y: root.barHeight
             width: mediaItem.offsetScale < 1 ? mediaItem.implicitWidth : 0
             height: mediaItem.implicitHeight * (1 - mediaItem.offsetScale)
