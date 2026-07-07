@@ -19,6 +19,7 @@ Item {
     signal closeRequested
 
     property bool showLyrics: false
+    property bool showBongoCat: false
     readonly property real panelWidth: 440
     readonly property real currentHeight: implicitHeight
 
@@ -89,10 +90,10 @@ Item {
             Layout.fillWidth: true
             spacing: 16
             Item {
-                width: 128
-                height: 128
-                Layout.preferredWidth: 128
-                Layout.preferredHeight: 128
+                width: 176
+                height: 176
+                Layout.preferredWidth: 176
+                Layout.preferredHeight: 176
                 
                 CavaProvider {
                     id: cava
@@ -125,7 +126,7 @@ Item {
                         readonly property real punchyValue: Math.pow(value, 0.6) // Boosts smaller values for a more aggressive look
                         readonly property real angle: modelData * 2 * Math.PI / cava.bars
                         
-                        readonly property real coverRadius: 48
+                        readonly property real coverRadius: 56
                         readonly property real barDistance: coverRadius + 4
                         readonly property real barHeight: punchyValue * 24 // Doubled the max height
                         
@@ -148,9 +149,9 @@ Item {
                 
                 Rectangle {
                     id: coverMask
-                    width: 96
-                    height: 96
-                    radius: 48
+                    width: 112
+                    height: 112
+                    radius: 56
                     visible: false
                     layer.enabled: true
                 }
@@ -158,8 +159,8 @@ Item {
                 Image {
                     id: cover
                     anchors.centerIn: parent
-                    width: 96
-                    height: 96
+                    width: 112
+                    height: 112
                     source: Players.active ? Players.getArtUrl(Players.active) : ""
                     fillMode: Image.PreserveAspectCrop
                     layer.enabled: true
@@ -167,6 +168,8 @@ Item {
                         maskEnabled: true
                         maskSource: coverMask
                     }
+                    opacity: root.showBongoCat ? 0 : 1
+                    Behavior on opacity { NumberAnimation { duration: 300 } }
                 }
                 
                 Text {
@@ -176,6 +179,31 @@ Item {
                     font.family: "JetBrainsMono Nerd Font"
                     font.pixelSize: 32
                     visible: cover.source === ""
+                    opacity: root.showBongoCat ? 0 : 1
+                    Behavior on opacity { NumberAnimation { duration: 300 } }
+                }
+
+                AnimatedImage {
+                    id: bongocat
+                    anchors.centerIn: parent
+                    width: 112
+                    height: 112
+                    playing: Players.active?.isPlaying ?? false
+                    source: "file:///home/notarkhit/.config/hebi/assets/bongocat.gif"
+                    fillMode: AnimatedImage.PreserveAspectFit
+                    opacity: root.showBongoCat ? (Players.active ? 1 : 0.5) : 0
+                    Behavior on opacity { NumberAnimation { duration: 300 } }
+                    layer.enabled: true
+                    layer.effect: MultiEffect {
+                        maskEnabled: true
+                        maskSource: coverMask
+                    }
+                }
+
+                MouseArea {
+                    anchors.fill: parent
+                    cursorShape: Qt.PointingHandCursor
+                    onClicked: root.showBongoCat = !root.showBongoCat
                 }
             }
             ColumnLayout {
@@ -469,18 +497,7 @@ Item {
             }
         }
             }
-            AnimatedImage {
-                id: bongocat
-                Layout.preferredWidth: 96
-                Layout.preferredHeight: 96
-                Layout.alignment: Qt.AlignVCenter
-                Layout.leftMargin: 16
-                playing: Players.active?.isPlaying ?? false
-                source: "file:///home/notarkhit/.config/hebi/assets/bongocat.gif"
-                fillMode: AnimatedImage.PreserveAspectFit
-                opacity: Players.active ? 1 : 0
-                Behavior on opacity { NumberAnimation { duration: 300 } }
-            }
+
         }
 
         Rectangle {
