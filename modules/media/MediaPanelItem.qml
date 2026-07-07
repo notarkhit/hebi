@@ -19,7 +19,7 @@ Item {
     signal closeRequested
 
     property bool showLyrics: false
-    readonly property real panelWidth: 392
+    readonly property real panelWidth: 440
     readonly property real currentHeight: implicitHeight
 
     implicitWidth: panelWidth
@@ -183,20 +183,15 @@ Item {
                 Layout.fillHeight: true
                 spacing: 8
                 
-                RowLayout {
-                    Layout.fillWidth: true
-                    
-                    ColumnLayout {
-                        Layout.fillWidth: true
-                        spacing: 4
-                        Text {
-                            text: Players.active?.trackTitle || "No Media Playing"
+                Text {
+                    text: Players.active?.trackTitle || "No Media Playing"
                     color: "#c0caf5"
                     font.family: "JetBrainsMono Nerd Font"
                     font.pixelSize: 16
                     font.bold: true
                     elide: Text.ElideRight
                     Layout.fillWidth: true
+                    horizontalAlignment: Text.AlignHCenter
                 }
                 Text {
                     text: Players.active?.trackArtist || "Unknown Artist"
@@ -205,87 +200,50 @@ Item {
                     font.pixelSize: 13
                     elide: Text.ElideRight
                     Layout.fillWidth: true
+                    horizontalAlignment: Text.AlignHCenter
                 }
-            }
-            Item {
-                Layout.alignment: Qt.AlignTop | Qt.AlignRight
-                implicitWidth: playerBtn.implicitWidth + 20
-                implicitHeight: 28
-                visible: Players.list.length > 0
-                z: 100
-                
-                Button {
-                    id: playerBtn
-                    anchors.fill: parent
-                    text: Players.active ? Players.getIdentity(Players.active) : "No Players"
-                    font.family: "JetBrainsMono Nerd Font"
-                    font.pixelSize: 12
-                    background: Rectangle {
-                        color: "#1a1b26"
-                        radius: 6
-                    }
-                    contentItem: Text {
-                        text: parent.text
-                        color: "#7aa2f7"
-                        font: parent.font
-                        verticalAlignment: Text.AlignVCenter
-                        horizontalAlignment: Text.AlignHCenter
-                    }
-                    onClicked: playerDropdown.visible = !playerDropdown.visible
-                }
-                
-                Rectangle {
-                    id: playerDropdown
-                    visible: false
-                    anchors.top: playerBtn.bottom
-                    anchors.topMargin: 8
-                    anchors.right: playerBtn.right
-                    width: Math.max(120, playerBtn.width)
-                    implicitHeight: contentCol.implicitHeight + 8
-                    color: "#1a1b26"
-                    radius: 6
-                    border.color: "#292e42"
-                    border.width: 1
-                    
-                    ColumnLayout {
-                        id: contentCol
-                        anchors.top: parent.top
-                        anchors.left: parent.left
-                        anchors.right: parent.right
-                        anchors.margins: 4
-                        spacing: 2
-                        
-                        Repeater {
-                            model: Players.list
-                            Rectangle {
-                                required property var modelData
-                                
-                                Layout.fillWidth: true
-                                implicitHeight: 28
-                                color: playerHover.hovered ? "#292e42" : "transparent"
-                                radius: 4
-                                
-                                Text {
-                                    anchors.centerIn: parent
-                                    text: Players.getIdentity(modelData)
-                                    color: Players.active === modelData ? "#bb9af7" : "#c0caf5"
-                                    font.family: "JetBrainsMono Nerd Font"
-                                    font.pixelSize: 12
-                                }
-                                
-                                HoverHandler { id: playerHover }
-                                TapHandler {
-                                    onTapped: {
-                                        Players.manualActive = modelData;
-                                        playerDropdown.visible = false;
-                                    }
-                                }
+                Item {
+                    Layout.fillWidth: true
+                    implicitHeight: 48
+                    RowLayout {
+                        anchors.centerIn: parent
+                        spacing: 24
+                        Text {
+                            text: "󰒮"
+                            color: hoverPrev.hovered ? "#bb9af7" : "#7aa2f7"
+                            font.family: "JetBrainsMono Nerd Font"
+                            font.pixelSize: 24
+                            opacity: Players.active?.canGoPrevious ? 1 : 0.5
+                            HoverHandler { id: hoverPrev; cursorShape: Qt.PointingHandCursor }
+                            TapHandler { onTapped: Players.active?.previous() }
+                        }
+                        Rectangle {
+                            implicitWidth: 48
+                            implicitHeight: 48
+                            radius: 24
+                            color: hoverPlay.hovered ? "#bb9af7" : "#7aa2f7"
+                            Text {
+                                anchors.centerIn: parent
+                                text: Players.active?.isPlaying ? "󰏤" : "󰐊"
+                                color: "#1a1b26"
+                                font.family: "JetBrainsMono Nerd Font"
+                                font.pixelSize: 28
+                                anchors.horizontalCenterOffset: Players.active?.isPlaying ? 0 : 2
                             }
+                            HoverHandler { id: hoverPlay; cursorShape: Qt.PointingHandCursor }
+                            TapHandler { onTapped: Players.active?.togglePlaying() }
+                        }
+                        Text {
+                            text: "󰒭"
+                            color: hoverNext.hovered ? "#bb9af7" : "#7aa2f7"
+                            font.family: "JetBrainsMono Nerd Font"
+                            font.pixelSize: 24
+                            opacity: Players.active?.canGoNext ? 1 : 0.5
+                            HoverHandler { id: hoverNext; cursorShape: Qt.PointingHandCursor }
+                            TapHandler { onTapped: Players.active?.next() }
                         }
                     }
                 }
-            }
-        }
 
         RowLayout {
             Layout.fillWidth: true
@@ -383,20 +341,20 @@ Item {
 
         Item {
             Layout.fillWidth: true
-            implicitHeight: 48
+            implicitHeight: 28
+            z: 100
             RowLayout {
                 anchors.centerIn: parent
-                spacing: 24
+                spacing: 16
+
+                // Shuffle
                 Text {
                     text: "󰒝"
                     color: Players.active?.shuffle ? "#bb9af7" : (hoverShuffle.hovered ? "#c0caf5" : "#7aa2f7")
                     font.family: "JetBrainsMono Nerd Font"
                     font.pixelSize: 20
                     opacity: Players.active?.shuffleSupported ? 1 : 0.5
-                    HoverHandler {
-                        id: hoverShuffle
-                        cursorShape: Qt.PointingHandCursor
-                    }
+                    HoverHandler { id: hoverShuffle; cursorShape: Qt.PointingHandCursor }
                     TapHandler {
                         onTapped: {
                             if (Players.active && Players.active.shuffleSupported)
@@ -404,65 +362,102 @@ Item {
                         }
                     }
                 }
+
+                // Lyrics
                 Text {
-                    text: "󰒮"
-                    color: hoverPrev.hovered ? "#bb9af7" : "#7aa2f7"
+                    text: "󰦨"
+                    color: hoverLyrics.hovered || root.showLyrics ? "#bb9af7" : "#7aa2f7"
                     font.family: "JetBrainsMono Nerd Font"
                     font.pixelSize: 24
-                    opacity: Players.active?.canGoPrevious ? 1 : 0.5
-                    HoverHandler {
-                        id: hoverPrev
-                        cursorShape: Qt.PointingHandCursor
-                    }
-                    TapHandler {
-                        onTapped: Players.active?.previous()
-                    }
+                    opacity: Lyrics.hasLyrics ? 1 : 0.5
+                    HoverHandler { id: hoverLyrics; cursorShape: Qt.PointingHandCursor }
+                    TapHandler { onTapped: root.showLyrics = !root.showLyrics }
                 }
-                Rectangle {
-                    implicitWidth: 48
-                    implicitHeight: 48
-                    radius: 24
-                    color: hoverPlay.hovered ? "#bb9af7" : "#7aa2f7"
-                    Text {
-                        anchors.centerIn: parent
-                        text: Players.active?.isPlaying ? "󰏤" : "󰐊"
-                        color: "#1a1b26"
+
+                // Player Pill
+                Item {
+                    implicitWidth: playerBtn.implicitWidth + 20
+                    implicitHeight: 28
+                    visible: Players.list.length > 0
+                    z: 100
+                    
+                    Button {
+                        id: playerBtn
+                        anchors.fill: parent
+                        text: Players.active ? Players.getIdentity(Players.active) : "No Players"
                         font.family: "JetBrainsMono Nerd Font"
-                        font.pixelSize: 28
-                        anchors.horizontalCenterOffset: Players.active?.isPlaying ? 0 : 2
+                        font.pixelSize: 12
+                        background: Rectangle {
+                            color: "#1a1b26"
+                            radius: 14
+                        }
+                        contentItem: Text {
+                            text: parent.text
+                            color: "#7aa2f7"
+                            font: parent.font
+                            verticalAlignment: Text.AlignVCenter
+                            horizontalAlignment: Text.AlignHCenter
+                        }
+                        onClicked: playerDropdown.visible = !playerDropdown.visible
                     }
-                    HoverHandler {
-                        id: hoverPlay
-                        cursorShape: Qt.PointingHandCursor
-                    }
-                    TapHandler {
-                        onTapped: Players.active?.togglePlaying()
+                    
+                    Rectangle {
+                        id: playerDropdown
+                        visible: false
+                        anchors.bottom: playerBtn.top
+                        anchors.bottomMargin: 8
+                        anchors.horizontalCenter: playerBtn.horizontalCenter
+                        width: Math.max(120, playerBtn.width)
+                        implicitHeight: contentCol.implicitHeight + 8
+                        color: "#1a1b26"
+                        radius: 6
+                        border.color: "#292e42"
+                        border.width: 1
+                        
+                        ColumnLayout {
+                            id: contentCol
+                            anchors.top: parent.top
+                            anchors.left: parent.left
+                            anchors.right: parent.right
+                            anchors.margins: 4
+                            spacing: 2
+                            
+                            Repeater {
+                                model: Players.list
+                                Rectangle {
+                                    required property var modelData
+                                    Layout.fillWidth: true
+                                    implicitHeight: 28
+                                    color: playerHover.hovered ? "#292e42" : "transparent"
+                                    radius: 4
+                                    Text {
+                                        anchors.centerIn: parent
+                                        text: Players.getIdentity(modelData)
+                                        color: Players.active === modelData ? "#bb9af7" : "#c0caf5"
+                                        font.family: "JetBrainsMono Nerd Font"
+                                        font.pixelSize: 12
+                                    }
+                                    HoverHandler { id: playerHover }
+                                    TapHandler {
+                                        onTapped: {
+                                            Players.manualActive = modelData;
+                                            playerDropdown.visible = false;
+                                        }
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
-                Text {
-                    text: "󰒭"
-                    color: hoverNext.hovered ? "#bb9af7" : "#7aa2f7"
-                    font.family: "JetBrainsMono Nerd Font"
-                    font.pixelSize: 24
-                    opacity: Players.active?.canGoNext ? 1 : 0.5
-                    HoverHandler {
-                        id: hoverNext
-                        cursorShape: Qt.PointingHandCursor
-                    }
-                    TapHandler {
-                        onTapped: Players.active?.next()
-                    }
-                }
+
+                // Loop
                 Text {
                     text: Players.active?.loopState === 1 ? "󰑘" : "󰑖"
                     color: Players.active?.loopState !== 0 ? "#bb9af7" : (hoverLoop.hovered ? "#c0caf5" : "#7aa2f7")
                     font.family: "JetBrainsMono Nerd Font"
                     font.pixelSize: 20
                     opacity: Players.active?.loopSupported ? 1 : 0.5
-                    HoverHandler {
-                        id: hoverLoop
-                        cursorShape: Qt.PointingHandCursor
-                    }
+                    HoverHandler { id: hoverLoop; cursorShape: Qt.PointingHandCursor }
                     TapHandler {
                         onTapped: {
                             if (!Players.active || !Players.active.loopSupported) return;
@@ -472,25 +467,19 @@ Item {
                     }
                 }
             }
-            Text {
-                anchors.right: parent.right
-                anchors.verticalCenter: parent.verticalCenter
-                text: "󰦨"
-                color: hoverLyrics.hovered || root.showLyrics ? "#bb9af7" : "#7aa2f7"
-                font.family: "JetBrainsMono Nerd Font"
-                font.pixelSize: 24
-                opacity: Lyrics.hasLyrics ? 1 : 0.5
-                HoverHandler {
-                    id: hoverLyrics
-                    cursorShape: Qt.PointingHandCursor
-                }
-                TapHandler {
-                    onTapped: {
-                        root.showLyrics = !root.showLyrics;
-                    }
-                }
-            }
         }
+            }
+            AnimatedImage {
+                id: bongocat
+                Layout.preferredWidth: 96
+                Layout.preferredHeight: 96
+                Layout.alignment: Qt.AlignVCenter
+                Layout.leftMargin: 16
+                playing: Players.active?.isPlaying ?? false
+                source: "file:///home/notarkhit/.config/hebi/assets/bongocat.gif"
+                fillMode: AnimatedImage.PreserveAspectFit
+                opacity: Players.active ? 1 : 0
+                Behavior on opacity { NumberAnimation { duration: 300 } }
             }
         }
 
