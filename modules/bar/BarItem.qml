@@ -15,6 +15,9 @@ Item {
 
     readonly property string font: "JetBrainsMono Nerd Font"
     readonly property int barHeight: 32
+    
+    readonly property real mediaX: rightSide.x + mediaControl.x
+    readonly property real mediaWidth: mediaControl.width
 
     anchors.top: parent.top
     anchors.left: parent.left
@@ -61,6 +64,7 @@ Item {
 
     // ── right side ───────────────────────────────────────────────────────────
     RowLayout {
+        id: rightSide
         anchors.right: parent.right
         anchors.top: parent.top
         anchors.bottom: parent.bottom
@@ -69,6 +73,7 @@ Item {
 
         // Media control
         Media {
+            id: mediaControl
             Layout.alignment: Qt.AlignVCenter
         }
 

@@ -248,10 +248,10 @@ PanelWindow {
             visible: notifMgrItem.offsetScale < 1
         }
 
-        // Media blob — center-aligned
+        // Media blob
         BlobRect {
             group: blobGroup
-            x: (root.width - mediaItem.implicitWidth) / 2
+            x: barItem.mediaX + (barItem.mediaWidth - mediaItem.implicitWidth) / 2
             y: root.barHeight
             width: mediaItem.offsetScale < 1 ? mediaItem.implicitWidth : 0
             height: mediaItem.implicitHeight * (1 - mediaItem.offsetScale)
@@ -356,7 +356,7 @@ PanelWindow {
     Item {
         id: mediaWrapper
         clip: true
-        anchors.horizontalCenter: parent.horizontalCenter
+        x: barItem.mediaX + (barItem.mediaWidth - mediaItem.implicitWidth) / 2
         y: root.barHeight
         width: mediaItem.implicitWidth
         height: mediaItem.implicitHeight * (1 - mediaItem.offsetScale)
