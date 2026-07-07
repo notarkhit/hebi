@@ -3,6 +3,8 @@ pragma ComponentBehavior: Bound
 import QtQuick
 import QtQuick.Layouts
 import QtQuick.Controls
+import QtQuick.Effects
+import QtQuick.Shapes
 import Quickshell
 import "../../components"
 import Hebi.Services
@@ -21,7 +23,7 @@ Item {
     readonly property real currentHeight: implicitHeight
 
     implicitWidth: panelWidth
-    implicitHeight: showLyrics ? (Lyrics.hasLyrics ? 620 : 320) : 260
+    implicitHeight: Players.active ? (showLyrics ? (Lyrics.hasLyrics ? 620 : 320) : 260) : 260
     Behavior on implicitHeight {
         NumberAnimation {
             duration: 300
@@ -34,7 +36,22 @@ Item {
             showLyrics = false;
     }
 
+    readonly property var _lyricsUpdater: {
+        const p = Players.active;
+        if (p) {
+            // Accessing these properties creates the binding dependencies
+            const artist = p.trackArtist;
+            const title = p.trackTitle;
+            const album = p.trackAlbum;
+            const len = p.length;
+            Lyrics.setTrack(artist, title, album, len);
+        } else {
+            Lyrics.clearTrack();
+        }
+    }
+
     function updateLyrics() {
+        // Kept for manual triggers if needed
         const p = Players.active;
         if (p)
             Lyrics.setTrack(p.trackArtist, p.trackTitle, p.trackAlbum, p.length);
@@ -85,6 +102,11 @@ Item {
     }
 
     ColumnLayout {
+        id: contentLayout
+        opacity: Players.active ? 1 : 0
+        visible: opacity > 0
+        Behavior on opacity { NumberAnimation { duration: 300 } }
+        
         anchors.left: parent.left
         anchors.right: parent.right
         anchors.top: parent.top
@@ -95,25 +117,73 @@ Item {
         RowLayout {
             Layout.fillWidth: true
             spacing: 16
-            Rectangle {
-                implicitWidth: 80
-                implicitHeight: 80
-                radius: 10
-                color: "#1a1b26"
-                clip: true
+            Item {
+                Layout.preferredWidth: 128
+                Layout.preferredHeight: 128
+                
+                CavaProvider {
+                    id: cava
+                    bars: 40
+                }
+                
+                Repeater {
+                    model: cava.bars
+                    Shape {
+                        id: barShape
+                        anchors.fill: parent
+                        required property int index
+                        
+                        readonly property real value: cava.values.length > index ? Math.max(0.01, Math.min(1.0, cava.values[index])) : 0.01
+                        readonly property real angle: index * 2 * Math.PI / cava.bars
+                        
+                        readonly property real coverRadius: 48
+                        readonly property real barDistance: coverRadius + 4
+                        readonly property real barHeight: value * 12
+                        
+                        readonly property real cosA: Math.cos(angle)
+                        readonly property real sinA: Math.sin(angle)
+                        
+                        ShapePath {
+                            strokeColor: "#bb9af7"
+                            strokeWidth: 3
+                            capStyle: ShapePath.RoundCap
+                            
+                            startX: parent.width / 2 + barDistance * barShape.cosA
+                            startY: parent.height / 2 + barDistance * barShape.sinA
+                            
+                            PathLine {
+                                x: parent.width / 2 + (barDistance + barShape.barHeight) * barShape.cosA
+                                y: parent.height / 2 + (barDistance + barShape.barHeight) * barShape.sinA
+                            }
+                        }
+                    }
+                }
+                
                 Image {
-                    anchors.fill: parent
+                    id: cover
+                    anchors.centerIn: parent
+                    width: 96
+                    height: 96
                     source: Players.active ? Players.getArtUrl(Players.active) : ""
                     fillMode: Image.PreserveAspectCrop
-                    visible: source !== ""
+                    layer.enabled: true
+                    layer.effect: MultiEffect {
+                        maskEnabled: true
+                        maskSource: Rectangle {
+                            width: cover.width
+                            height: cover.height
+                            radius: cover.width / 2
+                        }
+                    }
                 }
+                
                 Text {
                     anchors.centerIn: parent
                     text: "󰎆"
                     color: "#565f89"
                     font.family: "JetBrainsMono Nerd Font"
                     font.pixelSize: 32
-                    visible: parent.children[0].source === ""
+                    visible: cover.source === ""
                 }
             }
             ColumnLayout {
@@ -416,19 +486,14 @@ Item {
                 }
                 TapHandler {
                     onTapped: {
-                        const p = Players.active;
-                        if (!p)
-                            return;
-                        if (Lyrics.trackTitle === p.trackTitle && Lyrics.trackArtist === p.trackArtist && Lyrics.trackTitle !== "")
-                            root.showLyrics = !root.showLyrics;
-                        else
-                            root.updateLyrics();
+                        root.showLyrics = !root.showLyrics;
                     }
                 }
             }
         }
 
         Rectangle {
+            id: lyricsContainer
             Layout.fillWidth: true
             implicitHeight: Lyrics.hasLyrics ? 340 : 40
             Layout.preferredHeight: Lyrics.hasLyrics ? 340 : 40
@@ -436,20 +501,63 @@ Item {
             radius: 10
             clip: true
             visible: root.showLyrics
+            
+            Behavior on implicitHeight {
+                NumberAnimation { duration: 300; easing.type: Easing.OutCubic }
+            }
+            Behavior on Layout.preferredHeight {
+                NumberAnimation { duration: 300; easing.type: Easing.OutCubic }
+            }
+
+            state: Lyrics.hasLyrics ? "lyrics" : (Lyrics.loading ? "loading" : "empty")
+
             Text {
                 anchors.centerIn: parent
-                text: Lyrics.loading ? "Loading lyrics..." : (Lyrics.hasLyrics ? "" : "No lyrics available")
+                text: Lyrics.loading ? "Loading lyrics..." : "No lyrics available"
                 color: "#565f89"
                 font.family: "JetBrainsMono Nerd Font"
                 font.pixelSize: 14
+                opacity: (parent.state === "lyrics") ? 0 : 1
+                Behavior on opacity {
+                    NumberAnimation { duration: 250 }
+                }
             }
+            Rectangle {
+                id: lyricsMask
+                visible: false
+                layer.enabled: true
+                width: lyricsList.width
+                height: lyricsList.height
+                gradient: Gradient {
+                    GradientStop { position: 0.0; color: "transparent" }
+                    GradientStop { position: 0.15; color: "black" }
+                    GradientStop { position: 0.85; color: "black" }
+                    GradientStop { position: 1.0; color: "transparent" }
+                }
+            }
+
+
             ListView {
                 id: lyricsList
                 anchors.fill: parent
                 anchors.margins: 12
+                
+                layer.enabled: true
+                layer.effect: MultiEffect {
+                    maskEnabled: true
+                    maskSpreadAtMin: 1
+                    maskThresholdMin: 0.5
+                    maskSource: lyricsMask
+                }
+
                 model: Lyrics.lyrics
                 spacing: 12
-                visible: Lyrics.hasLyrics
+                opacity: parent.state === "lyrics" ? 1 : 0
+                visible: opacity > 0
+                Behavior on opacity {
+                    NumberAnimation { duration: 250 }
+                }
+                
                 Component.onCompleted: {
                     currentIndex = Qt.binding(() => Lyrics.indexForTime(Players.active?.position ?? 0));
                 }
@@ -489,6 +597,37 @@ Item {
                     }
                 }
             }
+        }
+    }
+    
+    ColumnLayout {
+        id: emptyContainer
+        anchors.centerIn: parent
+        opacity: Players.active ? 0 : 1
+        visible: opacity > 0
+        Behavior on opacity { NumberAnimation { duration: 300 } }
+        spacing: 12
+        Text {
+            text: "󰝚"
+            font.family: "JetBrainsMono Nerd Font"
+            font.pixelSize: 64
+            color: "#7aa2f7"
+            Layout.alignment: Qt.AlignHCenter
+        }
+        Text {
+            text: "Nothing playing"
+            font.family: "JetBrainsMono Nerd Font"
+            font.pixelSize: 18
+            color: "#c0caf5"
+            font.bold: true
+            Layout.alignment: Qt.AlignHCenter
+        }
+        Text {
+            text: "Play some music to see it here"
+            font.family: "JetBrainsMono Nerd Font"
+            font.pixelSize: 12
+            color: "#565f89"
+            Layout.alignment: Qt.AlignHCenter
         }
     }
 
