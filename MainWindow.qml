@@ -38,8 +38,8 @@ PanelWindow {
     readonly property var activeMonitor: Hypr.monitorFor(root.screen)
     readonly property bool hasFullscreenOnNormalWs: activeMonitor?.activeWorkspace?.toplevels.values.some(t => t.lastIpcObject.fullscreen > 1) ?? false
     readonly property bool hasFullscreen: {
-        const specialWs = activeMonitor?.lastIpcObject.specialWorkspace.name;
-        if (specialWs?.length > 0)
+        const specialWs = activeMonitor?.lastIpcObject?.specialWorkspace?.name;
+        if (specialWs && specialWs.length > 0)
             return Hypr.workspaces.values.find(w => w.name === specialWs)?.toplevels.values.some(t => t.lastIpcObject.fullscreen > 1) ?? false;
         return hasFullscreenOnNormalWs;
     }
