@@ -404,10 +404,13 @@ Item {
 
                 // Player Pill
                 Item {
+                    id: playerSwitcherItem
                     implicitWidth: playerBtn.implicitWidth + 20
                     implicitHeight: 28
                     visible: Players.list.length > 0
                     z: 100
+                    
+                    property bool dropdownVisible: false
                     
                     Button {
                         id: playerBtn
@@ -419,57 +422,123 @@ Item {
                             color: "#1a1b26"
                             radius: 14
                         }
-                        contentItem: Text {
-                            text: parent.text
-                            color: "#7aa2f7"
-                            font: parent.font
-                            verticalAlignment: Text.AlignVCenter
-                            horizontalAlignment: Text.AlignHCenter
+                        contentItem: RowLayout {
+                            spacing: 4
+                            Item { Layout.fillWidth: true } // spacer
+                            Text {
+                                text: playerBtn.text
+                                color: "#7aa2f7"
+                                font: playerBtn.font
+                                Layout.alignment: Qt.AlignVCenter
+                            }
+                            Text {
+                                text: "󰅁" // chevron-down
+                                color: "#7aa2f7"
+                                font.family: "JetBrainsMono Nerd Font"
+                                font.pixelSize: 16
+                                Layout.alignment: Qt.AlignVCenter
+                                rotation: playerSwitcherItem.dropdownVisible ? 180 : 0
+                                Behavior on rotation { NumberAnimation { duration: 200; easing.type: Easing.OutQuint } }
+                            }
+                            Item { Layout.fillWidth: true } // spacer
                         }
-                        onClicked: playerDropdown.visible = !playerDropdown.visible
+                        onClicked: {
+                            if (playerSwitcherItem.dropdownVisible) {
+                                playerSwitcherItem.dropdownVisible = false;
+                            } else {
+                                const mappedPos = playerBtn.mapToItem(globalClickCatcher, 0, 0);
+                                playerDropdown.x = mappedPos.x + (playerBtn.width - playerDropdown.width) / 2;
+                                playerDropdown.y = mappedPos.y - playerDropdown.height - 8;
+                                playerSwitcherItem.dropdownVisible = true;
+                            }
+                        }
                     }
                     
-                    Rectangle {
-                        id: playerDropdown
-                        visible: false
-                        anchors.bottom: playerBtn.top
-                        anchors.bottomMargin: 8
-                        anchors.horizontalCenter: playerBtn.horizontalCenter
-                        width: Math.max(120, playerBtn.width)
-                        implicitHeight: contentCol.implicitHeight + 8
-                        color: "#1a1b26"
-                        radius: 6
-                        border.color: "#292e42"
-                        border.width: 1
+                    MouseArea {
+                        id: globalClickCatcher
+                        parent: root
+                        anchors.fill: parent
+                        enabled: playerSwitcherItem.dropdownVisible
+                        visible: playerSwitcherItem.dropdownVisible
+                        hoverEnabled: true
+                        onClicked: playerSwitcherItem.dropdownVisible = false
+                        z: 999
                         
-                        ColumnLayout {
-                            id: contentCol
-                            anchors.top: parent.top
-                            anchors.left: parent.left
-                            anchors.right: parent.right
-                            anchors.margins: 4
-                            spacing: 2
+                        Rectangle {
+                            id: playerDropdown
                             
-                            Repeater {
-                                model: Players.list
-                                Rectangle {
-                                    required property var modelData
-                                    Layout.fillWidth: true
-                                    implicitHeight: 28
-                                    color: playerHover.hovered ? "#292e42" : "transparent"
-                                    radius: 4
-                                    Text {
-                                        anchors.centerIn: parent
-                                        text: Players.getIdentity(modelData)
-                                        color: Players.active === modelData ? "#bb9af7" : "#c0caf5"
-                                        font.family: "JetBrainsMono Nerd Font"
-                                        font.pixelSize: 12
-                                    }
-                                    HoverHandler { id: playerHover }
-                                    TapHandler {
-                                        onTapped: {
-                                            Players.manualActive = modelData;
-                                            playerDropdown.visible = false;
+                            width: Math.max(120, playerBtn.width)
+                            height: contentCol.implicitHeight + 8
+                            
+                            opacity: playerSwitcherItem.dropdownVisible ? 1 : 0
+                            scale: playerSwitcherItem.dropdownVisible ? 1 : 0.95
+                            transformOrigin: Item.Bottom
+                            
+                            Behavior on opacity { NumberAnimation { duration: 200 } }
+                            Behavior on scale { NumberAnimation { duration: 200; easing.type: Easing.OutQuint } }
+                            
+                            color: "#1a1b26"
+                            radius: 6
+                            border.color: "#292e42"
+                            border.width: 1
+                            
+                            // Prevent closing when clicking inside the dropdown menu itself
+                            MouseArea {
+                                anchors.fill: parent
+                                onClicked: {}
+                            }
+                            
+                            ColumnLayout {
+                                id: contentCol
+                                anchors.top: parent.top
+                                anchors.left: parent.left
+                                anchors.right: parent.right
+                                anchors.margins: 4
+                                spacing: 2
+                                
+                                Repeater {
+                                    model: Players.list
+                                    Rectangle {
+                                        id: playerRect
+                                        required property var modelData
+                                        readonly property bool isActive: Players.active === modelData
+                                        Layout.fillWidth: true
+                                        Layout.preferredHeight: 32
+                                        color: playerHover.hovered ? "#292e42" : (isActive ? "#1e2030" : "transparent")
+                                        radius: 4
+                                        
+                                        RowLayout {
+                                            anchors.fill: parent
+                                            anchors.leftMargin: 8
+                                            anchors.rightMargin: 8
+                                            spacing: 8
+                                            
+                                            Text {
+                                                text: playerRect.isActive ? "󰄬" : ""
+                                                color: playerRect.isActive ? "#bb9af7" : "#565f89"
+                                                font.family: "JetBrainsMono Nerd Font"
+                                                font.pixelSize: 14
+                                                Layout.preferredWidth: 14
+                                                Layout.alignment: Qt.AlignVCenter
+                                            }
+                                            
+                                            Text {
+                                                text: Players.getIdentity(playerRect.modelData)
+                                                color: playerRect.isActive ? "#bb9af7" : "#c0caf5"
+                                                font.family: "JetBrainsMono Nerd Font"
+                                                font.pixelSize: 12
+                                                Layout.fillWidth: true
+                                                Layout.alignment: Qt.AlignVCenter
+                                                elide: Text.ElideRight
+                                            }
+                                        }
+                                        
+                                        HoverHandler { id: playerHover }
+                                        TapHandler {
+                                            onTapped: {
+                                                Players.manualActive = playerRect.modelData;
+                                                playerSwitcherItem.dropdownVisible = false;
+                                            }
                                         }
                                     }
                                 }
