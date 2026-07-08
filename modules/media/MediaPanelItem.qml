@@ -405,51 +405,105 @@ Item {
                 // Player Pill
                 Item {
                     id: playerSwitcherItem
-                    implicitWidth: playerBtn.implicitWidth + 20
+                    implicitWidth: playerBtn.implicitWidth
                     implicitHeight: 28
                     visible: Players.list.length > 0
                     z: 100
                     
                     property bool dropdownVisible: false
                     
-                    Button {
+                    Row {
                         id: playerBtn
-                        anchors.fill: parent
-                        text: Players.active ? Players.getIdentity(Players.active) : "No Players"
-                        font.family: "JetBrainsMono Nerd Font"
-                        font.pixelSize: 12
-                        background: Rectangle {
-                            color: "#1a1b26"
+                        anchors.centerIn: parent
+                        spacing: 4
+                        
+                        Rectangle {
+                            id: leftPill
+                            width: textRow.implicitWidth + 24
+                            height: 28
+                            color: hoverBtn.hovered ? "#292e42" : "#1a1b26"
                             radius: 14
-                        }
-                        contentItem: RowLayout {
-                            spacing: 4
-                            Item { Layout.fillWidth: true } // spacer
-                            Text {
-                                text: playerBtn.text
-                                color: "#7aa2f7"
-                                font: playerBtn.font
-                                Layout.alignment: Qt.AlignVCenter
+                            topRightRadius: 6
+                            bottomRightRadius: 6
+                            
+                            Behavior on color { ColorAnimation { duration: 150 } }
+                            
+                            RowLayout {
+                                id: textRow
+                                anchors.centerIn: parent
+                                anchors.horizontalCenterOffset: 2
+                                spacing: 6
+                                Text {
+                                    text: Players.active ? "󰎆" : "󰝛"
+                                    color: "#7aa2f7"
+                                    font.family: "JetBrainsMono Nerd Font"
+                                    font.pixelSize: 14
+                                    Layout.alignment: Qt.AlignVCenter
+                                }
+                                Text {
+                                    text: Players.active ? Players.getIdentity(Players.active) : "No Players"
+                                    color: "#7aa2f7"
+                                    font.family: "JetBrainsMono Nerd Font"
+                                    font.pixelSize: 12
+                                    font.bold: true
+                                    Layout.alignment: Qt.AlignVCenter
+                                    Layout.maximumWidth: 100
+                                    elide: Text.ElideRight
+                                }
                             }
+                            
+                            HoverHandler { id: hoverBtn; cursorShape: Qt.PointingHandCursor }
+                            TapHandler {
+                                onTapped: {
+                                    if (playerSwitcherItem.dropdownVisible) {
+                                        playerSwitcherItem.dropdownVisible = false;
+                                    } else {
+                                        const mappedPos = playerBtn.mapToItem(globalClickCatcher, 0, 0);
+                                        playerDropdown.x = mappedPos.x + (playerBtn.width - playerDropdown.width) / 2;
+                                        playerDropdown.y = mappedPos.y - playerDropdown.height - 12;
+                                        playerSwitcherItem.dropdownVisible = true;
+                                    }
+                                }
+                            }
+                        }
+                        
+                        Rectangle {
+                            id: rightPill
+                            width: 32
+                            height: 28
+                            color: hoverExpand.hovered ? "#292e42" : "#1a1b26"
+                            radius: 14
+                            topLeftRadius: playerSwitcherItem.dropdownVisible ? 14 : 6
+                            bottomLeftRadius: playerSwitcherItem.dropdownVisible ? 14 : 6
+                            
+                            Behavior on color { ColorAnimation { duration: 150 } }
+                            Behavior on topLeftRadius { NumberAnimation { duration: 150 } }
+                            Behavior on bottomLeftRadius { NumberAnimation { duration: 150 } }
+                            
                             Text {
-                                text: "󰅁" // chevron-down
+                                anchors.centerIn: parent
+                                anchors.horizontalCenterOffset: playerSwitcherItem.dropdownVisible ? 0 : -2
+                                text: "󰅀" // mdi-chevron-down
                                 color: "#7aa2f7"
                                 font.family: "JetBrainsMono Nerd Font"
                                 font.pixelSize: 16
-                                Layout.alignment: Qt.AlignVCenter
                                 rotation: playerSwitcherItem.dropdownVisible ? 180 : 0
                                 Behavior on rotation { NumberAnimation { duration: 200; easing.type: Easing.OutQuint } }
+                                Behavior on anchors.horizontalCenterOffset { NumberAnimation { duration: 150 } }
                             }
-                            Item { Layout.fillWidth: true } // spacer
-                        }
-                        onClicked: {
-                            if (playerSwitcherItem.dropdownVisible) {
-                                playerSwitcherItem.dropdownVisible = false;
-                            } else {
-                                const mappedPos = playerBtn.mapToItem(globalClickCatcher, 0, 0);
-                                playerDropdown.x = mappedPos.x + (playerBtn.width - playerDropdown.width) / 2;
-                                playerDropdown.y = mappedPos.y - playerDropdown.height - 8;
-                                playerSwitcherItem.dropdownVisible = true;
+                            
+                            HoverHandler { id: hoverExpand; cursorShape: Qt.PointingHandCursor }
+                            TapHandler {
+                                onTapped: {
+                                    if (playerSwitcherItem.dropdownVisible) {
+                                        playerSwitcherItem.dropdownVisible = false;
+                                    } else {
+                                        const mappedPos = playerBtn.mapToItem(globalClickCatcher, 0, 0);
+                                        playerDropdown.x = mappedPos.x + (playerBtn.width - playerDropdown.width) / 2;
+                                        playerDropdown.y = mappedPos.y - playerDropdown.height - 12;
+                                        playerSwitcherItem.dropdownVisible = true;
+                                    }
+                                }
                             }
                         }
                     }
@@ -467,8 +521,8 @@ Item {
                         Rectangle {
                             id: playerDropdown
                             
-                            width: Math.max(120, playerBtn.width)
-                            height: contentCol.implicitHeight + 8
+                            width: Math.max(140, playerBtn.width + 10)
+                            height: contentCol.implicitHeight + 16
                             
                             opacity: playerSwitcherItem.dropdownVisible ? 1 : 0
                             scale: playerSwitcherItem.dropdownVisible ? 1 : 0.95
@@ -477,8 +531,8 @@ Item {
                             Behavior on opacity { NumberAnimation { duration: 200 } }
                             Behavior on scale { NumberAnimation { duration: 200; easing.type: Easing.OutQuint } }
                             
-                            color: "#1a1b26"
-                            radius: 6
+                            color: "#16161e"
+                            radius: 12
                             border.color: "#292e42"
                             border.width: 1
                             
@@ -493,8 +547,8 @@ Item {
                                 anchors.top: parent.top
                                 anchors.left: parent.left
                                 anchors.right: parent.right
-                                anchors.margins: 4
-                                spacing: 2
+                                anchors.margins: 8
+                                spacing: 4
                                 
                                 Repeater {
                                     model: Players.list
@@ -503,37 +557,38 @@ Item {
                                         required property var modelData
                                         readonly property bool isActive: Players.active === modelData
                                         Layout.fillWidth: true
-                                        Layout.preferredHeight: 32
+                                        Layout.preferredHeight: 36
                                         color: playerHover.hovered ? "#292e42" : (isActive ? "#1e2030" : "transparent")
-                                        radius: 4
+                                        radius: 8
                                         
                                         RowLayout {
                                             anchors.fill: parent
-                                            anchors.leftMargin: 8
-                                            anchors.rightMargin: 8
-                                            spacing: 8
+                                            anchors.leftMargin: 12
+                                            anchors.rightMargin: 12
+                                            spacing: 12
                                             
                                             Text {
                                                 text: playerRect.isActive ? "󰄬" : ""
                                                 color: playerRect.isActive ? "#bb9af7" : "#565f89"
                                                 font.family: "JetBrainsMono Nerd Font"
-                                                font.pixelSize: 14
-                                                Layout.preferredWidth: 14
+                                                font.pixelSize: 16
+                                                Layout.preferredWidth: 16
                                                 Layout.alignment: Qt.AlignVCenter
                                             }
                                             
                                             Text {
                                                 text: Players.getIdentity(playerRect.modelData)
-                                                color: playerRect.isActive ? "#bb9af7" : "#c0caf5"
+                                                color: playerRect.isActive ? "#bb9af7" : "#a9b1d6"
                                                 font.family: "JetBrainsMono Nerd Font"
-                                                font.pixelSize: 12
+                                                font.pixelSize: 13
+                                                font.bold: playerRect.isActive
                                                 Layout.fillWidth: true
                                                 Layout.alignment: Qt.AlignVCenter
                                                 elide: Text.ElideRight
                                             }
                                         }
                                         
-                                        HoverHandler { id: playerHover }
+                                        HoverHandler { id: playerHover; cursorShape: Qt.PointingHandCursor }
                                         TapHandler {
                                             onTapped: {
                                                 Players.manualActive = playerRect.modelData;
