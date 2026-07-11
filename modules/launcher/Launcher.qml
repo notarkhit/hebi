@@ -147,7 +147,7 @@ Scope {
                             if (contentItem.mode === "nerdfont")
                                 return "";
                             if (contentItem.mode === "emoji")
-                                return "󰱱";
+                                return "";
                             if (contentItem.mode === "clipboard")
                                 return "󰅌";
                             return "󱓞";
