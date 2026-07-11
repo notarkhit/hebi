@@ -157,7 +157,6 @@ Scope {
                         font.pixelSize: 16
                         verticalAlignment: Text.AlignVCenter
                         Layout.alignment: Qt.AlignVCenter
-                        Behavior on text {}
                     }
 
                     TextInput {
