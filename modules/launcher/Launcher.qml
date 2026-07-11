@@ -26,6 +26,10 @@ Scope {
         function toggle(): void {
             root.launcherVisible = !root.launcherVisible;
         }
+        function openMode(text: string): void {
+            root.launcherVisible = true;
+            searchField.text = text;
+        }
     }
 
     PanelWindow {
@@ -144,6 +148,8 @@ Scope {
                                 return "";
                             if (contentItem.mode === "emoji")
                                 return "";
+                            if (contentItem.mode === "clipboard")
+                                return "󰅌";
                             return "󱓞";
                         }
                         color: "#7aa2f7"
@@ -217,6 +223,8 @@ Scope {
                         return "nerdfont";
                     if (t.startsWith(":"))
                         return "emoji";
+                    if (t.startsWith("@"))
+                        return "clipboard";
                     return "apps";
                 }
 
@@ -236,6 +244,8 @@ Scope {
                             return emojiView;
                         if (contentItem.mode === "nerdfont")
                             return nerdfontView;
+                        if (contentItem.mode === "clipboard")
+                            return clipboardView;
                         return appsView;
                     }
 
@@ -275,6 +285,15 @@ Scope {
                         anchors.bottom: parent.bottom
                         visible: contentItem.mode === "nerdfont"
                         query: contentItem.mode === "nerdfont" ? searchField.text.slice(2).toLowerCase().trim() : ""
+                        onAction: root.launcherVisible = false
+                    }
+                    LauncherClipboard {
+                        id: clipboardView
+                        anchors.left: parent.left
+                        anchors.right: parent.right
+                        anchors.bottom: parent.bottom
+                        visible: contentItem.mode === "clipboard"
+                        query: contentItem.mode === "clipboard" ? searchField.text.slice(1).toLowerCase().trim() : ""
                         onAction: root.launcherVisible = false
                     }
                 }
