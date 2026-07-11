@@ -1,5 +1,6 @@
 //@ pragma DefaultEnv QSG_RENDER_LOOP=threaded
 //@ pragma DefaultEnv QT_QUICK_FLICKABLE_WHEEL_DECELERATION=10000
+//@ pragma DefaultEnv QT_QPA_PLATFORMTHEME=gtk3
 
 import "modules/bar"
 import "modules/notifications"
