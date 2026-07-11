@@ -3,6 +3,7 @@ pragma Singleton
 import QtQuick
 import Quickshell
 import Quickshell.Io
+import Hebi
 
 // Central theme token singleton.
 // Change surfaceBg here to update bar, panels, and launcher simultaneously.
@@ -23,6 +24,14 @@ Singleton {
                 root.surfaceHex = "#" + scheme.colours.surface;
                 root.border = "#" + scheme.colours.outlineVariant;
                 root.accent = "#" + scheme.colours.primary;
+                
+                // Force Qt to load the Papirus icon theme matching the scheme mode,
+                // bypassing any QT_QPA_PLATFORMTHEME or XDG_CURRENT_DESKTOP env var issues on Wayland/Hyprland.
+                if (scheme.mode === "light") {
+                    CUtils.setIconTheme("Papirus-Light");
+                } else {
+                    CUtils.setIconTheme("Papirus-Dark");
+                }
             } catch (e) {
                 console.error("Failed to parse scheme.json: " + e);
             }

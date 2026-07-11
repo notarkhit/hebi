@@ -104,7 +104,7 @@ Item {
                 }
                 delegate: NotifManagerCard {
                     width: ListView.view.width - 8
-                    anchors.horizontalCenter: parent.horizontalCenter
+                    x: (ListView.view.width - width) / 2
                 }
             }
         }

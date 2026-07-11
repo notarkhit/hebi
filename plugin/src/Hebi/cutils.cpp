@@ -14,8 +14,14 @@ Q_LOGGING_CATEGORY(lcCUtils, "hebi.cutils", QtInfoMsg)
 
 namespace hebi {
 
+#include <QIcon>
+
 void CUtils::saveItem(QQuickItem* target, const QUrl& path) {
     this->saveItem(target, path, QRect(), QJSValue(), QJSValue());
+}
+
+void CUtils::setIconTheme(const QString& name) {
+    QIcon::setThemeName(name);
 }
 
 void CUtils::saveItem(QQuickItem* target, const QUrl& path, const QRect& rect) {

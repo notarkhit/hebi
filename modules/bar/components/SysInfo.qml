@@ -71,33 +71,33 @@ Item {
     readonly property bool  batLow:      hasBat && !batCharging && batPct < 0.2
 
     // ── reactive icon properties ───────────────────────────────────────────
-    readonly property string wifiIconName: {
-        if (ethUp) return "network-wired-symbolic"
-        if (!wifiUp) return "network-wireless-signal-none-symbolic"
-        if (wifiSignal >= 75) return "network-wireless-signal-excellent-symbolic"
-        if (wifiSignal >= 50) return "network-wireless-signal-good-symbolic"
-        if (wifiSignal >= 25) return "network-wireless-signal-ok-symbolic"
-        return "network-wireless-signal-weak-symbolic"
+    readonly property string wifiIconText: {
+        if (ethUp) return "󰈀"
+        if (!wifiUp) return "󰤮"
+        if (wifiSignal >= 75) return "󰤨"
+        if (wifiSignal >= 50) return "󰤥"
+        if (wifiSignal >= 25) return "󰤢"
+        return "󰤟"
     }
 
-    readonly property string volIconName: {
+    readonly property string volIconText: {
         if (Services.AudioService.muted || Services.AudioService.volume <= 0)
-            return "audio-volume-muted-symbolic"
-        if (Services.AudioService.volume <= 0.33) return "audio-volume-low-symbolic"
-        if (Services.AudioService.volume <= 0.66) return "audio-volume-medium-symbolic"
-        return "audio-volume-high-symbolic"
+            return "󰖁"
+        if (Services.AudioService.volume <= 0.33) return "󰕿"
+        if (Services.AudioService.volume <= 0.66) return "󰖀"
+        return "󰕾"
     }
 
-    readonly property string batIconName: {
+    readonly property string batIconText: {
         if (batCharging) {
-            if (batPct >= 0.9) return "battery-full-charged-symbolic"
-            return "battery-good-charging-symbolic"
+            if (batPct >= 0.9) return "󰂅"
+            return "󰂄"
         }
-        if (batPct >= 0.9) return "battery-full-symbolic"
-        if (batPct >= 0.6) return "battery-good-symbolic"
-        if (batPct >= 0.4) return "battery-medium-symbolic"
-        if (batPct >= 0.2) return "battery-low-symbolic"
-        return "battery-caution-symbolic"
+        if (batPct >= 0.9) return "󰁹"
+        if (batPct >= 0.6) return "󰁿"
+        if (batPct >= 0.4) return "󰁾"
+        if (batPct >= 0.2) return "󰁻"
+        return "󰁺"
     }
 
     // ── UI ────────────────────────────────────────────────────────────────
@@ -107,22 +107,22 @@ Item {
         spacing: 6
 
         // Network
-        Image {
-            sourceSize: Qt.size(14, 14)
-            source:     Quickshell.iconPath(root.wifiIconName)
-            fillMode:   Image.PreserveAspectFit
-            asynchronous: true
+        Text {
+            text: root.wifiIconText
+            color: "#7aa2f7"
+            font.family: "JetBrainsMono Nerd Font"
+            font.pixelSize: 14
             Layout.alignment: Qt.AlignVCenter
             opacity: root.wifiUp || root.ethUp ? 1 : 0.4
             Behavior on opacity { NumberAnimation { duration: 200 } }
         }
 
         // Volume
-        Image {
-            sourceSize: Qt.size(14, 14)
-            source:     Quickshell.iconPath(root.volIconName)
-            fillMode:   Image.PreserveAspectFit
-            asynchronous: true
+        Text {
+            text: root.volIconText
+            color: "#7aa2f7"
+            font.family: "JetBrainsMono Nerd Font"
+            font.pixelSize: 14
             Layout.alignment: Qt.AlignVCenter
         }
 
@@ -135,11 +135,11 @@ Item {
                 anchors.centerIn: parent
                 spacing: 3
 
-                Image {
-                    sourceSize: Qt.size(14, 14)
-                    source:     Quickshell.iconPath(root.batIconName)
-                    fillMode:   Image.PreserveAspectFit
-                    asynchronous: true
+                Text {
+                    text: root.batIconText
+                    color: root.batCharging ? "#9ece6a" : (root.batLow ? "#f7768e" : "#7aa2f7")
+                    font.family: "JetBrainsMono Nerd Font"
+                    font.pixelSize: 14
                     anchors.verticalCenter: parent.verticalCenter
                 }
 
