@@ -29,7 +29,9 @@ ListView {
                 for (const line of lines) {
                     const parts = line.split("  ");
                     if (parts.length > 0) {
-                        result.push({ e: parts[0], n: parts.slice(1).join(" ") });
+                        const name = parts.slice(1).join(" ");
+                        if (!name.includes("nf-")) continue;
+                        result.push({ e: parts[0], n: name });
                     }
                 }
                 nfList.loadedData = result;

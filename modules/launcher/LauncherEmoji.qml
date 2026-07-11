@@ -29,7 +29,9 @@ ListView {
                 for (const line of lines) {
                     const parts = line.split(" ");
                     if (parts.length > 0) {
-                        result.push({ e: parts[0], n: parts.slice(1).join(" "), k: parts.slice(1) });
+                        const name = parts.slice(1).join(" ");
+                        if (name.startsWith("regional indicator")) continue;
+                        result.push({ e: parts[0], n: name, k: parts.slice(1) });
                     }
                 }
                 emojiList.loadedData = result;
