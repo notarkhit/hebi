@@ -141,17 +141,10 @@ Scope {
                     spacing: 12
 
                     Text {
-                        text: {
-                            if (contentItem.mode === "calc")
-                                return "󰃬";
-                            if (contentItem.mode === "nerdfont")
-                                return "";
-                            if (contentItem.mode === "emoji")
-                                return "";
-                            if (contentItem.mode === "clipboard")
-                                return "󰅌";
-                            return "󱓞";
-                        }
+                        text: contentItem.mode === "calc" ? "󰃬" :
+                              contentItem.mode === "nerdfont" ? "" :
+                              contentItem.mode === "emoji" ? "" :
+                              contentItem.mode === "clipboard" ? "󰅌" : "󱓞"
                         color: "#7aa2f7"
                         font.family: overlay.font
                         font.pixelSize: 16
