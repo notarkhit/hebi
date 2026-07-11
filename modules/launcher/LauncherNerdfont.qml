@@ -21,7 +21,7 @@ ListView {
 
     Process {
         running: true
-        command: ["/home/notarkhit/.local/bin/hebi", "emoji", "--nerdfont"]
+        command: ["hebi", "emoji", "--nerdfont"]
         stdout: StdioCollector {
             onStreamFinished: {
                 const lines = text.trim().split("\n");

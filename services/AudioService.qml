@@ -12,7 +12,7 @@ Singleton {
 
     Process {
         running: true
-        command: ["/home/notarkhit/.config/hebi/services/volume_monitor.sh"]
+        command: [Quickshell.env("HOME") + "/.config/hebi/services/volume_monitor.sh"]
     }
 
     readonly property FileView volumeFile: FileView {

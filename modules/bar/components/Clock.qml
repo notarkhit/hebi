@@ -37,7 +37,7 @@ Item {
         anchors.fill: parent
         cursorShape: Qt.PointingHandCursor
         onClicked: {
-            Quickshell.execDetached(["qs", "ipc", "-p", "/home/notarkhit/.config/hebi", "call", "calendar", "toggle"]);
+            Quickshell.execDetached(["qs", "ipc", "-p", Quickshell.env("HOME") + "/.config/hebi", "call", "calendar", "toggle"]);
         }
     }
 }

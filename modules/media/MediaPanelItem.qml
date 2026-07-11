@@ -189,7 +189,7 @@ Item {
                     width: 112
                     height: 112
                     playing: Players.active?.isPlaying ?? false
-                    source: "file:///home/notarkhit/.config/hebi/assets/bongocat.gif"
+                    source: "file://" + Quickshell.env("HOME") + "/.config/hebi/assets/bongocat.gif"
                     fillMode: AnimatedImage.PreserveAspectFit
                     opacity: root.showBongoCat ? (Players.active ? 1 : 0.5) : 0
                     Behavior on opacity { NumberAnimation { duration: 300 } }

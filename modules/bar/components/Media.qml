@@ -43,7 +43,7 @@ Rectangle {
     }
 
     TapHandler {
-        onTapped: Quickshell.execDetached(["qs", "ipc", "-p", "/home/notarkhit/.config/hebi", "call", "media", "toggle"])
+        onTapped: Quickshell.execDetached(["qs", "ipc", "-p", Quickshell.env("HOME") + "/.config/hebi", "call", "media", "toggle"])
     }
 
     RowLayout {

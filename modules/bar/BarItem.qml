@@ -101,13 +101,13 @@ Item {
         // System info stats button (opens SysInfoPanel)
         SysInfoButton {
             Layout.alignment: Qt.AlignVCenter
-            onClicked: Quickshell.execDetached(["qs", "ipc", "-p", "/home/notarkhit/.config/hebi", "call", "sysinfo", "toggle"])
+            onClicked: Quickshell.execDetached(["qs", "ipc", "-p", Quickshell.env("HOME") + "/.config/hebi", "call", "sysinfo", "toggle"])
         }
 
         // System info: network · volume · battery (opens settings)
         SysInfo {
             Layout.alignment: Qt.AlignVCenter
-            onClicked: Quickshell.execDetached(["qs", "ipc", "-p", "/home/notarkhit/.config/hebi", "call", "settings", "toggle"])
+            onClicked: Quickshell.execDetached(["qs", "ipc", "-p", Quickshell.env("HOME") + "/.config/hebi", "call", "settings", "toggle"])
         }
     }
 }
