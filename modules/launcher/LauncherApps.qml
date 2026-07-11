@@ -140,8 +140,8 @@ ListView {
             anchors.rightMargin: 10
             spacing: 12
 
-            IconImage {
-                implicitSize: 28
+            Image {
+                sourceSize: Qt.size(28, 28)
                 source: delRoot.modelData ? Quickshell.iconPath(delRoot.modelData.icon, "application-x-executable") : ""
                 asynchronous: true
                 Layout.alignment: Qt.AlignVCenter
