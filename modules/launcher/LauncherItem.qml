@@ -66,9 +66,9 @@ Item {
                     if (contentItem.mode === "calc")
                         return "󰃬";
                     if (contentItem.mode === "nerdfont")
-                        return "";
+                        return "";
                     if (contentItem.mode === "emoji")
-                        return "";
+                        return "";
                     return "󱓞";
                 }
                 color: "#7aa2f7"
