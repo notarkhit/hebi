@@ -18,6 +18,9 @@ ShellRoot {
 
     // ── single full-screen overlay: all panels + shared blob group ────────────
     MainWindow {}
+    
+    // ── dedicated overlay window for launcher mapping/unmapping ───────────────
+    LauncherWindow {}
 
     // ── notification popups ───────────────────────────────────────────────────
     Notifications {

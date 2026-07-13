@@ -10,7 +10,7 @@ import "modules/settings"
 import "modules/sysinfo"
 import "modules/media"
 import "modules/calendar"
-import "modules/launcher"
+
 import "modules/bar"
 import "services"
 import Hebi.Config
@@ -30,9 +30,7 @@ PanelWindow {
     property bool notifMgrVisible: false
     property bool mediaVisible: false
     property bool calendarVisible: false
-    property bool launcherVisible: false
-
-    readonly property bool anyPanelVisible: settingsVisible || sysInfoVisible || notifMgrVisible || mediaVisible || calendarVisible || launcherVisible
+    readonly property bool anyPanelVisible: settingsVisible || sysInfoVisible || notifMgrVisible || mediaVisible || calendarVisible
 
     // ── fullscreen detection ──────────────────────────────────────────────────
     readonly property var activeMonitor: Hypr.monitorFor(root.screen)
@@ -137,12 +135,7 @@ PanelWindow {
             root.calendarVisible = false;
         }
     }
-    IpcHandler {
-        target: "launcher"
-        function toggle(): void {
-            root.launcherVisible = !root.launcherVisible;
-        }
-    }
+
 
     // ── window ────────────────────────────────────────────────────────────────
     anchors.top: true
@@ -155,7 +148,7 @@ PanelWindow {
 
     WlrLayershell.layer: root.hasFullscreen ? WlrLayer.Bottom : WlrLayer.Overlay
     WlrLayershell.exclusiveZone: 0
-    WlrLayershell.keyboardFocus: root.launcherVisible ? WlrKeyboardFocus.Exclusive : WlrKeyboardFocus.None
+    WlrLayershell.keyboardFocus: WlrKeyboardFocus.None
 
     mask: root.anyPanelVisible ? fullMask : emptyMask
     Region {
@@ -280,19 +273,7 @@ PanelWindow {
             visible: calendarItem.offsetScale < 1
         }
 
-        // Launcher blob — bottom-centered
-        BlobRect {
-            group: blobGroup
-            x: (root.width - launcherItem.width) / 2
-            y: launcherItem.blobY
-            width: launcherItem.width
-            height: launcherItem.height
-            radius: 12
-            stiffness: 200
-            damping: 18
-            deformScale: (0.15 * Config.appearance.deformScale) / 10000
-            visible: launcherItem.offsetScale < 1
-        }
+
     }
 
     // ── bar visual content ────────────────────────────────────────────────────
@@ -385,13 +366,7 @@ PanelWindow {
         }
     }
 
-    LauncherItem {
-        id: launcherItem
-        launcherVisible: root.launcherVisible
-        anchors.horizontalCenter: parent.horizontalCenter
-        anchors.bottom: parent.bottom
-        onCloseRequested: root.launcherVisible = false
-    }
+
 
     // ── dismiss click ─────────────────────────────────────────────────────────
     MouseArea {
@@ -403,7 +378,7 @@ PanelWindow {
             root.notifMgrVisible = false;
             root.mediaVisible = false;
             root.calendarVisible = false;
-            root.launcherVisible = false;
+
         }
     }
 }
