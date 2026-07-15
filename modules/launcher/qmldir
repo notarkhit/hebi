@@ -1,6 +1,5 @@
 module hebi.modules.launcher
 
-Launcher         1.0 Launcher.qml
 LauncherItem     1.0 LauncherItem.qml
 LauncherApps     1.0 LauncherApps.qml
 LauncherCalc     1.0 LauncherCalc.qml
