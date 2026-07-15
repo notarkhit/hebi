@@ -69,6 +69,8 @@ Item {
                         return "";
                     if (contentItem.mode === "emoji")
                         return "";
+                    if (contentItem.mode === "actions")
+                        return "";
                     return "󱓞";
                 }
                 color: "#7aa2f7"
@@ -144,6 +146,8 @@ Item {
                     return "nerdfont";
                 if (t.startsWith(":"))
                     return "emoji";
+                if (t.startsWith(">"))
+                    return "actions";
                 return "apps";
             }
 
@@ -168,6 +172,8 @@ Item {
                         return emojiView;
                     if (contentItem.mode === "nerdfont")
                         return nerdfontView;
+                    if (contentItem.mode === "actions")
+                        return actionsView;
                     return appsView;
                 }
                 implicitHeight: activeView ? activeView.implicitHeight : 0
@@ -207,6 +213,18 @@ Item {
                     visible: contentItem.mode === "nerdfont"
                     query: contentItem.mode === "nerdfont" ? searchField.text.slice(2).toLowerCase().trim() : ""
                     onAction: root.closeRequested()
+                }
+                LauncherActions {
+                    id: actionsView
+                    anchors.left: parent.left
+                    anchors.right: parent.right
+                    anchors.bottom: parent.bottom
+                    visible: contentItem.mode === "actions"
+                    query: contentItem.mode === "actions" ? searchField.text.slice(1).trim() : ""
+                    onAction: root.closeRequested()
+                    onAutocomplete: (text) => {
+                        searchField.text = text;
+                    }
                 }
             }
         }
