@@ -1,0 +1,8 @@
+module hebi.modules.menu
+
+MenuItem     1.0 MenuItem.qml
+MenuDrun     1.0 MenuDrun.qml
+MenuCalc     1.0 MenuCalc.qml
+MenuEmoji    1.0 MenuEmoji.qml
+MenuNerdfont 1.0 MenuNerdfont.qml
+MenuActions  1.0 MenuActions.qml

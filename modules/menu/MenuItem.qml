@@ -11,9 +11,17 @@ import "../../services"
 Item {
     id: root
 
-    required property bool launcherVisible
+    required property bool menuVisible
 
     signal closeRequested
+
+    property string startupMode: "drun"
+
+    function openMode(m) {
+        startupMode = m;
+        searchField.text = "";
+        searchField.forceActiveFocus();
+    }
 
     readonly property string font: "JetBrainsMono Nerd Font"
     readonly property int currentHeight: card.fullHeight
@@ -22,15 +30,17 @@ Item {
     implicitWidth: 560
     implicitHeight: card.fullHeight
 
-    onLauncherVisibleChanged: {
-        if (launcherVisible) {
+    onMenuVisibleChanged: {
+        if (menuVisible) {
             searchField.text = "";
             searchField.forceActiveFocus();
+        } else {
+            startupMode = "drun";
         }
     }
 
     // env/shell offsetScale animation — slides below the screen bottom
-    property real offsetScale: root.launcherVisible ? 0 : 1
+    property real offsetScale: root.menuVisible ? 0 : 1
     Behavior on offsetScale {
         Anim {}
     }
@@ -139,6 +149,7 @@ Item {
             id: contentItem
 
             readonly property string mode: {
+                if (startupMode !== "drun") return startupMode;
                 const t = searchField.text;
                 if (t.startsWith("="))
                     return "calc";
@@ -148,7 +159,7 @@ Item {
                     return "emoji";
                 if (t.startsWith(">"))
                     return "actions";
-                return "apps";
+                return "drun";
             }
 
             anchors.left: parent.left
@@ -174,20 +185,20 @@ Item {
                         return nerdfontView;
                     if (contentItem.mode === "actions")
                         return actionsView;
-                    return appsView;
+                    return drunView;
                 }
                 implicitHeight: activeView ? activeView.implicitHeight : 0
 
-                LauncherApps {
-                    id: appsView
+                MenuDrun {
+                    id: drunView
                     anchors.left: parent.left
                     anchors.right: parent.right
                     anchors.bottom: parent.bottom
-                    visible: contentItem.mode === "apps"
-                    query: contentItem.mode === "apps" ? searchField.text.trim() : ""
+                    visible: contentItem.mode === "drun"
+                    query: contentItem.mode === "drun" ? searchField.text.trim() : ""
                     onAction: root.closeRequested()
                 }
-                LauncherCalc {
+                MenuCalc {
                     id: calcView
                     anchors.left: parent.left
                     anchors.right: parent.right
@@ -196,33 +207,34 @@ Item {
                     expr: contentItem.mode === "calc" ? searchField.text.slice(1).trim() : ""
                     onAction: root.closeRequested()
                 }
-                LauncherEmoji {
+                MenuEmoji {
                     id: emojiView
                     anchors.left: parent.left
                     anchors.right: parent.right
                     anchors.bottom: parent.bottom
                     visible: contentItem.mode === "emoji"
-                    query: contentItem.mode === "emoji" ? searchField.text.slice(1).toLowerCase().trim() : ""
+                    query: contentItem.mode === "emoji" ? (searchField.text.startsWith(":") ? searchField.text.slice(1).toLowerCase().trim() : searchField.text.toLowerCase().trim()) : ""
                     onAction: root.closeRequested()
                 }
-                LauncherNerdfont {
+                MenuNerdfont {
                     id: nerdfontView
                     anchors.left: parent.left
                     anchors.right: parent.right
                     anchors.bottom: parent.bottom
                     visible: contentItem.mode === "nerdfont"
-                    query: contentItem.mode === "nerdfont" ? searchField.text.slice(2).toLowerCase().trim() : ""
+                    query: contentItem.mode === "nerdfont" ? (searchField.text.startsWith("::") ? searchField.text.slice(2).toLowerCase().trim() : searchField.text.toLowerCase().trim()) : ""
                     onAction: root.closeRequested()
                 }
-                LauncherActions {
+                MenuActions {
                     id: actionsView
                     anchors.left: parent.left
                     anchors.right: parent.right
                     anchors.bottom: parent.bottom
                     visible: contentItem.mode === "actions"
-                    query: contentItem.mode === "actions" ? searchField.text.slice(1).trim() : ""
+                    query: contentItem.mode === "actions" ? (searchField.text.startsWith(">") ? searchField.text.slice(1).trim() : searchField.text.trim()) : ""
                     onAction: root.closeRequested()
-                    onAutocomplete: (text) => {
+                    onAutocomplete: text => {
+                        startupMode = "drun";
                         searchField.text = text;
                     }
                 }

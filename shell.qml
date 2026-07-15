@@ -20,7 +20,7 @@ ShellRoot {
     MainWindow {}
     
     // ── dedicated overlay window for launcher mapping/unmapping ───────────────
-    LauncherWindow {}
+    MenuWindow {}
 
     // ── notification popups ───────────────────────────────────────────────────
     Notifications {
