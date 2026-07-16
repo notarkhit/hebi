@@ -91,7 +91,7 @@ ListView {
             desc: "Clipboard History",
             icon: "󱘢",
             type: "action",
-            cmd: ["hebi", "clipboard"]
+            cmd: ["sh", "-c", "$HOME/.local/bin/hebi clipboard"]
         }
     ]
 
@@ -133,7 +133,7 @@ ListView {
 
     Process {
         id: getSchemes
-        command: ["hebi", "scheme", "list"]
+        command: ["sh", "-c", "$HOME/.local/bin/hebi scheme list"]
         stdout: StdioCollector {
             onStreamFinished: {
                 try {
@@ -159,7 +159,7 @@ ListView {
 
     Process {
         id: getCurrentScheme
-        command: ["hebi", "scheme", "get", "-nfv"]
+        command: ["sh", "-c", "$HOME/.local/bin/hebi scheme get -nfv"]
         stdout: StdioCollector {
             onStreamFinished: {
                 try {
@@ -290,7 +290,7 @@ ListView {
                 actionsList.autocomplete(modelData.target);
             } else if (modelData.type === "scheme") {
                 actionsList.action();
-                Quickshell.execDetached(["hebi", "scheme", "set", "-n", modelData.schemeName, "-f", modelData.schemeFlavour]);
+                Quickshell.execDetached(["sh", "-c", "$HOME/.local/bin/hebi scheme set -n \"$1\" -f \"$2\"", "--", modelData.schemeName, modelData.schemeFlavour]);
             } else {
                 actionsList.action();
                 Quickshell.execDetached(modelData.cmd);
