@@ -30,9 +30,25 @@ Item {
                     const tabIdx = line.indexOf("\t");
                     if (tabIdx === -1) continue;
                     const id = line.slice(0, tabIdx);
-                    const data = line.slice(tabIdx + 1);
-                    const isImage = data.startsWith("[[ binary data") && data.includes("png");
-                    result.push({ id, data, isImage });
+                    const rawData = line.slice(tabIdx + 1);
+                    let data = rawData;
+                    let size = "";
+                    let isImage = false;
+                    
+                    if (rawData.startsWith("[[ binary data")) {
+                        isImage = true;
+                        const match = rawData.match(/\[\[ binary data (.+?) (\w+) ([\dx]+) \]\]/);
+                        if (match) {
+                            size = match[1];
+                            const format = match[2];
+                            const resolution = match[3];
+                            data = `${format} image ${resolution}`;
+                        } else {
+                            data = "Binary Data";
+                        }
+                    }
+                    
+                    result.push({ id, data, isImage, size });
                 }
                 clipboardRoot.loadedData = result;
                 if (result.length > 0 && clipList.currentIndex >= result.length) {
@@ -144,6 +160,14 @@ Item {
                         clip: true
                         Layout.fillWidth: true
                         Layout.alignment: Qt.AlignVCenter 
+                    }
+                    Text {
+                        text: delRoot.modelData.size || ""
+                        visible: !!delRoot.modelData.size
+                        color: "#565f89"
+                        font.family: "JetBrainsMono Nerd Font"
+                        font.pixelSize: 11
+                        Layout.alignment: Qt.AlignVCenter | Qt.AlignRight
                     }
                 }
             }
