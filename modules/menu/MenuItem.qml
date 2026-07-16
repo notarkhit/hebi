@@ -16,9 +16,11 @@ Item {
     signal closeRequested
 
     property string currentMode: "drun"
+    property bool navigatedViaPrefix: false
 
     function openMode(m) {
         currentMode = m;
+        navigatedViaPrefix = false;
         searchField.text = "";
         searchField.forceActiveFocus();
     }
@@ -36,6 +38,7 @@ Item {
             searchField.forceActiveFocus();
         } else {
             currentMode = "drun";
+            navigatedViaPrefix = false;
         }
     }
 
@@ -113,26 +116,32 @@ Item {
                     if (root.currentMode === "drun") {
                         if (text.startsWith("=")) {
                             root.currentMode = "calc";
+                            root.navigatedViaPrefix = true;
                             text = text.substring(1);
                         } else if (text.startsWith("::")) {
                             root.currentMode = "nerdfont";
+                            root.navigatedViaPrefix = true;
                             text = text.substring(2);
                         } else if (text.startsWith(":")) {
                             root.currentMode = "emoji";
+                            root.navigatedViaPrefix = true;
                             text = text.substring(1);
                         } else if (text.startsWith(">")) {
                             root.currentMode = "actions";
+                            root.navigatedViaPrefix = true;
                             text = text.substring(1);
                         }
                     } else if (root.currentMode === "emoji" && text.startsWith(":")) {
                         root.currentMode = "nerdfont";
+                        root.navigatedViaPrefix = true;
                         text = text.substring(1);
                     }
                 }
 
                 Keys.onPressed: (event) => {
-                    if (event.key === Qt.Key_Backspace && text.length === 0 && root.currentMode !== "drun") {
+                    if (event.key === Qt.Key_Backspace && text.length === 0 && root.currentMode !== "drun" && root.navigatedViaPrefix) {
                         root.currentMode = "drun";
+                        root.navigatedViaPrefix = false;
                         event.accepted = true;
                     }
                 }
@@ -251,6 +260,7 @@ Item {
                     onAction: root.closeRequested()
                     onAutocomplete: text => {
                         root.currentMode = "drun";
+                        root.navigatedViaPrefix = false;
                         searchField.text = text;
                     }
                 }
