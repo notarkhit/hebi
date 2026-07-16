@@ -30,16 +30,16 @@ Item {
 
     // The launcher is anchors.bottom in MainWindow, so we need full height
     implicitWidth: currentMode === "clipboard" ? 860 : 560
-    Behavior on implicitWidth { Anim {} }
+    Behavior on implicitWidth {
+        enabled: root.offsetScale === 0
+        Anim {}
+    }
     implicitHeight: card.fullHeight
 
     onMenuVisibleChanged: {
         if (menuVisible) {
             searchField.text = "";
             searchField.forceActiveFocus();
-        } else {
-            currentMode = "drun";
-            navigatedViaPrefix = false;
         }
     }
 
@@ -47,6 +47,12 @@ Item {
     property real offsetScale: root.menuVisible ? 0 : 1
     Behavior on offsetScale {
         Anim {}
+    }
+    onOffsetScaleChanged: {
+        if (offsetScale === 1) {
+            currentMode = "drun";
+            navigatedViaPrefix = false;
+        }
     }
     // blobY: visual y for MainWindow's shared BlobRect (launcher slides from bottom)
     readonly property real blobY: parent ? parent.height - implicitHeight + (card.fullHeight + 5) * offsetScale : 0
@@ -204,7 +210,10 @@ Item {
             anchors.bottom: searchRow.top
             anchors.bottomMargin: 0
             height: stack.implicitHeight
-            Behavior on height { Anim {} }
+            Behavior on height {
+                enabled: root.offsetScale === 0
+                Anim {}
+            }
 
             Item {
                 id: stack

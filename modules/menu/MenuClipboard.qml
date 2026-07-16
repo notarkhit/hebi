@@ -100,7 +100,7 @@ Item {
                 previewLoader.updatePreview();
             }
 
-            ScrollBar.vertical: ScrollBar { policy: ScrollBar.AsNeeded; contentItem: Rectangle { implicitWidth: 4; radius: 2; color: "#3b4261" } }
+            ScrollBar.vertical: ScrollBar { policy: ScrollBar.AsNeeded; contentItem: Rectangle { implicitWidth: 2; radius: 1; color: "#3b4261"; opacity: 0.6 } }
             highlight: Rectangle { radius: 8; color: Qt.rgba(0x7a/255, 0xa2/255, 0xf7/255, 0.12); width: clipList.width }
             highlightFollowsCurrentItem: true
             highlightMoveDuration: 80
@@ -127,7 +127,7 @@ Item {
                     spacing: 14
 
                     Text { 
-                        text: delRoot.modelData.isImage ? "" : "󰈔"
+                        text: delRoot.modelData.isImage ? "" : "󱘢"
                         font.family: "JetBrainsMono Nerd Font"
                         font.pixelSize: 18
                         Layout.alignment: Qt.AlignVCenter 
@@ -139,6 +139,9 @@ Item {
                         font.family: "JetBrainsMono Nerd Font"
                         font.pixelSize: 13
                         elide: Text.ElideRight
+                        maximumLineCount: 1
+                        wrapMode: Text.NoWrap
+                        clip: true
                         Layout.fillWidth: true
                         Layout.alignment: Qt.AlignVCenter 
                     }

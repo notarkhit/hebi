@@ -13,7 +13,7 @@ PanelWindow {
     id: window
 
     property bool menuVisible: false
-    visible: menuVisible
+    visible: menuVisible || menuItem.offsetScale < 1
 
     WlrLayershell.layer: WlrLayer.Overlay
     WlrLayershell.exclusiveZone: 0
@@ -35,28 +35,28 @@ PanelWindow {
             window.menuVisible = !window.menuVisible;
         }
         function drun(): void {
-            window.menuVisible = true;
-            menuItem.openMode("drun");
+            if (window.menuVisible && menuItem.currentMode === "drun") window.menuVisible = false;
+            else { window.menuVisible = true; menuItem.openMode("drun"); }
         }
         function emoji(): void {
-            window.menuVisible = true;
-            menuItem.openMode("emoji");
+            if (window.menuVisible && menuItem.currentMode === "emoji") window.menuVisible = false;
+            else { window.menuVisible = true; menuItem.openMode("emoji"); }
         }
         function calc(): void {
-            window.menuVisible = true;
-            menuItem.openMode("calc");
+            if (window.menuVisible && menuItem.currentMode === "calc") window.menuVisible = false;
+            else { window.menuVisible = true; menuItem.openMode("calc"); }
         }
         function nerdfont(): void {
-            window.menuVisible = true;
-            menuItem.openMode("nerdfont");
+            if (window.menuVisible && menuItem.currentMode === "nerdfont") window.menuVisible = false;
+            else { window.menuVisible = true; menuItem.openMode("nerdfont"); }
         }
         function actions(): void {
-            window.menuVisible = true;
-            menuItem.openMode("actions");
+            if (window.menuVisible && menuItem.currentMode === "actions") window.menuVisible = false;
+            else { window.menuVisible = true; menuItem.openMode("actions"); }
         }
         function clipboard(): void {
-            window.menuVisible = true;
-            menuItem.openMode("clipboard");
+            if (window.menuVisible && menuItem.currentMode === "clipboard") window.menuVisible = false;
+            else { window.menuVisible = true; menuItem.openMode("clipboard"); }
         }
     }
 
