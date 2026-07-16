@@ -54,6 +54,10 @@ PanelWindow {
             window.menuVisible = true;
             menuItem.openMode("actions");
         }
+        function clipboard(): void {
+            window.menuVisible = true;
+            menuItem.openMode("clipboard");
+        }
     }
 
     // Dismiss click

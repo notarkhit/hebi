@@ -29,7 +29,8 @@ Item {
     readonly property int currentHeight: card.fullHeight
 
     // The launcher is anchors.bottom in MainWindow, so we need full height
-    implicitWidth: 560
+    implicitWidth: currentMode === "clipboard" ? 860 : 560
+    Behavior on implicitWidth { Anim {} }
     implicitHeight: card.fullHeight
 
     onMenuVisibleChanged: {
@@ -57,11 +58,11 @@ Item {
     Item {
         id: card
 
-        readonly property int fullHeight: stack.implicitHeight + 56
+        readonly property int fullHeight: contentItem.height + 56
 
         anchors.horizontalCenter: parent.horizontalCenter
         anchors.bottom: parent.bottom
-        width: 560
+        width: root.implicitWidth
         height: fullHeight
 
         RowLayout {
@@ -84,6 +85,8 @@ Item {
                         return "";
                     if (contentItem.mode === "actions")
                         return "";
+                    if (contentItem.mode === "clipboard")
+                        return "󱘢";
                     return "󱓞";
                 }
                 color: "#7aa2f7"
@@ -130,6 +133,10 @@ Item {
                             root.currentMode = "actions";
                             root.navigatedViaPrefix = true;
                             text = text.substring(1);
+                        } else if (text.startsWith("@")) {
+                            root.currentMode = "clipboard";
+                            root.navigatedViaPrefix = true;
+                            text = text.substring(1);
                         }
                     } else if (root.currentMode === "emoji" && text.startsWith(":")) {
                         root.currentMode = "nerdfont";
@@ -159,6 +166,11 @@ Item {
                     const v = stack.activeView;
                     if (v?.handleDown)
                         v.handleDown();
+                }
+                Keys.onDeletePressed: {
+                    const v = stack.activeView;
+                    if (v?.handleDelete)
+                        v.handleDelete();
                 }
                 Keys.onReturnPressed: {
                     const v = stack.activeView;
@@ -192,6 +204,7 @@ Item {
             anchors.bottom: searchRow.top
             anchors.bottomMargin: 0
             height: stack.implicitHeight
+            Behavior on height { Anim {} }
 
             Item {
                 id: stack
@@ -210,6 +223,8 @@ Item {
                         return nerdfontView;
                     if (contentItem.mode === "actions")
                         return actionsView;
+                    if (contentItem.mode === "clipboard")
+                        return clipboardView;
                     return drunView;
                 }
                 implicitHeight: activeView ? activeView.implicitHeight : 0
@@ -263,6 +278,15 @@ Item {
                         root.navigatedViaPrefix = false;
                         searchField.text = text;
                     }
+                }
+                MenuClipboard {
+                    id: clipboardView
+                    anchors.left: parent.left
+                    anchors.right: parent.right
+                    anchors.bottom: parent.bottom
+                    visible: contentItem.mode === "clipboard"
+                    query: contentItem.mode === "clipboard" ? searchField.text.trim() : ""
+                    onAction: root.closeRequested()
                 }
             }
         }

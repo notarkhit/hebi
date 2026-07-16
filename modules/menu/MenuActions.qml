@@ -90,8 +90,8 @@ ListView {
             name: "Clipboard",
             desc: "Clipboard History",
             icon: "󱘢",
-            type: "action",
-            cmd: ["sh", "-c", "$HOME/.local/bin/hebi clipboard"]
+            type: "autocomplete",
+            target: "@"
         }
     ]
 
