@@ -15,10 +15,10 @@ Item {
 
     signal closeRequested
 
-    property string startupMode: "drun"
+    property string currentMode: "drun"
 
     function openMode(m) {
-        startupMode = m;
+        currentMode = m;
         searchField.text = "";
         searchField.forceActiveFocus();
     }
@@ -35,7 +35,7 @@ Item {
             searchField.text = "";
             searchField.forceActiveFocus();
         } else {
-            startupMode = "drun";
+            currentMode = "drun";
         }
     }
 
@@ -109,6 +109,34 @@ Item {
                     visible: !searchField.text
                 }
 
+                onTextChanged: {
+                    if (root.currentMode === "drun") {
+                        if (text.startsWith("=")) {
+                            root.currentMode = "calc";
+                            text = text.substring(1);
+                        } else if (text.startsWith("::")) {
+                            root.currentMode = "nerdfont";
+                            text = text.substring(2);
+                        } else if (text.startsWith(":")) {
+                            root.currentMode = "emoji";
+                            text = text.substring(1);
+                        } else if (text.startsWith(">")) {
+                            root.currentMode = "actions";
+                            text = text.substring(1);
+                        }
+                    } else if (root.currentMode === "emoji" && text.startsWith(":")) {
+                        root.currentMode = "nerdfont";
+                        text = text.substring(1);
+                    }
+                }
+
+                Keys.onPressed: (event) => {
+                    if (event.key === Qt.Key_Backspace && text.length === 0 && root.currentMode !== "drun") {
+                        root.currentMode = "drun";
+                        event.accepted = true;
+                    }
+                }
+
                 Keys.onEscapePressed: {
                     root.closeRequested();
                     text = "";
@@ -148,19 +176,7 @@ Item {
         Item {
             id: contentItem
 
-            readonly property string mode: {
-                if (startupMode !== "drun") return startupMode;
-                const t = searchField.text;
-                if (t.startsWith("="))
-                    return "calc";
-                if (t.startsWith("::"))
-                    return "nerdfont";
-                if (t.startsWith(":"))
-                    return "emoji";
-                if (t.startsWith(">"))
-                    return "actions";
-                return "drun";
-            }
+            readonly property string mode: root.currentMode
 
             anchors.left: parent.left
             anchors.right: parent.right
@@ -204,7 +220,7 @@ Item {
                     anchors.right: parent.right
                     anchors.bottom: parent.bottom
                     visible: contentItem.mode === "calc"
-                    expr: contentItem.mode === "calc" ? searchField.text.slice(1).trim() : ""
+                    expr: contentItem.mode === "calc" ? searchField.text.trim() : ""
                     onAction: root.closeRequested()
                 }
                 MenuEmoji {
@@ -213,7 +229,7 @@ Item {
                     anchors.right: parent.right
                     anchors.bottom: parent.bottom
                     visible: contentItem.mode === "emoji"
-                    query: contentItem.mode === "emoji" ? (searchField.text.startsWith(":") ? searchField.text.slice(1).toLowerCase().trim() : searchField.text.toLowerCase().trim()) : ""
+                    query: contentItem.mode === "emoji" ? searchField.text.toLowerCase().trim() : ""
                     onAction: root.closeRequested()
                 }
                 MenuNerdfont {
@@ -222,7 +238,7 @@ Item {
                     anchors.right: parent.right
                     anchors.bottom: parent.bottom
                     visible: contentItem.mode === "nerdfont"
-                    query: contentItem.mode === "nerdfont" ? (searchField.text.startsWith("::") ? searchField.text.slice(2).toLowerCase().trim() : searchField.text.toLowerCase().trim()) : ""
+                    query: contentItem.mode === "nerdfont" ? searchField.text.toLowerCase().trim() : ""
                     onAction: root.closeRequested()
                 }
                 MenuActions {
@@ -231,10 +247,10 @@ Item {
                     anchors.right: parent.right
                     anchors.bottom: parent.bottom
                     visible: contentItem.mode === "actions"
-                    query: contentItem.mode === "actions" ? (searchField.text.startsWith(">") ? searchField.text.slice(1).trim() : searchField.text.trim()) : ""
+                    query: contentItem.mode === "actions" ? searchField.text.trim() : ""
                     onAction: root.closeRequested()
                     onAutocomplete: text => {
-                        startupMode = "drun";
+                        root.currentMode = "drun";
                         searchField.text = text;
                     }
                 }
