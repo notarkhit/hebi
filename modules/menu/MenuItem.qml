@@ -23,13 +23,21 @@ Item {
         navigatedViaPrefix = false;
         searchField.text = "";
         searchField.forceActiveFocus();
+        if (typeof actionsView !== "undefined")
+            actionsView.activeMenu = "root";
     }
 
     readonly property string font: "JetBrainsMono Nerd Font"
     readonly property int currentHeight: card.fullHeight
 
     // The launcher is anchors.bottom in MainWindow, so we need full height
-    implicitWidth: currentMode === "clipboard" ? 860 : 560
+    implicitWidth: {
+        if (currentMode === "clipboard") return 860;
+        if (currentMode === "actions" && typeof actionsView !== "undefined" && actionsView.activeMenu === "wallpaper") {
+            return typeof wallpapersView !== "undefined" ? wallpapersView.implicitWidth : 1080;
+        }
+        return 560;
+    }
     Behavior on implicitWidth {
         enabled: root.offsetScale === 0
         Anim {}
@@ -40,6 +48,8 @@ Item {
         if (menuVisible) {
             searchField.text = "";
             searchField.forceActiveFocus();
+            if (typeof actionsView !== "undefined")
+                actionsView.activeMenu = "root";
         }
     }
 
@@ -168,6 +178,16 @@ Item {
                     if (v?.handleUp)
                         v.handleUp();
                 }
+                Keys.onLeftPressed: {
+                    const v = stack.activeView;
+                    if (v?.handleLeft)
+                        v.handleLeft();
+                }
+                Keys.onRightPressed: {
+                    const v = stack.activeView;
+                    if (v?.handleRight)
+                        v.handleRight();
+                }
                 Keys.onDownPressed: {
                     const v = stack.activeView;
                     if (v?.handleDown)
@@ -230,8 +250,11 @@ Item {
                         return emojiView;
                     if (contentItem.mode === "nerdfont")
                         return nerdfontView;
-                    if (contentItem.mode === "actions")
+                    if (contentItem.mode === "actions") {
+                        if (actionsView.activeMenu === "wallpaper")
+                            return wallpapersView;
                         return actionsView;
+                    }
                     if (contentItem.mode === "clipboard")
                         return clipboardView;
                     return drunView;
@@ -279,7 +302,7 @@ Item {
                     anchors.left: parent.left
                     anchors.right: parent.right
                     anchors.bottom: parent.bottom
-                    visible: contentItem.mode === "actions"
+                    visible: contentItem.mode === "actions" && actionsView.activeMenu !== "wallpaper"
                     query: contentItem.mode === "actions" ? searchField.text.trim() : ""
                     onAction: root.closeRequested()
                     onAutocomplete: text => {
@@ -287,6 +310,14 @@ Item {
                         root.navigatedViaPrefix = false;
                         searchField.text = text;
                     }
+                }
+                MenuWallpapers {
+                    id: wallpapersView
+                    anchors.left: parent.left
+                    anchors.right: parent.right
+                    anchors.bottom: parent.bottom
+                    visible: contentItem.mode === "actions" && actionsView.activeMenu === "wallpaper"
+                    onAction: root.closeRequested()
                 }
                 MenuClipboard {
                     id: clipboardView

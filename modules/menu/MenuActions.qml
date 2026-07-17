@@ -58,9 +58,9 @@ ListView {
             activeMenu = "system";
         } else if (q.startsWith("scheme ")) {
             activeMenu = "scheme";
-        } else if (q.length === 0 && !visible) {
-            // keep state until visible
-        } else if (q.length === 0 && visible) {
+        } else if (q.startsWith("wallpaper ")) {
+            activeMenu = "wallpaper";
+        } else if (q.length === 0) {
             activeMenu = "root";
         }
     }
@@ -72,6 +72,13 @@ ListView {
             icon: "",
             type: "submenu",
             target: "scheme"
+        },
+        {
+            name: "Wallpaper",
+            desc: "Change the wallpaper",
+            icon: "󰸉",
+            type: "submenu",
+            target: "wallpaper"
         },
         {
             name: "System",
@@ -234,6 +241,7 @@ ListView {
             })).filter(x => x.score >= 0).sort((x, y) => y.score !== x.score ? y.score - x.score : x.name.localeCompare(y.name));
     }
 
+
     function handleUp() {
         if (count === 0)
             return;
@@ -280,7 +288,7 @@ ListView {
         required property var modelData
         required property int index
         width: actionsList.width
-        height: actionsList.itemH
+        height: modelData?.type === "wallpaper-item" ? 68 : actionsList.itemH
 
         function activate() {
             if (modelData.type === "back") {
@@ -292,6 +300,9 @@ ListView {
             } else if (modelData.type === "scheme") {
                 actionsList.action();
                 Quickshell.execDetached(["sh", "-c", "$HOME/.local/bin/hebi scheme set -n \"$1\" -f \"$2\"", "--", modelData.schemeName, modelData.schemeFlavour]);
+            } else if (modelData.type === "wallpaper-item") {
+                actionsList.action();
+                Wallpapers.apply(modelData.path);
             } else {
                 actionsList.action();
                 Quickshell.execDetached(modelData.cmd);
@@ -315,7 +326,37 @@ ListView {
             anchors.rightMargin: 10
             spacing: 12
 
+            // Wallpaper thumbnail (only for wallpaper-item type)
+            Rectangle {
+                visible: delRoot.modelData?.type === "wallpaper-item"
+                width: 80
+                height: 45
+                radius: 6
+                color: Theme.surfaceVariant
+                clip: true
+                Layout.alignment: Qt.AlignVCenter
+
+                Image {
+                    anchors.fill: parent
+                    source: delRoot.modelData?.type === "wallpaper-item" ? ("file://" + delRoot.modelData.path) : ""
+                    fillMode: Image.PreserveAspectCrop
+                    asynchronous: true
+                    sourceSize.width: 160
+                    sourceSize.height: 90
+                }
+
+                // Ring highlight for active item
+                Rectangle {
+                    anchors.fill: parent
+                    radius: parent.radius
+                    color: "transparent"
+                    border.color: Theme.accent
+                    border.width: (actionsList.currentIndex === delRoot.index || delRoot.modelData?.isCurrent) ? 2 : 0
+                }
+            }
+
             Text {
+                visible: delRoot.modelData?.type !== "wallpaper-item"
                 text: delRoot.modelData?.icon ?? ""
                 color: (actionsList.currentIndex === delRoot.index || hoverHandler.hovered) ? Theme.accent : Theme.subtext
                 font.family: "JetBrainsMono Nerd Font"
@@ -357,7 +398,7 @@ ListView {
 
             Text {
                 visible: delRoot.modelData?.type === "submenu"
-                text: "" // Right chevron for submenu indication
+                text: "" // Right chevron for submenu indication
                 color: (actionsList.currentIndex === delRoot.index || hoverHandler.hovered) ? Theme.accent : Theme.subtext
                 font.family: "JetBrainsMono Nerd Font"
                 font.pixelSize: 16
