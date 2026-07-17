@@ -4,6 +4,7 @@ import QtQuick.Controls
 import Quickshell
 import Quickshell.Widgets
 import Quickshell.Io
+import "../../services"
 
 ListView {
     id: actionsList
@@ -262,13 +263,13 @@ ListView {
         contentItem: Rectangle {
             implicitWidth: 4
             radius: 2
-            color: "#3b4261"
+            color: Theme.surfaceVariant
         }
     }
 
     highlight: Rectangle {
         radius: 8
-        color: Qt.rgba(0x7a / 255, 0xa2 / 255, 0xf7 / 255, 0.12)
+        color: Qt.rgba(Theme.accent.r, Theme.accent.g, Theme.accent.b, 0.12)
         width: actionsList.width
     }
     highlightFollowsCurrentItem: true
@@ -316,7 +317,7 @@ ListView {
 
             Text {
                 text: delRoot.modelData?.icon ?? ""
-                color: (actionsList.currentIndex === delRoot.index || hoverHandler.hovered) ? "#7aa2f7" : "#565f89"
+                color: (actionsList.currentIndex === delRoot.index || hoverHandler.hovered) ? Theme.accent : Theme.subtext
                 font.family: "JetBrainsMono Nerd Font"
                 font.pixelSize: 22
                 Layout.alignment: Qt.AlignVCenter
@@ -332,10 +333,10 @@ ListView {
                     text: delRoot.modelData?.name ?? ""
                     color: {
                         if (delRoot.modelData.isCurrent)
-                            return "#9ece6a";
+                            return Theme.success;
                         if (actionsList.currentIndex === delRoot.index || hoverHandler.hovered)
-                            return "#7aa2f7";
-                        return "#c0caf5";
+                            return Theme.accent;
+                        return Theme.text;
                     }
                     font.family: "JetBrainsMono Nerd Font"
                     font.pixelSize: 13
@@ -346,7 +347,7 @@ ListView {
                 Text {
                     visible: !!text
                     text: delRoot.modelData?.desc ?? ""
-                    color: "#565f89"
+                    color: Theme.subtext
                     font.family: "JetBrainsMono Nerd Font"
                     font.pixelSize: 10
                     elide: Text.ElideRight
@@ -357,7 +358,7 @@ ListView {
             Text {
                 visible: delRoot.modelData?.type === "submenu"
                 text: "" // Right chevron for submenu indication
-                color: (actionsList.currentIndex === delRoot.index || hoverHandler.hovered) ? "#7aa2f7" : "#565f89"
+                color: (actionsList.currentIndex === delRoot.index || hoverHandler.hovered) ? Theme.accent : Theme.subtext
                 font.family: "JetBrainsMono Nerd Font"
                 font.pixelSize: 16
                 Layout.alignment: Qt.AlignVCenter

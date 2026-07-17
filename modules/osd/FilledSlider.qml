@@ -1,5 +1,6 @@
 import QtQuick
 import Quickshell
+import "../../services"
 
 // Elegant slim OSD slider.
 // Horizontal layout: [icon] [────track with fill────]
@@ -50,7 +51,7 @@ Item {
             Rectangle {
                 anchors.fill: parent
                 radius: height / 2
-                color: "#2a2c3d"
+                color: Theme.surfaceVariant
             }
 
             // Fill
@@ -58,7 +59,7 @@ Item {
                 width:  parent.width * root.percent
                 height: parent.height
                 radius: height / 2
-                color:  "#7aa2f7"
+                color:  Theme.accent
 
                 Behavior on width {
                     enabled: !dragArea.pressed
@@ -73,7 +74,7 @@ Item {
                 width:  10
                 height: 10
                 radius: 5
-                color:  "#c0caf5"
+                color:  Theme.text
 
                 scale: dragArea.pressed ? 1.4 : 1
                 Behavior on scale  { NumberAnimation { duration: 80; easing.type: Easing.OutCubic } }
@@ -113,7 +114,7 @@ Item {
             Rectangle {
                 anchors.fill: parent
                 radius: width / 2
-                color: "#2a2c3d"
+                color: Theme.surfaceVariant
             }
 
             // Fill (grows from bottom)
@@ -122,7 +123,7 @@ Item {
                 width:  parent.width
                 height: parent.height * root.percent
                 radius: width / 2
-                color:  "#7aa2f7"
+                color:  Theme.accent
 
                 Behavior on height {
                     enabled: !dragArea.pressed
@@ -137,7 +138,7 @@ Item {
                 width:  10
                 height: 10
                 radius: 5
-                color:  "#c0caf5"
+                color:  Theme.text
 
                 scale: dragArea.pressed ? 1.4 : 1
                 Behavior on scale { NumberAnimation { duration: 80; easing.type: Easing.OutCubic } }

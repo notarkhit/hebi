@@ -3,6 +3,7 @@ import QtQuick.Layouts
 import QtQuick.Controls
 import Quickshell
 import Quickshell.Io
+import "../../services"
 
 Item {
     id: calcRoot
@@ -55,7 +56,7 @@ Item {
 
         Text {
             text: "󰃬"
-            color: "#bb9af7"
+            color: Theme.warning
             font.family: "JetBrainsMono Nerd Font"
             font.pixelSize: 20
             Layout.alignment: Qt.AlignVCenter
@@ -68,7 +69,7 @@ Item {
 
             Text {
                 text: calcRoot.expr || "Type an expression…"
-                color: calcRoot.expr.length > 0 ? "#c0caf5" : "#565f89"
+                color: calcRoot.expr.length > 0 ? Theme.text : Theme.subtext
                 font.family: "JetBrainsMono Nerd Font"
                 font.pixelSize: 11
                 elide: Text.ElideRight
@@ -77,7 +78,7 @@ Item {
 
             Text {
                 text: calcRoot.expr ? calcRoot.calcResult : "Enter an expression after ="
-                color: calcRoot.calcError ? "#f7768e" : (calcRoot.calcResult === "…" ? "#565f89" : "#9ece6a")
+                color: calcRoot.calcError ? Theme.error : (calcRoot.calcResult === "…" ? Theme.subtext : Theme.success)
                 font.family: "JetBrainsMono Nerd Font"
                 font.pixelSize: 14
                 font.weight: Font.Medium
@@ -89,7 +90,7 @@ Item {
         Text {
             visible: calcRoot.calcResult !== "…" && !calcRoot.calcError
             text: "Copy"
-            color: "#7aa2f7"
+            color: Theme.accent
             font.family: "JetBrainsMono Nerd Font"
             font.pixelSize: 11
             Layout.alignment: Qt.AlignVCenter

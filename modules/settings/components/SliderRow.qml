@@ -1,6 +1,7 @@
 // Reusable slider row: icon + slider track
 import QtQuick
 import QtQuick.Layouts
+import "../../../services"
 
 Item {
     id: root
@@ -26,7 +27,7 @@ Item {
             font.family: "JetBrainsMono Nerd Font"
             font.pixelSize: 16
             Layout.alignment: Qt.AlignVCenter
-            color: "#7aa2f7"
+            color: Theme.accent
             opacity: 0.9
         }
 
@@ -40,7 +41,7 @@ Item {
             Rectangle {
                 anchors.fill: parent
                 radius: 3
-                color: "#2a2e45"
+                color: Theme.surfaceVariant
             }
 
             // Fill
@@ -52,11 +53,11 @@ Item {
                     orientation: Gradient.Horizontal
                     GradientStop {
                         position: 0.0
-                        color: "#5d7fcc"
+                        color: Theme.accent
                     }
                     GradientStop {
                         position: 1.0
-                        color: "#7aa2f7"
+                        color: Theme.accent
                     }
                 }
                 Behavior on width {
@@ -74,7 +75,7 @@ Item {
                 width: 14
                 height: 14
                 radius: 7
-                color: "#ffffff"
+                color: Theme.text
                 layer.enabled: true
                 layer.effect: null // just white for now
                 Behavior on x {
@@ -109,7 +110,7 @@ Item {
             implicitWidth: 24
             implicitHeight: 24
             radius: 12
-            color: arrowHover.containsMouse ? "#3b4261" : "transparent"
+            color: arrowHover.containsMouse ? Theme.surfaceVariant : "transparent"
             Behavior on color {
                 ColorAnimation {
                     duration: 120
@@ -119,7 +120,7 @@ Item {
             Text {
                 anchors.centerIn: parent
                 text: "›"
-                color: arrowHover.containsMouse ? "#ffffff" : "#7aa2f7"
+                color: arrowHover.containsMouse ? Theme.text : Theme.accent
                 font.family: "JetBrainsMono Nerd Font"
                 font.pixelSize: 18
                 Behavior on color {

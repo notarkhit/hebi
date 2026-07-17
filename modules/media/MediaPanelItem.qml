@@ -133,7 +133,7 @@ Item {
                         readonly property real cosA: Math.cos(angle)
                         readonly property real sinA: Math.sin(angle)
                         
-                        strokeColor: "#bb9af7"
+                        strokeColor: Theme.warning
                         strokeWidth: 3
                         capStyle: ShapePath.RoundCap
                         
@@ -175,7 +175,7 @@ Item {
                 Text {
                     anchors.centerIn: parent
                     text: "󰎆"
-                    color: "#565f89"
+                    color: Theme.subtext
                     font.family: "JetBrainsMono Nerd Font"
                     font.pixelSize: 32
                     visible: cover.source === ""
@@ -213,7 +213,7 @@ Item {
                 
                 Text {
                     text: Players.active?.trackTitle || "No Media Playing"
-                    color: "#c0caf5"
+                    color: Theme.text
                     font.family: "JetBrainsMono Nerd Font"
                     font.pixelSize: 16
                     font.bold: true
@@ -223,7 +223,7 @@ Item {
                 }
                 Text {
                     text: Players.active?.trackArtist || "Unknown Artist"
-                    color: "#9aa5ce"
+                    color: Theme.secondary
                     font.family: "JetBrainsMono Nerd Font"
                     font.pixelSize: 13
                     elide: Text.ElideRight
@@ -238,7 +238,7 @@ Item {
                         spacing: 24
                         Text {
                             text: "󰒮"
-                            color: hoverPrev.hovered ? "#bb9af7" : "#7aa2f7"
+                            color: hoverPrev.hovered ? Theme.warning : Theme.accent
                             font.family: "JetBrainsMono Nerd Font"
                             font.pixelSize: 24
                             opacity: Players.active?.canGoPrevious ? 1 : 0.5
@@ -249,11 +249,11 @@ Item {
                             implicitWidth: 48
                             implicitHeight: 48
                             radius: 24
-                            color: hoverPlay.hovered ? "#bb9af7" : "#7aa2f7"
+                            color: hoverPlay.hovered ? Theme.warning : Theme.accent
                             Text {
                                 anchors.centerIn: parent
                                 text: Players.active?.isPlaying ? "󰏤" : "󰐊"
-                                color: "#1a1b26"
+                                color: Theme.surfaceHex
                                 font.family: "JetBrainsMono Nerd Font"
                                 font.pixelSize: 28
                                 anchors.horizontalCenterOffset: Players.active?.isPlaying ? 0 : 2
@@ -263,7 +263,7 @@ Item {
                         }
                         Text {
                             text: "󰒭"
-                            color: hoverNext.hovered ? "#bb9af7" : "#7aa2f7"
+                            color: hoverNext.hovered ? Theme.warning : Theme.accent
                             font.family: "JetBrainsMono Nerd Font"
                             font.pixelSize: 24
                             opacity: Players.active?.canGoNext ? 1 : 0.5
@@ -278,7 +278,7 @@ Item {
             spacing: 8
             Text {
                 text: root.formatTime(Players.active?.position ?? 0)
-                color: "#565f89"
+                color: Theme.subtext
                 font.family: "JetBrainsMono Nerd Font"
                 font.pixelSize: 11
             }
@@ -317,7 +317,7 @@ Item {
                             
                             ctx.beginPath();
                             ctx.lineWidth = 4;
-                            ctx.strokeStyle = "#7aa2f7";
+                            ctx.strokeStyle = Theme.accent;
                             ctx.lineCap = "round";
                             ctx.lineJoin = "round";
                             
@@ -333,7 +333,7 @@ Item {
                             if (filledWidth < width) {
                                 ctx.beginPath();
                                 ctx.lineWidth = 4;
-                                ctx.strokeStyle = "#292e42";
+                                ctx.strokeStyle = Theme.surfaceVariant;
                                 ctx.moveTo(filledWidth, height / 2);
                                 ctx.lineTo(width, height / 2);
                                 ctx.stroke();
@@ -352,7 +352,7 @@ Item {
                     implicitWidth: 12
                     implicitHeight: 12
                     radius: 6
-                    color: progressSlider.pressed ? "#bb9af7" : "#7aa2f7"
+                    color: progressSlider.pressed ? Theme.warning : Theme.accent
                 }
                 onMoved: {
                     if (Players.active)
@@ -361,7 +361,7 @@ Item {
             }
             Text {
                 text: root.formatTime(Players.active?.length ?? 0)
-                color: "#565f89"
+                color: Theme.subtext
                 font.family: "JetBrainsMono Nerd Font"
                 font.pixelSize: 11
             }
@@ -378,7 +378,7 @@ Item {
                 // Shuffle
                 Text {
                     text: "󰒝"
-                    color: Players.active?.shuffle ? "#bb9af7" : (hoverShuffle.hovered ? "#c0caf5" : "#7aa2f7")
+                    color: Players.active?.shuffle ? Theme.warning : (hoverShuffle.hovered ? Theme.text : Theme.accent)
                     font.family: "JetBrainsMono Nerd Font"
                     font.pixelSize: 20
                     opacity: Players.active?.shuffleSupported ? 1 : 0.5
@@ -394,7 +394,7 @@ Item {
                 // Lyrics
                 Text {
                     text: "󰦨"
-                    color: hoverLyrics.hovered || root.showLyrics ? "#bb9af7" : "#7aa2f7"
+                    color: hoverLyrics.hovered || root.showLyrics ? Theme.warning : Theme.accent
                     font.family: "JetBrainsMono Nerd Font"
                     font.pixelSize: 24
                     opacity: Lyrics.hasLyrics ? 1 : 0.5
@@ -421,7 +421,7 @@ Item {
                             id: leftPill
                             width: textRow.implicitWidth + 24
                             height: 28
-                            color: hoverBtn.hovered ? "#292e42" : "#1a1b26"
+                            color: hoverBtn.hovered ? Theme.surfaceVariant : Theme.surfaceHex
                             radius: 14
                             topRightRadius: 6
                             bottomRightRadius: 6
@@ -435,14 +435,14 @@ Item {
                                 spacing: 6
                                 Text {
                                     text: Players.active ? "󰎆" : "󰝛"
-                                    color: "#7aa2f7"
+                                    color: Theme.accent
                                     font.family: "JetBrainsMono Nerd Font"
                                     font.pixelSize: 14
                                     Layout.alignment: Qt.AlignVCenter
                                 }
                                 Text {
                                     text: Players.active ? Players.getIdentity(Players.active) : "No Players"
-                                    color: "#7aa2f7"
+                                    color: Theme.accent
                                     font.family: "JetBrainsMono Nerd Font"
                                     font.pixelSize: 12
                                     font.bold: true
@@ -471,7 +471,7 @@ Item {
                             id: rightPill
                             width: 32
                             height: 28
-                            color: hoverExpand.hovered ? "#292e42" : "#1a1b26"
+                            color: hoverExpand.hovered ? Theme.surfaceVariant : Theme.surfaceHex
                             radius: 14
                             topLeftRadius: playerSwitcherItem.dropdownVisible ? 14 : 6
                             bottomLeftRadius: playerSwitcherItem.dropdownVisible ? 14 : 6
@@ -484,7 +484,7 @@ Item {
                                 anchors.centerIn: parent
                                 anchors.horizontalCenterOffset: playerSwitcherItem.dropdownVisible ? 0 : -2
                                 text: "󰅀" // mdi-chevron-down
-                                color: "#7aa2f7"
+                                color: Theme.accent
                                 font.family: "JetBrainsMono Nerd Font"
                                 font.pixelSize: 16
                                 rotation: playerSwitcherItem.dropdownVisible ? 180 : 0
@@ -531,9 +531,9 @@ Item {
                             Behavior on opacity { NumberAnimation { duration: 200 } }
                             Behavior on scale { NumberAnimation { duration: 200; easing.type: Easing.OutQuint } }
                             
-                            color: "#16161e"
+                            color: Theme.surfaceHex
                             radius: 12
-                            border.color: "#292e42"
+                            border.color: Theme.surfaceVariant
                             border.width: 1
                             
                             // Prevent closing when clicking inside the dropdown menu itself
@@ -558,7 +558,7 @@ Item {
                                         readonly property bool isActive: Players.active === modelData
                                         Layout.fillWidth: true
                                         Layout.preferredHeight: 36
-                                        color: playerHover.hovered ? "#292e42" : (isActive ? "#1e2030" : "transparent")
+                                        color: playerHover.hovered ? Theme.surfaceVariant : (isActive ? Theme.surfaceVariant : "transparent")
                                         radius: 8
                                         
                                         RowLayout {
@@ -569,7 +569,7 @@ Item {
                                             
                                             Text {
                                                 text: playerRect.isActive ? "󰄬" : ""
-                                                color: playerRect.isActive ? "#bb9af7" : "#565f89"
+                                                color: playerRect.isActive ? Theme.warning : Theme.subtext
                                                 font.family: "JetBrainsMono Nerd Font"
                                                 font.pixelSize: 16
                                                 Layout.preferredWidth: 16
@@ -578,7 +578,7 @@ Item {
                                             
                                             Text {
                                                 text: Players.getIdentity(playerRect.modelData)
-                                                color: playerRect.isActive ? "#bb9af7" : "#a9b1d6"
+                                                color: playerRect.isActive ? Theme.warning : Theme.secondary
                                                 font.family: "JetBrainsMono Nerd Font"
                                                 font.pixelSize: 13
                                                 font.bold: playerRect.isActive
@@ -605,7 +605,7 @@ Item {
                 // Loop
                 Text {
                     text: Players.active?.loopState === 1 ? "󰑘" : "󰑖"
-                    color: Players.active?.loopState !== 0 ? "#bb9af7" : (hoverLoop.hovered ? "#c0caf5" : "#7aa2f7")
+                    color: Players.active?.loopState !== 0 ? Theme.warning : (hoverLoop.hovered ? Theme.text : Theme.accent)
                     font.family: "JetBrainsMono Nerd Font"
                     font.pixelSize: 20
                     opacity: Players.active?.loopSupported ? 1 : 0.5
@@ -646,7 +646,7 @@ Item {
             Text {
                 anchors.centerIn: parent
                 text: Lyrics.loading ? "Loading lyrics..." : "No lyrics available"
-                color: "#565f89"
+                color: Theme.subtext
                 font.family: "JetBrainsMono Nerd Font"
                 font.pixelSize: 14
                 opacity: (parent.state === "lyrics") ? 0 : 1
@@ -701,7 +701,7 @@ Item {
                 delegate: Text {
                     width: lyricsList.width
                     text: modelData || ". . ."
-                    color: ListView.isCurrentItem ? "#7aa2f7" : mouse.containsMouse ? "#c0caf5" : "#565f89"
+                    color: ListView.isCurrentItem ? Theme.accent : mouse.containsMouse ? Theme.text : Theme.subtext
                     font.family: "JetBrainsMono Nerd Font"
                     font.pixelSize: ListView.isCurrentItem ? 15 : 13
                     font.bold: ListView.isCurrentItem
@@ -743,14 +743,14 @@ Item {
             text: "󰝚"
             font.family: "JetBrainsMono Nerd Font"
             font.pixelSize: 64
-            color: "#7aa2f7"
+            color: Theme.accent
             Layout.alignment: Qt.AlignHCenter
         }
         Text {
             text: "Nothing playing"
             font.family: "JetBrainsMono Nerd Font"
             font.pixelSize: 18
-            color: "#c0caf5"
+            color: Theme.text
             font.bold: true
             Layout.alignment: Qt.AlignHCenter
         }
@@ -758,7 +758,7 @@ Item {
             text: "Play some music to see it here"
             font.family: "JetBrainsMono Nerd Font"
             font.pixelSize: 12
-            color: "#565f89"
+            color: Theme.subtext
             Layout.alignment: Qt.AlignHCenter
         }
     }

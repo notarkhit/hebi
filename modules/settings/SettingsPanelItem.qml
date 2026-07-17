@@ -121,7 +121,7 @@ Item {
                 font.family: "JetBrainsMono Nerd Font"
                 font.pixelSize: 18
                 Layout.alignment: Qt.AlignVCenter
-                color: root.hasBat && root.batPct < 0.20 && !root.batCharging ? "#f7768e" : "#ffffff"
+                color: root.hasBat && root.batPct < 0.20 && !root.batCharging ? Theme.error : Theme.text
                 Behavior on color {
                     ColorAnimation {
                         duration: 300
@@ -130,7 +130,7 @@ Item {
             }
             Text {
                 text: root.hasBat ? `${Math.round(root.batPct * 100)}%${root.batCharging ? " ⚡" : ""}` : "Desktop"
-                color: "#ffffff"
+                color: Theme.text
                 font.family: "JetBrainsMono Nerd Font"
                 font.pixelSize: 14
                 font.weight: Font.DemiBold
@@ -140,7 +140,7 @@ Item {
                 implicitWidth: 32
                 implicitHeight: 32
                 radius: 16
-                color: lockHov.containsMouse ? "#292e42" : "transparent"
+                color: lockHov.containsMouse ? Theme.surfaceVariant : "transparent"
                 Behavior on color {
                     ColorAnimation {
                         duration: 100
@@ -151,7 +151,7 @@ Item {
                     text: ""
                     font.family: "JetBrainsMono Nerd Font"
                     font.pixelSize: 16
-                    color: "#ffffff"
+                    color: Theme.text
                 }
                 MouseArea {
                     id: lockHov
@@ -168,7 +168,7 @@ Item {
                 implicitWidth: 32
                 implicitHeight: 32
                 radius: 16
-                color: powerHov.containsMouse ? "#2a1020" : "transparent"
+                color: powerHov.containsMouse ? Theme.surfaceVariant : "transparent"
                 Behavior on color {
                     ColorAnimation {
                         duration: 100
@@ -179,7 +179,7 @@ Item {
                     text: ""
                     font.family: "JetBrainsMono Nerd Font"
                     font.pixelSize: 16
-                    color: "#ffffff"
+                    color: Theme.text
                 }
                 MouseArea {
                     id: powerHov
@@ -194,7 +194,7 @@ Item {
         Rectangle {
             Layout.fillWidth: true
             implicitHeight: 1
-            color: "#24283b"
+            color: Theme.surfaceHex
         }
 
         SliderRow {
@@ -223,7 +223,7 @@ Item {
         Rectangle {
             Layout.fillWidth: true
             implicitHeight: 1
-            color: "#1e2235"
+            color: Theme.surfaceHex
             opacity: 0.8
         }
 

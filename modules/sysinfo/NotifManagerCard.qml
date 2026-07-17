@@ -51,7 +51,7 @@ Item {
 
         radius: 14
         color: root.isCritical ? "#441a0a0e" : "#441a1b26"
-        border.color: root.isCritical ? "#f7768e" : root.isLow ? "#24283b" : "#3b4261"
+        border.color: root.isCritical ? Theme.error : root.isLow ? Theme.surfaceHex : Theme.surfaceVariant
         border.width: root.isCritical ? 1.5 : 1
 
         Behavior on opacity {
@@ -70,7 +70,7 @@ Item {
             width: 3
             radius: 2
             visible: !root.isLow
-            color: root.isCritical ? "#f7768e" : "#7aa2f7"
+            color: root.isCritical ? Theme.error : Theme.accent
         }
 
         // ── contents ──────────
@@ -112,7 +112,7 @@ Item {
                         anchors.centerIn: parent
                         visible: root.actualIconName.length === 0 && overlayImage.status !== Image.Ready
                         text: (root.modelData.appName || "?").charAt(0).toUpperCase()
-                        color: root.isCritical ? "#f7768e" : "#7aa2f7"
+                        color: root.isCritical ? Theme.error : Theme.accent
                         font.family: "JetBrainsMono Nerd Font"
                         font.pixelSize: 14
                         font.weight: Font.Bold
@@ -139,7 +139,7 @@ Item {
                     Text {
                         width: parent.width
                         text: root.modelData.appName || "Notification"
-                        color: root.isCritical ? "#ff9e64" : "#565f89"
+                        color: root.isCritical ? Theme.warning : Theme.subtext
                         font.family: "JetBrainsMono Nerd Font"
                         font.pixelSize: 10
                         elide: Text.ElideRight
@@ -148,7 +148,7 @@ Item {
                     Text {
                         width: parent.width
                         text: root.modelData.summary || ""
-                        color: root.isCritical ? "#f7768e" : "#c0caf5"
+                        color: root.isCritical ? Theme.error : Theme.text
                         font.family: "JetBrainsMono Nerd Font"
                         font.pixelSize: 13
                         font.weight: Font.DemiBold
@@ -180,7 +180,7 @@ Item {
                         Text {
                             anchors.centerIn: parent
                             text: root.expanded ? "▲" : "▼"
-                            color: expandHover.containsMouse ? "#c0caf5" : "#565f89"
+                            color: expandHover.containsMouse ? Theme.text : Theme.subtext
                             font.pixelSize: 8
 
                             Behavior on color {
@@ -216,7 +216,7 @@ Item {
                         Text {
                             anchors.centerIn: parent
                             text: "×"
-                            color: closeHover.containsMouse ? "#f7768e" : "#565f89"
+                            color: closeHover.containsMouse ? Theme.error : Theme.subtext
                             font.pixelSize: 16
                             topPadding: -1
 
@@ -245,7 +245,7 @@ Item {
                 Layout.fillWidth: true
                 Layout.leftMargin: 42
                 text: root.modelData.body || ""
-                color: root.isCritical ? "#fca7b0" : root.isLow ? "#545c7e" : "#a9b1d6"
+                color: root.isCritical ? Theme.error : root.isLow ? Theme.subtext : Theme.secondary
                 font.family: "JetBrainsMono Nerd Font"
                 font.pixelSize: 11
                 textFormat: root.bodyFmt

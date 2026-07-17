@@ -1,6 +1,7 @@
 // Single row in the System Info pane: icon · label · value
 import QtQuick
 import QtQuick.Layouts
+import "../../../services"
 
 Item {
     id: root
@@ -23,7 +24,7 @@ Item {
             text: root.iconText
             font.family: "JetBrainsMono Nerd Font"
             font.pixelSize: 14
-            color: "#7aa2f7"
+            color: Theme.accent
             opacity: 0.85
             Layout.alignment: Qt.AlignVCenter
             Layout.preferredWidth: 18
@@ -34,7 +35,7 @@ Item {
             text: root.label
             font.family: "JetBrainsMono Nerd Font"
             font.pixelSize: 12
-            color: "#a9b1d6"
+            color: Theme.secondary
             Layout.fillWidth: true
             Layout.alignment: Qt.AlignVCenter
             elide: Text.ElideRight
@@ -50,15 +51,15 @@ Item {
             Rectangle {
                 anchors.fill: parent
                 radius: 2
-                color: "#1e2235"
+                color: Theme.surfaceHex
             }
             Rectangle {
                 width: parent.width * Math.max(0, Math.min(100, root.fillPercent)) / 100
                 height: parent.height
                 radius: 2
-                color: root.fillPercent > 85 ? "#f7768e"
-                     : root.fillPercent > 60 ? "#e0af68"
-                     : "#7aa2f7"
+                color: root.fillPercent > 85 ? Theme.error
+                     : root.fillPercent > 60 ? Theme.warning
+                     : Theme.accent
                 Behavior on width { NumberAnimation { duration: 400; easing.type: Easing.OutCubic } }
                 Behavior on color { ColorAnimation { duration: 300 } }
             }
@@ -69,7 +70,7 @@ Item {
             text: root.value
             font.family: "JetBrainsMono Nerd Font"
             font.pixelSize: 12
-            color: "#c0caf5"
+            color: Theme.text
             font.weight: Font.Medium
             Layout.alignment: Qt.AlignVCenter
             horizontalAlignment: Text.AlignRight

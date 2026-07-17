@@ -8,6 +8,7 @@ import Hebi.Blobs
 import Hebi.Config
 import "services"
 import "modules/menu"
+import "services"
 
 PanelWindow {
     id: window

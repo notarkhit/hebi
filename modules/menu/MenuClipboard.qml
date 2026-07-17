@@ -6,6 +6,7 @@ import QtQuick.Controls
 import Quickshell
 import Quickshell.Io
 import Quickshell.Widgets
+import "../../services"
 
 Item {
     id: clipboardRoot
@@ -133,15 +134,15 @@ Item {
             ScrollBar.vertical: ScrollBar {
                 policy: ScrollBar.AsNeeded
                 contentItem: Rectangle {
-                    implicitWidth: 2
-                    radius: 1
-                    color: "#3b4261"
+                    implicitWidth: 4
+                    radius: 2
+                    color: Theme.surfaceVariant
                     opacity: 0.6
                 }
             }
             highlight: Rectangle {
                 radius: 8
-                color: Qt.rgba(0x7a / 255, 0xa2 / 255, 0xf7 / 255, 0.12)
+                color: Qt.rgba(Theme.accent.r, Theme.accent.g, Theme.accent.b, 0.12)
                 width: clipList.width
             }
             highlightFollowsCurrentItem: true
@@ -181,11 +182,11 @@ Item {
                         font.family: "JetBrainsMono Nerd Font"
                         font.pixelSize: 18
                         Layout.alignment: Qt.AlignVCenter
-                        color: (clipList.currentIndex === delRoot.index || hoverHandler.hovered) ? "#7aa2f7" : "#565f89"
+                        color: (clipList.currentIndex === delRoot.index || hoverHandler.hovered) ? Theme.accent : Theme.subtext
                     }
                     Text {
                         text: delRoot.modelData.data
-                        color: (clipList.currentIndex === delRoot.index || hoverHandler.hovered) ? "#7aa2f7" : "#c0caf5"
+                        color: (clipList.currentIndex === delRoot.index || hoverHandler.hovered) ? Theme.accent : Theme.text
                         font.family: "JetBrainsMono Nerd Font"
                         font.pixelSize: 13
                         elide: Text.ElideRight
@@ -198,7 +199,7 @@ Item {
                     Text {
                         text: delRoot.modelData.size || ""
                         visible: !!delRoot.modelData.size
-                        color: "#565f89"
+                        color: Theme.subtext
                         font.family: "JetBrainsMono Nerd Font"
                         font.pixelSize: 11
                         Layout.alignment: Qt.AlignVCenter | Qt.AlignRight
@@ -269,7 +270,7 @@ Item {
                     TextArea {
                         text: previewLoader.previewText
                         readOnly: true
-                        color: "#c0caf5"
+                        color: Theme.text
                         font.family: "JetBrainsMono Nerd Font"
                         font.pixelSize: 13
                         wrapMode: Text.Wrap

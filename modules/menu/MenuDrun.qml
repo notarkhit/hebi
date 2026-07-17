@@ -4,6 +4,7 @@ import QtQuick.Controls
 import Quickshell
 import Quickshell.Widgets
 import Quickshell.Wayland
+import "../../services"
 
 ListView {
     id: appsList
@@ -99,13 +100,13 @@ ListView {
         contentItem: Rectangle {
             implicitWidth: 4
             radius: 2
-            color: "#3b4261"
+            color: Theme.surfaceVariant
         }
     }
 
     highlight: Rectangle {
         radius: 8
-        color: Qt.rgba(0x7a / 255, 0xa2 / 255, 0xf7 / 255, 0.12)
+        color: Qt.rgba(Theme.accent.r, Theme.accent.g, Theme.accent.b, 0.12)
         width: appsList.width
     }
     highlightFollowsCurrentItem: true
@@ -153,7 +154,7 @@ ListView {
                 spacing: 2
                 Text {
                     text: delRoot.modelData?.name ?? ""
-                    color: (appsList.currentIndex === delRoot.index || hoverHandler.hovered) ? "#7aa2f7" : "#c0caf5"
+                    color: (appsList.currentIndex === delRoot.index || hoverHandler.hovered) ? Theme.accent : Theme.text
                     font.family: "JetBrainsMono Nerd Font"
                     font.pixelSize: 13
                     font.weight: Font.Medium
@@ -163,7 +164,7 @@ ListView {
                 Text {
                     visible: !!text
                     text: delRoot.modelData?.comment ?? delRoot.modelData?.genericName ?? ""
-                    color: "#565f89"
+                    color: Theme.subtext
                     font.family: "JetBrainsMono Nerd Font"
                     font.pixelSize: 10
                     elide: Text.ElideRight
@@ -174,7 +175,7 @@ ListView {
             Text {
                 visible: delRoot.modelData?.runInTerminal ?? false
                 text: ""
-                color: "#9ece6a"
+                color: Theme.success
                 font.family: "JetBrainsMono Nerd Font"
                 font.pixelSize: 12
                 Layout.alignment: Qt.AlignVCenter

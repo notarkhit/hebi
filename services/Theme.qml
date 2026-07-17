@@ -13,6 +13,14 @@ Singleton {
     property string surfaceHex: "#000000"
     property color border: "#2a2d3e"
     property color accent: "#7aa2f7"
+    property color text: "#e3e2e7"
+    property color subtext: "#c3c6d0"
+    property color surfaceVariant: "#43474f"
+    property color surfaceContainer: "#1e2023"
+    property color secondary: "#bbc7df"
+    property color error: "#ffb4ab"
+    property color success: "#b5ccba"
+    property color warning: "#ebb5ec"
 
     FileView {
         path: Quickshell.env("XDG_STATE_HOME") ? `${Quickshell.env("XDG_STATE_HOME")}/hebi/scheme.json` : `${Quickshell.env("HOME")}/.local/state/hebi/scheme.json`
@@ -24,6 +32,14 @@ Singleton {
                 root.surfaceHex = "#" + scheme.colours.surface;
                 root.border = "#" + scheme.colours.outlineVariant;
                 root.accent = "#" + scheme.colours.primary;
+                root.text = "#" + scheme.colours.onSurface;
+                root.subtext = "#" + scheme.colours.onSurfaceVariant;
+                root.surfaceVariant = "#" + scheme.colours.surfaceVariant;
+                root.surfaceContainer = "#" + scheme.colours.surfaceContainer;
+                root.secondary = "#" + scheme.colours.secondary;
+                root.error = "#" + scheme.colours.error;
+                root.success = scheme.colours.success ? "#" + scheme.colours.success : "#b5ccba";
+                root.warning = scheme.colours.tertiary ? "#" + scheme.colours.tertiary : "#ebb5ec";
                 
                 // Force Qt to load the Papirus icon theme matching the scheme mode,
                 // bypassing any QT_QPA_PLATFORMTHEME or XDG_CURRENT_DESKTOP env var issues on Wayland/Hyprland.

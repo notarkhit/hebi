@@ -95,7 +95,7 @@ Item {
                         return "󱘢";
                     return "󱓞";
                 }
-                color: "#7aa2f7"
+                color: Theme.accent
                 font.family: root.font
                 font.pixelSize: 16
                 verticalAlignment: Text.AlignVCenter
@@ -106,7 +106,7 @@ Item {
                 id: searchField
                 Layout.fillWidth: true
                 Layout.alignment: Qt.AlignVCenter
-                color: "#c0caf5"
+                color: Theme.text
                 font.family: root.font
                 font.pixelSize: 14
                 clip: true
@@ -114,7 +114,7 @@ Item {
                 Text {
                     anchors.fill: parent
                     text: "Search apps..."
-                    color: "#565f89"
+                    color: Theme.subtext
                     font.family: root.font
                     font.pixelSize: 14
                     verticalAlignment: Text.AlignVCenter
@@ -187,7 +187,7 @@ Item {
 
             Text {
                 text: ""
-                color: "#565f89"
+                color: Theme.subtext
                 font.family: root.font
                 font.pixelSize: 14
                 visible: searchField.text.length > 0

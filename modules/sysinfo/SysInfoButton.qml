@@ -29,7 +29,7 @@ Item {
                     text: "\u{f4bc}"
                     font.family: "JetBrainsMono Nerd Font"
                     font.pixelSize: 14
-                    color: SystemInfoService.cpuPercent > 85 ? "#f7768e" : SystemInfoService.cpuPercent > 60 ? "#e0af68" : "#c0caf5"
+                    color: SystemInfoService.cpuPercent > 85 ? Theme.error : SystemInfoService.cpuPercent > 60 ? Theme.warning : Theme.text
                     anchors.verticalCenter: parent.verticalCenter
                     Behavior on color { ColorAnimation { duration: 200 } }
                 }
@@ -37,7 +37,7 @@ Item {
                     text: Math.round(SystemInfoService.cpuPercent) + "%"
                     font.family: "JetBrainsMono Nerd Font"
                     font.pixelSize: 10
-                    color: SystemInfoService.cpuPercent > 85 ? "#f7768e" : SystemInfoService.cpuPercent > 60 ? "#e0af68" : "#c0caf5"
+                    color: SystemInfoService.cpuPercent > 85 ? Theme.error : SystemInfoService.cpuPercent > 60 ? Theme.warning : Theme.text
                     anchors.verticalCenter: parent.verticalCenter
                     Behavior on color { ColorAnimation { duration: 200 } }
                 }
@@ -56,7 +56,7 @@ Item {
                     text: "\u{efc5}"
                     font.family: "JetBrainsMono Nerd Font"
                     font.pixelSize: 14
-                    color: SystemInfoService.ramPercent > 85 ? "#f7768e" : SystemInfoService.ramPercent > 70 ? "#e0af68" : "#c0caf5"
+                    color: SystemInfoService.ramPercent > 85 ? Theme.error : SystemInfoService.ramPercent > 70 ? Theme.warning : Theme.text
                     anchors.verticalCenter: parent.verticalCenter
                     Behavior on color { ColorAnimation { duration: 200 } }
                 }
@@ -64,7 +64,7 @@ Item {
                     text: Math.round(SystemInfoService.ramPercent) + "%"
                     font.family: "JetBrainsMono Nerd Font"
                     font.pixelSize: 10
-                    color: SystemInfoService.ramPercent > 85 ? "#f7768e" : SystemInfoService.ramPercent > 70 ? "#e0af68" : "#c0caf5"
+                    color: SystemInfoService.ramPercent > 85 ? Theme.error : SystemInfoService.ramPercent > 70 ? Theme.warning : Theme.text
                     anchors.verticalCenter: parent.verticalCenter
                     Behavior on color { ColorAnimation { duration: 200 } }
                 }
@@ -84,7 +84,7 @@ Item {
                     text: "\u{f2c7}"
                     font.family: "JetBrainsMono Nerd Font"
                     font.pixelSize: 14
-                    color: SystemInfoService.tempCelsius > 85 ? "#f7768e" : SystemInfoService.tempCelsius > 70 ? "#e0af68" : "#c0caf5"
+                    color: SystemInfoService.tempCelsius > 85 ? Theme.error : SystemInfoService.tempCelsius > 70 ? Theme.warning : Theme.text
                     anchors.verticalCenter: parent.verticalCenter
                     Behavior on color { ColorAnimation { duration: 200 } }
                 }
@@ -92,7 +92,7 @@ Item {
                     text: Math.round(SystemInfoService.tempCelsius) + "\u00b0"
                     font.family: "JetBrainsMono Nerd Font"
                     font.pixelSize: 10
-                    color: SystemInfoService.tempCelsius > 85 ? "#f7768e" : SystemInfoService.tempCelsius > 70 ? "#e0af68" : "#c0caf5"
+                    color: SystemInfoService.tempCelsius > 85 ? Theme.error : SystemInfoService.tempCelsius > 70 ? Theme.warning : Theme.text
                     anchors.verticalCenter: parent.verticalCenter
                     Behavior on color { ColorAnimation { duration: 200 } }
                 }
@@ -111,14 +111,14 @@ Item {
                     text: "\u{f019}"
                     font.family: "JetBrainsMono Nerd Font"
                     font.pixelSize: 14
-                    color: "#c0caf5"
+                    color: Theme.text
                     anchors.verticalCenter: parent.verticalCenter
                 }
                 Text {
                     text: SystemInfoService.fmtSpeed(SystemInfoService.rxKbps)
                     font.family: "JetBrainsMono Nerd Font"
                     font.pixelSize: 10
-                    color: "#c0caf5"
+                    color: Theme.text
                     anchors.verticalCenter: parent.verticalCenter
                 }
             }

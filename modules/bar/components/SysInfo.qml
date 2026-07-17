@@ -6,6 +6,7 @@ import Quickshell
 import Quickshell.Io
 import Quickshell.Services.UPower
 import "../../../services" as Services
+import "../../../services"
 
 // System status pill: battery · network · volume
 // Sits on the right side of the bar, before the clock.
@@ -109,7 +110,7 @@ Item {
         // Network
         Text {
             text: root.wifiIconText
-            color: "#7aa2f7"
+            color: Theme.accent
             font.family: "JetBrainsMono Nerd Font"
             font.pixelSize: 14
             Layout.alignment: Qt.AlignVCenter
@@ -120,7 +121,7 @@ Item {
         // Volume
         Text {
             text: root.volIconText
-            color: "#7aa2f7"
+            color: Theme.accent
             font.family: "JetBrainsMono Nerd Font"
             font.pixelSize: 14
             Layout.alignment: Qt.AlignVCenter
@@ -137,7 +138,7 @@ Item {
 
                 Text {
                     text: root.batIconText
-                    color: root.batCharging ? "#9ece6a" : (root.batLow ? "#f7768e" : "#7aa2f7")
+                    color: root.batCharging ? Theme.success : (root.batLow ? Theme.error : Theme.accent)
                     font.family: "JetBrainsMono Nerd Font"
                     font.pixelSize: 14
                     anchors.verticalCenter: parent.verticalCenter
@@ -145,7 +146,7 @@ Item {
 
                 Text {
                     text:  `${Math.round(root.batPct * 100)}%`
-                    color: root.batLow ? "#f7768e" : "#565f89"
+                    color: root.batLow ? Theme.error : Theme.subtext
                     font.family:    "JetBrainsMono Nerd Font"
                     font.pixelSize: 10
                     anchors.verticalCenter: parent.verticalCenter
@@ -160,7 +161,7 @@ Item {
             text: "\u{f0f3}" // Bell icon
             font.family: "JetBrainsMono Nerd Font"
             font.pixelSize: 14
-            color: "#c0caf5"
+            color: Theme.text
             Layout.alignment: Qt.AlignVCenter
             
             MouseArea {

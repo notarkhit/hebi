@@ -3,6 +3,7 @@ import QtQuick.Layouts
 import QtQuick.Controls
 import Quickshell
 import Quickshell.Io
+import "../../services"
 
 ListView {
     id: emojiList
@@ -80,7 +81,7 @@ ListView {
     function handleDown() { if (count > 0) { if (currentIndex <= 0) currentIndex = count - 1; else decrementCurrentIndex(); } }
     function handleReturn() { const item = currentItem; if (item) item.activate(); }
 
-    ScrollBar.vertical: ScrollBar { policy: ScrollBar.AsNeeded; contentItem: Rectangle { implicitWidth: 4; radius: 2; color: "#3b4261" } }
+    ScrollBar.vertical: ScrollBar { policy: ScrollBar.AsNeeded; contentItem: Rectangle { implicitWidth: 4; radius: 2; color: Theme.surfaceVariant } }
     highlight: Rectangle { radius: 8; color: Qt.rgba(0x7a/255, 0xa2/255, 0xf7/255, 0.12); width: emojiList.width }
     highlightFollowsCurrentItem: true
     highlightMoveDuration: 80
@@ -107,7 +108,7 @@ ListView {
             spacing: 14
 
             Text { text: delRoot.modelData.e; font.pixelSize: 24; Layout.alignment: Qt.AlignVCenter; renderType: Text.NativeRendering }
-            Text { text: delRoot.modelData.n; color: (emojiList.currentIndex === delRoot.index || hoverHandler.hovered) ? "#7aa2f7" : "#c0caf5"; font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 13; elide: Text.ElideRight; Layout.fillWidth: true; Layout.alignment: Qt.AlignVCenter }
+            Text { text: delRoot.modelData.n; color: (emojiList.currentIndex === delRoot.index || hoverHandler.hovered) ? Theme.accent : Theme.text; font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 13; elide: Text.ElideRight; Layout.fillWidth: true; Layout.alignment: Qt.AlignVCenter }
         }
     }
 }

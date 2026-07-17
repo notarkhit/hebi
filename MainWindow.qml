@@ -14,6 +14,7 @@ import "modules/calendar"
 import "modules/bar"
 import "services"
 import Hebi.Config
+import "services"
 
 // Single full-screen Overlay window covering the entire screen (y=0).
 // Panels live here as Items. A shared BlobGroup is used for all panel BlobRects,

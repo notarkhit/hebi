@@ -158,7 +158,7 @@ PanelWindow {
                     implicitWidth: 80
                     implicitHeight: 80
                     radius: 10
-                    color: "#1a1b26"
+                    color: Theme.surfaceHex
                     clip: true
                     Image {
                         anchors.fill: parent
@@ -169,7 +169,7 @@ PanelWindow {
                     Text {
                         anchors.centerIn: parent
                         text: "󰎆"
-                        color: "#565f89"
+                        color: Theme.subtext
                         font.family: "JetBrainsMono Nerd Font"
                         font.pixelSize: 32
                         visible: parent.children[0].source === ""
@@ -180,7 +180,7 @@ PanelWindow {
                     spacing: 4
                     Text {
                         text: Players.active?.trackTitle || "No Media Playing"
-                        color: "#c0caf5"
+                        color: Theme.text
                         font.family: "JetBrainsMono Nerd Font"
                         font.pixelSize: 16
                         font.bold: true
@@ -189,7 +189,7 @@ PanelWindow {
                     }
                     Text {
                         text: Players.active?.trackArtist || "Unknown Artist"
-                        color: "#9aa5ce"
+                        color: Theme.secondary
                         font.family: "JetBrainsMono Nerd Font"
                         font.pixelSize: 13
                         elide: Text.ElideRight
@@ -203,7 +203,7 @@ PanelWindow {
                 spacing: 8
                 Text {
                     text: root.formatTime(Players.active?.position ?? 0)
-                    color: "#565f89"
+                    color: Theme.subtext
                     font.family: "JetBrainsMono Nerd Font"
                     font.pixelSize: 11
                 }
@@ -227,11 +227,11 @@ PanelWindow {
                         width: progressSlider.availableWidth
                         height: implicitHeight
                         radius: 2
-                        color: "#292e42"
+                        color: Theme.surfaceVariant
                         Rectangle {
                             width: progressSlider.visualPosition * parent.width
                             height: parent.height
-                            color: "#7aa2f7"
+                            color: Theme.accent
                             radius: 2
                         }
                     }
@@ -241,7 +241,7 @@ PanelWindow {
                         implicitWidth: 12
                         implicitHeight: 12
                         radius: 6
-                        color: progressSlider.pressed ? "#bb9af7" : "#7aa2f7"
+                        color: progressSlider.pressed ? Theme.warning : Theme.accent
                     }
                     onMoved: {
                         if (Players.active)
@@ -250,7 +250,7 @@ PanelWindow {
                 }
                 Text {
                     text: root.formatTime(Players.active?.length ?? 0)
-                    color: "#565f89"
+                    color: Theme.subtext
                     font.family: "JetBrainsMono Nerd Font"
                     font.pixelSize: 11
                 }
@@ -264,7 +264,7 @@ PanelWindow {
                     spacing: 24
                     Text {
                         text: "󰒮"
-                        color: hoverPrev.hovered ? "#bb9af7" : "#7aa2f7"
+                        color: hoverPrev.hovered ? Theme.warning : Theme.accent
                         font.family: "JetBrainsMono Nerd Font"
                         font.pixelSize: 24
                         opacity: Players.active?.canGoPrevious ? 1 : 0.5
@@ -280,11 +280,11 @@ PanelWindow {
                         implicitWidth: 48
                         implicitHeight: 48
                         radius: 24
-                        color: hoverPlay.hovered ? "#bb9af7" : "#7aa2f7"
+                        color: hoverPlay.hovered ? Theme.warning : Theme.accent
                         Text {
                             anchors.centerIn: parent
                             text: Players.active?.isPlaying ? "󰏤" : "󰐊"
-                            color: "#1a1b26"
+                            color: Theme.surfaceHex
                             font.family: "JetBrainsMono Nerd Font"
                             font.pixelSize: 28
                             anchors.horizontalCenterOffset: Players.active?.isPlaying ? 0 : 2
@@ -299,7 +299,7 @@ PanelWindow {
                     }
                     Text {
                         text: "󰒭"
-                        color: hoverNext.hovered ? "#bb9af7" : "#7aa2f7"
+                        color: hoverNext.hovered ? Theme.warning : Theme.accent
                         font.family: "JetBrainsMono Nerd Font"
                         font.pixelSize: 24
                         opacity: Players.active?.canGoNext ? 1 : 0.5
@@ -316,7 +316,7 @@ PanelWindow {
                     anchors.right: parent.right
                     anchors.verticalCenter: parent.verticalCenter
                     text: "󰦨"
-                    color: hoverLyrics.hovered || root.showLyrics ? "#bb9af7" : "#7aa2f7"
+                    color: hoverLyrics.hovered || root.showLyrics ? Theme.warning : Theme.accent
                     font.family: "JetBrainsMono Nerd Font"
                     font.pixelSize: 24
                     opacity: Lyrics.hasLyrics ? 1 : 0.5
@@ -349,7 +349,7 @@ PanelWindow {
                 Text {
                     anchors.centerIn: parent
                     text: Lyrics.loading ? "Loading lyrics..." : (Lyrics.hasLyrics ? "" : "No lyrics available")
-                    color: "#565f89"
+                    color: Theme.subtext
                     font.family: "JetBrainsMono Nerd Font"
                     font.pixelSize: 14
                 }
@@ -371,7 +371,7 @@ PanelWindow {
                     delegate: Text {
                         width: lyricsList.width
                         text: modelData || ". . ."
-                        color: ListView.isCurrentItem ? "#7aa2f7" : mouse.containsMouse ? "#c0caf5" : "#565f89"
+                        color: ListView.isCurrentItem ? Theme.accent : mouse.containsMouse ? Theme.text : Theme.subtext
                         font.family: "JetBrainsMono Nerd Font"
                         font.pixelSize: ListView.isCurrentItem ? 15 : 13
                         font.bold: ListView.isCurrentItem

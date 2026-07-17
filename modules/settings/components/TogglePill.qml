@@ -1,6 +1,7 @@
 // Rounded toggle pill button with icon + label + optional chevron
 import QtQuick
 import QtQuick.Layouts
+import "../../../services"
 
 Rectangle {
     id: root
@@ -19,8 +20,8 @@ Rectangle {
 
     color: {
         if (active)
-            return hov.containsMouse ? "#4a6fa8" : "#3d5a8a";
-        return hov.containsMouse ? "#2a2d3e" : "#1e2030";
+            return hov.containsMouse ? Theme.accent : Theme.accent;
+        return hov.containsMouse ? Theme.border : Theme.surfaceVariant;
     }
 
     Behavior on color {
@@ -34,7 +35,7 @@ Rectangle {
         anchors.fill: parent
         radius: parent.radius
         color: "transparent"
-        border.color: root.active ? "transparent" : "#3b4261"
+        border.color: root.active ? "transparent" : Theme.surfaceVariant
         border.width: 1
     }
 
@@ -52,7 +53,7 @@ Rectangle {
             font.family: "JetBrainsMono Nerd Font"
             font.pixelSize: 16
             Layout.alignment: Qt.AlignVCenter
-            color: root.active ? "#ffffff" : "#c0caf5"
+            color: root.active ? Theme.text : Theme.text
             opacity: root.active ? 1.0 : 0.9
             Behavior on opacity {
                 NumberAnimation {
@@ -73,7 +74,7 @@ Rectangle {
 
             Text {
                 text: root.label
-                color: root.active ? "#ffffff" : "#c0caf5"
+                color: root.active ? Theme.text : Theme.text
                 font.family: "JetBrainsMono Nerd Font"
                 font.pixelSize: 12
                 font.weight: root.active ? Font.DemiBold : Font.Medium
@@ -89,7 +90,7 @@ Rectangle {
             Text {
                 visible: root.sublabel.length > 0
                 text: root.sublabel
-                color: root.active ? "#c0caf5" : "#a9b1d6"
+                color: root.active ? Theme.text : Theme.secondary
                 font.family: "JetBrainsMono Nerd Font"
                 font.pixelSize: 11
                 elide: Text.ElideRight
@@ -101,7 +102,7 @@ Rectangle {
         Text {
             visible: root.showChevron
             text: "›"
-            color: root.active ? "#c0caf5" : "#545c7e"
+            color: root.active ? Theme.text : Theme.subtext
             font.pixelSize: 18
             Layout.alignment: Qt.AlignVCenter
 

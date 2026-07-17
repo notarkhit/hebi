@@ -71,7 +71,7 @@ Item {
             Text {
                 text: "‹"
                 font.pixelSize: 18
-                color: leftHov.containsMouse ? "#ffffff" : "#c0caf5"
+                color: leftHov.containsMouse ? Theme.text : Theme.subtext
                 MouseArea {
                     id: leftHov
                     anchors.fill: parent
@@ -95,7 +95,7 @@ Item {
                     font.family: "JetBrainsMono Nerd Font"
                     font.pixelSize: 16
                     font.weight: Font.Bold
-                    color: myHov.containsMouse ? Theme.accent : "#ffffff"
+                    color: myHov.containsMouse ? Theme.accent : Theme.text
                     text: root.viewMode === 0 ? ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"][root.currentMonth] + " " + root.currentYear : root.currentYear.toString()
                 }
                 MouseArea {
@@ -109,7 +109,7 @@ Item {
             Text {
                 text: "›"
                 font.pixelSize: 18
-                color: rightHov.containsMouse ? "#ffffff" : "#c0caf5"
+                color: rightHov.containsMouse ? Theme.text : Theme.subtext
                 MouseArea {
                     id: rightHov
                     anchors.fill: parent
@@ -146,7 +146,7 @@ Item {
                         font.pixelSize: 13
                         font.weight: Font.DemiBold
                         horizontalAlignment: Text.AlignHCenter
-                        color: (index === 0 || index === 6) ? "#7dcfff" : "#9aa5ce"
+                        color: (index === 0 || index === 6) ? Theme.secondary : Theme.subtext
                     }
                 }
                 Repeater {
@@ -162,14 +162,14 @@ Item {
                             width: 28
                             height: 28
                             radius: 14
-                            color: modelData.today ? Theme.accent : dayHov.containsMouse && modelData.day !== "" ? "#292e42" : "transparent"
+                            color: modelData.today ? Theme.accent : dayHov.containsMouse && modelData.day !== "" ? Theme.surfaceVariant : "transparent"
                             visible: modelData.day !== ""
                             Text {
                                 anchors.centerIn: parent
                                 text: modelData.day
                                 font.family: "JetBrainsMono Nerd Font"
                                 font.pixelSize: 13
-                                color: modelData.today ? "#1a1b26" : "#ffffff"
+                                color: modelData.today ? Theme.surfaceHex : Theme.text
                             }
                         }
                         MouseArea {
@@ -200,7 +200,7 @@ Item {
                         radius: 8
                         color: {
                             let n = new Date();
-                            return (index === n.getMonth() && root.currentYear === n.getFullYear()) ? Theme.accent : pickerHov.containsMouse ? "#292e42" : "transparent";
+                            return (index === n.getMonth() && root.currentYear === n.getFullYear()) ? Theme.accent : pickerHov.containsMouse ? Theme.surfaceVariant : "transparent";
                         }
                         Text {
                             anchors.centerIn: parent
@@ -210,7 +210,7 @@ Item {
                             font.weight: Font.Medium
                             color: {
                                 let n = new Date();
-                                return (index === n.getMonth() && root.currentYear === n.getFullYear()) ? "#1a1b26" : "#ffffff";
+                                return (index === n.getMonth() && root.currentYear === n.getFullYear()) ? Theme.surfaceHex : Theme.text;
                             }
                         }
                     }

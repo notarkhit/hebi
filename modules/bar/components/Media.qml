@@ -2,6 +2,7 @@ import QtQuick
 import QtQuick.Layouts
 import Quickshell
 import "../../../services"
+import "../../../services"
 
 Rectangle {
     id: root
@@ -15,7 +16,7 @@ Rectangle {
     implicitWidth: layout.implicitWidth + 24
     radius: 14
     color: hoverHandler.hovered ? Qt.rgba(122/255, 162/255, 247/255, 0.1) : "transparent"
-    border.color: hoverHandler.hovered ? "#7aa2f7" : "transparent"
+    border.color: hoverHandler.hovered ? Theme.accent : "transparent"
     border.width: 1
 
     Behavior on color { ColorAnimation { duration: 150 } }
@@ -53,7 +54,7 @@ Rectangle {
 
         Text {
             text: "󰎆"
-            color: "#7aa2f7"
+            color: Theme.accent
             font.family: "JetBrainsMono Nerd Font"
             font.pixelSize: 14
             Layout.alignment: Qt.AlignVCenter
@@ -61,7 +62,7 @@ Rectangle {
 
         Text {
             text: root.artist ? root.artist + " - " + root.title : root.title
-            color: "#c0caf5"
+            color: Theme.text
             font.family: "JetBrainsMono Nerd Font"
             font.pixelSize: 12
             Layout.alignment: Qt.AlignVCenter

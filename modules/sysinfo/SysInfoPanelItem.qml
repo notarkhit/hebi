@@ -40,13 +40,13 @@ Item {
             font.family: "JetBrainsMono Nerd Font"
             font.pixelSize: 14
             font.weight: Font.DemiBold
-            color: "#c0caf5"
+            color: Theme.text
             Layout.bottomMargin: 10
         }
         Rectangle {
             Layout.fillWidth: true
             implicitHeight: 1
-            color: "#24283b"
+            color: Theme.surfaceHex
             Layout.bottomMargin: 6
         }
 
@@ -55,49 +55,49 @@ Item {
             label: "CPU Usage"
             fillPct: SystemInfoService.cpuPercent
             value: Math.round(SystemInfoService.cpuPercent) + "%"
-            accentColor: SystemInfoService.cpuPercent > 85 ? "#f7768e" : SystemInfoService.cpuPercent > 60 ? "#e0af68" : "#ffffff"
+            accentColor: SystemInfoService.cpuPercent > 85 ? Theme.error : SystemInfoService.cpuPercent > 60 ? Theme.warning : Theme.text
         }
         InfoRow {
             icon: "\u{efc5}"
             label: "Memory Usage"
             fillPct: SystemInfoService.ramPercent
             value: Math.round(SystemInfoService.ramPercent) + "%"
-            accentColor: SystemInfoService.ramPercent > 85 ? "#f7768e" : SystemInfoService.ramPercent > 70 ? "#e0af68" : "#ffffff"
+            accentColor: SystemInfoService.ramPercent > 85 ? Theme.error : SystemInfoService.ramPercent > 70 ? Theme.warning : Theme.text
         }
         InfoRow {
             icon: "\u{f0e2}"
             label: "Swap Usage"
             fillPct: SystemInfoService.swapPercent
             value: Math.round(SystemInfoService.swapPercent) + "%"
-            accentColor: SystemInfoService.swapPercent > 80 ? "#f7768e" : SystemInfoService.swapPercent > 50 ? "#e0af68" : "#ffffff"
+            accentColor: SystemInfoService.swapPercent > 80 ? Theme.error : SystemInfoService.swapPercent > 50 ? Theme.warning : Theme.text
         }
         InfoRow {
             icon: "\u{f2c7}"
             label: "Temperature"
             fillPct: -1
             value: SystemInfoService.tempCelsius > 0 ? Math.round(SystemInfoService.tempCelsius) + " °C" : "—"
-            accentColor: SystemInfoService.tempCelsius > 85 ? "#f7768e" : SystemInfoService.tempCelsius > 70 ? "#e0af68" : "#ffffff"
+            accentColor: SystemInfoService.tempCelsius > 85 ? Theme.error : SystemInfoService.tempCelsius > 70 ? Theme.warning : Theme.text
         }
         InfoRow {
             icon: "\u{f0a0}"
             label: "Disk Usage /"
             fillPct: SystemInfoService.diskPercent
             value: Math.round(SystemInfoService.diskPercent) + "%"
-            accentColor: SystemInfoService.diskPercent > 90 ? "#f7768e" : SystemInfoService.diskPercent > 75 ? "#e0af68" : "#ffffff"
+            accentColor: SystemInfoService.diskPercent > 90 ? Theme.error : SystemInfoService.diskPercent > 75 ? Theme.warning : Theme.text
         }
         InfoRow {
             icon: "\u{f019}"
             label: "Download Speed"
             fillPct: -1
             value: SystemInfoService.fmtSpeed(SystemInfoService.rxKbps)
-            accentColor: "#ffffff"
+            accentColor: Theme.text
         }
         InfoRow {
             icon: "\u{f093}"
             label: "Upload Speed"
             fillPct: -1
             value: SystemInfoService.fmtSpeed(SystemInfoService.txKbps)
-            accentColor: "#ffffff"
+            accentColor: Theme.text
         }
 
         Item {
@@ -110,7 +110,7 @@ Item {
         property string label: ""
         property string value: ""
         property real fillPct: -1
-        property color accentColor: "#ffffff"
+        property color accentColor: Theme.text
         Layout.fillWidth: true
         implicitHeight: 30
         RowLayout {
@@ -134,7 +134,7 @@ Item {
                 text: label
                 font.family: "JetBrainsMono Nerd Font"
                 font.pixelSize: 12
-                color: "#a9b1d6"
+                color: Theme.secondary
                 Layout.fillWidth: true
                 Layout.alignment: Qt.AlignVCenter
                 elide: Text.ElideRight
@@ -147,7 +147,7 @@ Item {
                 Rectangle {
                     anchors.fill: parent
                     radius: 2
-                    color: "#1e2235"
+                    color: Theme.surfaceHex
                 }
                 Rectangle {
                     width: parent.width * Math.max(0, Math.min(100, fillPct)) / 100

@@ -18,7 +18,7 @@ Text {
 
     text: title
     textFormat: !isValid || !Hypr.activeToplevel.title ? Text.StyledText : Text.PlainText
-    color: "#c0caf5"
+    color: Theme.text
     font.family: "JetBrainsMono Nerd Font"
     font.pixelSize: 12
     elide: Text.ElideRight

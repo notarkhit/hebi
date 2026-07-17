@@ -58,7 +58,7 @@ Item {
         // Logo
         Text {
             text: ""
-            color: "#7aa2f7"
+            color: Theme.accent
             font.family: root.font
             font.pixelSize: 16
         }
@@ -94,7 +94,7 @@ Item {
         Rectangle {
             implicitWidth:  1
             implicitHeight: 14
-            color: "#2a2d3e"
+            color: Theme.border
             Layout.alignment: Qt.AlignVCenter
         }
 

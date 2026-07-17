@@ -50,7 +50,7 @@ Item {
                 font.family: "JetBrainsMono Nerd Font"
                 font.pixelSize: 14
                 font.weight: Font.DemiBold
-                color: "#c0caf5"
+                color: Theme.text
                 Layout.fillWidth: true
             }
             Rectangle {
@@ -70,7 +70,7 @@ Item {
                     text: "Clear All"
                     font.family: "JetBrainsMono Nerd Font"
                     font.pixelSize: 11
-                    color: clearHover.containsMouse ? "#f7768e" : "#565f89"
+                    color: clearHover.containsMouse ? Theme.error : Theme.subtext
                     Behavior on color {
                         ColorAnimation {
                             duration: 150
@@ -116,7 +116,7 @@ Item {
             Text {
                 anchors.centerIn: parent
                 text: "No notifications"
-                color: "#565f89"
+                color: Theme.subtext
                 font.family: "JetBrainsMono Nerd Font"
                 font.pixelSize: 13
             }
