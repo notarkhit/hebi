@@ -16,6 +16,7 @@ Singleton {
     readonly property bool showPreview: isWallpaperPreview || isSchemePreview
 
     // Current (persisted) colour backing
+    property string currentSchemeName: ""
     property string _curSurfaceHex:    "#000000"
     property color  _curBorder:        "#2a2d3e"
     property color  _curAccent:        "#7aa2f7"
@@ -73,8 +74,14 @@ Singleton {
     // ── React to Wallpapers preview state ─────────────────────────────────
     Connections {
         target: Wallpapers
+        function onPreviewSchemeChanged() {
+            if (Wallpapers.showPreview && Wallpapers.previewScheme && root.currentSchemeName === "dynamic") {
+                root.loadPreview(Wallpapers.previewScheme.colours);
+                root.isWallpaperPreview = true;
+            }
+        }
         function onShowPreviewChanged() {
-            if (Wallpapers.showPreview && Wallpapers.previewScheme) {
+            if (Wallpapers.showPreview && Wallpapers.previewScheme && root.currentSchemeName === "dynamic") {
                 root.loadPreview(Wallpapers.previewScheme.colours);
                 root.isWallpaperPreview = true;
             } else {
@@ -100,6 +107,7 @@ Singleton {
         onLoaded: {
             try {
                 const scheme = JSON.parse(text());
+                root.currentSchemeName = scheme.name;
                 root._curSurfaceHex      = "#" + scheme.colours.surface;
                 root._curBorder          = "#" + scheme.colours.outlineVariant;
                 root._curAccent          = "#" + scheme.colours.primary;
