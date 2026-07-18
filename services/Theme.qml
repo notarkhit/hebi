@@ -11,7 +11,9 @@ Singleton {
     id: root
 
     // ── Preview support ────────────────────────────────────────────────────
-    readonly property bool showPreview: Wallpapers.showPreview
+    property bool isWallpaperPreview: false
+    property bool isSchemePreview: false
+    readonly property bool showPreview: isWallpaperPreview || isSchemePreview
 
     // Current (persisted) colour backing
     property string _curSurfaceHex:    "#000000"
@@ -72,8 +74,22 @@ Singleton {
     Connections {
         target: Wallpapers
         function onShowPreviewChanged() {
-            if (Wallpapers.showPreview && Wallpapers.previewScheme)
+            if (Wallpapers.showPreview && Wallpapers.previewScheme) {
                 root.loadPreview(Wallpapers.previewScheme.colours);
+                root.isWallpaperPreview = true;
+            } else {
+                root.isWallpaperPreview = false;
+            }
+        }
+    }
+
+    // ── Support for Scheme previews ───────────────────────────────────────
+    function setSchemePreview(colours) {
+        if (colours) {
+            root.loadPreview(colours);
+            root.isSchemePreview = true;
+        } else {
+            root.isSchemePreview = false;
         }
     }
 

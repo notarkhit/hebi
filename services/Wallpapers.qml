@@ -20,6 +20,7 @@ Singleton {
     // ── Preview state ──────────────────────────────────────────────────────
     property bool showPreview: false
     property var previewScheme: null
+    property bool wantsPreview: false
 
     readonly property var list: {
         const result = [];
@@ -41,11 +42,13 @@ Singleton {
     // ── Public API ─────────────────────────────────────────────────────────
 
     function preview(path) {
+        wantsPreview = true;
         debounceTimer.pendingPath = path;
         debounceTimer.restart();
     }
 
     function stopPreview() {
+        wantsPreview = false;
         debounceTimer.stop();
         if (previewProc.running)
             previewProc.running = false;
@@ -101,6 +104,7 @@ Singleton {
         id: previewProc
         stdout: StdioCollector {
             onStreamFinished: {
+                if (!root.wantsPreview) return;
                 try {
                     root.previewScheme = JSON.parse(text);
                     root.showPreview = true;

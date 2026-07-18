@@ -23,6 +23,14 @@ ListView {
     currentIndex: 0
     onCountChanged: currentIndex = 0
 
+    onCurrentItemChanged: {
+        if (activeMenu === "scheme" && currentItem && currentItem.modelData && currentItem.modelData.type === "scheme") {
+            Theme.setSchemePreview(currentItem.modelData.colours);
+        } else {
+            Theme.setSchemePreview(null);
+        }
+    }
+
     function fuzzyScore(name, q) {
         const ql = q.toLowerCase();
         const n = name.toLowerCase();
@@ -50,6 +58,8 @@ ListView {
     onVisibleChanged: {
         if (visible)
             updateMenuState();
+        else
+            Theme.setSchemePreview(null);
     }
 
     function updateMenuState() {
@@ -149,7 +159,8 @@ ListView {
                     const list = Object.entries(schemeData).map(([name, f]) => Object.entries(f).map(([flavour, colours]) => ({
                                     name: name,
                                     flavour: flavour,
-                                    fullName: `${name} ${flavour}`
+                                    fullName: `${name} ${flavour}`,
+                                    colours: colours
                                 })));
 
                     const flat = [];
@@ -215,13 +226,14 @@ ListView {
                     icon: "󰁍",
                     type: "back"
                 }
-            ].concat(schemesData.map(s => ({
-                        name: s.fullName,
+            ].concat(schemesData.filter(s => s.fullName !== "dynamic hard").map(s => ({
+                        name: s.name === "dynamic" ? "dynamic" : s.fullName,
                         desc: s.fullName === actionsList.currentScheme ? "Current Theme" : "Theme scheme",
-                        icon: "",
+                        icon: s.name === "dynamic" ? "󰸉" : "",
                         type: "scheme",
                         schemeName: s.name,
                         schemeFlavour: s.flavour,
+                        colours: s.colours,
                         isCurrent: s.fullName === actionsList.currentScheme
                     })));
             if (q.startsWith("scheme "))
