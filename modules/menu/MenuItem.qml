@@ -205,10 +205,12 @@ Item {
                     if (v?.handleReturn)
                         v.handleReturn();
                 }
-                Keys.onTabPressed: {
+                Keys.onTabPressed: (event) => {
                     const v = stack.activeView;
-                    if (v?.handleTab)
+                    if (v?.handleTab) {
                         v.handleTab();
+                        event.accepted = true;
+                    }
                 }
             }
 

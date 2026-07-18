@@ -28,7 +28,7 @@ PathView {
         return n % 2 === 0 ? Math.max(1, n - 1) : n;
     }
 
-    implicitWidth: 1440
+    implicitWidth: visibleCount === 1 ? thumbW + 32 : (visibleCount === 3 ? thumbW * 3 : 1440)
     implicitHeight: cardH + 16
 
     // ── Model ──────────────────────────────────────────────────────────────
