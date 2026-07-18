@@ -24,8 +24,8 @@ ListView {
     onCountChanged: currentIndex = 0
 
     onCurrentItemChanged: {
-        if (activeMenu === "scheme" && currentItem && currentItem.modelData && currentItem.modelData.type === "scheme") {
-            Theme.setSchemePreview(currentItem.modelData.colours);
+        if (activeMenu === "scheme" && currentItem && currentItem.modelData && currentItem.modelData.type === "scheme-family") {
+            Theme.setSchemePreview(currentItem.activeFlavour.colours);
         } else {
             Theme.setSchemePreview(null);
         }
@@ -153,7 +153,25 @@ ListView {
     ]
 
     property var schemesData: []
-    property string currentScheme: ""
+    property string currentScheme: Theme.currentSchemeName + " " + Theme.currentSchemeFlavour
+
+    property string currentActiveMode: Theme.currentSchemeMode || "dark"
+    onCurrentActiveModeChanged: {
+        getSchemes.running = true;
+    }
+
+    property bool currentSchemeHasOpposite: {
+        const current = schemesData.find(s => s.fullName === actionsList.currentScheme);
+        return current ? (current.colours.has_opposite_mode ?? false) : false;
+    }
+
+    property var selectedFlavours: ({})
+
+    function updateSelectedFlavour(schemeName, newIndex) {
+        let temp = selectedFlavours;
+        temp[schemeName] = newIndex;
+        selectedFlavours = Object.assign({}, temp);
+    }
 
     Process {
         id: getSchemes
@@ -182,26 +200,8 @@ ListView {
         }
     }
 
-    Process {
-        id: getCurrentScheme
-        command: ["sh", "-c", "$HOME/.local/bin/hebi scheme get -nfv"]
-        stdout: StdioCollector {
-            onStreamFinished: {
-                try {
-                    const parts = text.trim().split("\n");
-                    if (parts.length >= 2) {
-                        actionsList.currentScheme = `${parts[0]} ${parts[1]}`;
-                    }
-                } catch (e) {
-                    console.error("Failed to parse current scheme", e);
-                }
-            }
-        }
-    }
-
     Component.onCompleted: {
         getSchemes.running = true;
-        getCurrentScheme.running = true;
     }
 
     model: {
@@ -225,23 +225,42 @@ ListView {
             else
                 searchQ = "";
         } else if (activeMenu === "scheme") {
+            const families = {};
+            
+            schemesData.filter(s => s.fullName !== "dynamic hard" && s.colours.mode === currentActiveMode).forEach(s => {
+                if (!families[s.name]) {
+                    families[s.name] = {
+                        name: s.name === "dynamic" ? "dynamic" : s.name,
+                        icon: s.name === "dynamic" ? "󰸉" : "",
+                        type: "scheme-family",
+                        schemeName: s.name,
+                        flavours: []
+                    };
+                }
+                families[s.name].flavours.push({
+                    flavour: s.flavour,
+                    colours: s.colours
+                });
+            });
+
+            const filteredSchemes = Object.values(families).map(f => {
+                let selIdx = f.flavours.findIndex(fl => f.schemeName + " " + fl.flavour === actionsList.currentScheme);
+                if (selIdx < 0) selIdx = 0;
+                f.initialSelectedIndex = selIdx;
+                f.isCurrent = f.flavours.some(fl => f.schemeName + " " + fl.flavour === actionsList.currentScheme);
+                
+                return f;
+            });
+
             listToSearch = [
                 {
                     name: "Back",
                     desc: "Return to main menu",
                     icon: "󰁍",
                     type: "back"
-                }
-            ].concat(schemesData.filter(s => s.fullName !== "dynamic hard").map(s => ({
-                        name: s.name === "dynamic" ? "dynamic" : s.fullName,
-                        desc: s.fullName === actionsList.currentScheme ? "Current Theme" : "Theme scheme",
-                        icon: s.name === "dynamic" ? "󰸉" : "",
-                        type: "scheme",
-                        schemeName: s.name,
-                        schemeFlavour: s.flavour,
-                        colours: s.colours,
-                        isCurrent: s.fullName === actionsList.currentScheme
-                    })));
+                },
+                ...filteredSchemes
+            ];
             if (q.startsWith("scheme "))
                 searchQ = q.slice(7).trim();
             else
@@ -259,6 +278,28 @@ ListView {
             })).filter(x => x.score >= 0).sort((x, y) => y.score !== x.score ? y.score - x.score : x.name.localeCompare(y.name));
     }
 
+
+    function cycleFlavour(direction) {
+        if (activeMenu !== "scheme") return;
+        const currentData = actionsList.model[currentIndex];
+        if (currentData && currentData.type === "scheme-family") {
+            let numFlavours = currentData.flavours.length;
+            let currentSel = selectedFlavours[currentData.schemeName];
+            if (currentSel === undefined) {
+                currentSel = currentData.initialSelectedIndex;
+            }
+            let newSel = (currentSel + direction + numFlavours) % numFlavours;
+            updateSelectedFlavour(currentData.schemeName, newSel);
+            
+            const selFlavour = currentData.flavours[newSel];
+            Theme.setSchemePreview(selFlavour.colours);
+        }
+    }
+
+    function handleTab() { cycleFlavour(1); }
+    function handleBacktab() { cycleFlavour(-1); }
+    function handleLeft() { cycleFlavour(-1); }
+    function handleRight() { cycleFlavour(1); }
 
     function handleUp() {
         if (count === 0)
@@ -308,6 +349,22 @@ ListView {
         width: actionsList.width
         height: modelData?.type === "wallpaper-item" ? 68 : actionsList.itemH
 
+        property int activeFlavourIndex: {
+            if (delRoot.modelData?.type === "scheme-family") {
+                let val = actionsList.selectedFlavours[delRoot.modelData.schemeName];
+                if (val !== undefined) return val;
+                return delRoot.modelData.initialSelectedIndex;
+            }
+            return 0;
+        }
+
+        property var activeFlavour: {
+            if (delRoot.modelData?.type === "scheme-family") {
+                return delRoot.modelData.flavours[activeFlavourIndex];
+            }
+            return null;
+        }
+
         function activate() {
             if (modelData.type === "back") {
                 actionsList.activeMenu = "root";
@@ -315,9 +372,10 @@ ListView {
                 actionsList.activeMenu = modelData.target;
             } else if (modelData.type === "autocomplete") {
                 actionsList.autocomplete(modelData.target);
-            } else if (modelData.type === "scheme") {
+            } else if (modelData.type === "scheme-family") {
                 actionsList.action();
-                Quickshell.execDetached(["sh", "-c", "$HOME/.local/bin/hebi scheme set -n \"$1\" -f \"$2\"", "--", modelData.schemeName, modelData.schemeFlavour]);
+                const selFlav = delRoot.activeFlavour.flavour;
+                Quickshell.execDetached(["sh", "-c", "$HOME/.local/bin/hebi scheme set -n \"$1\" -f \"$2\"", "--", modelData.schemeName, selFlav]);
             } else if (modelData.type === "toggle-mode") {
                 Quickshell.execDetached(["sh", "-c", "$HOME/.local/bin/hebi scheme set -m " + (Theme.currentSchemeMode === "dark" ? "light" : "dark")]);
             } else if (modelData.type === "wallpaper-item") {
@@ -331,16 +389,34 @@ ListView {
 
         HoverHandler {
             id: hoverHandler
-            cursorShape: Qt.PointingHandCursor
+            cursorShape: delRoot.modelData?.type === "header" || !delRoot.enabled ? Qt.ArrowCursor : Qt.PointingHandCursor
         }
         TapHandler {
             onTapped: {
-                actionsList.currentIndex = delRoot.index;
-                delRoot.activate();
+                if (delRoot.modelData?.type !== "header" && delRoot.enabled) {
+                    actionsList.currentIndex = delRoot.index;
+                    delRoot.activate();
+                }
             }
         }
 
+        // Header View
+        Text {
+            visible: delRoot.modelData?.type === "header"
+            anchors.fill: parent
+            anchors.leftMargin: 10
+            verticalAlignment: Text.AlignVCenter
+            text: delRoot.modelData?.name ?? ""
+            color: Theme.accent
+            font.family: "JetBrainsMono Nerd Font"
+            font.pixelSize: 11
+            font.weight: Font.Bold
+        }
+
         RowLayout {
+            visible: delRoot.modelData?.type !== "header"
+            enabled: delRoot.modelData?.type !== "toggle-mode" || actionsList.currentSchemeHasOpposite
+            opacity: enabled ? 1.0 : 0.4
             anchors.fill: parent
             anchors.leftMargin: 10
             anchors.rightMargin: 10
@@ -391,7 +467,12 @@ ListView {
                 Layout.alignment: Qt.AlignVCenter
                 spacing: 2
                 Text {
-                    text: delRoot.modelData?.name ?? ""
+                    text: {
+                        if (delRoot.modelData?.type === "scheme-family") {
+                            return delRoot.modelData.name + (activeFlavour ? " " + activeFlavour.flavour : "");
+                        }
+                        return delRoot.modelData?.name ?? "";
+                    }
                     color: {
                         if (delRoot.modelData.isCurrent)
                             return Theme.success;
@@ -405,14 +486,36 @@ ListView {
                     elide: Text.ElideRight
                     width: parent.width
                 }
-                Text {
-                    visible: !!text
-                    text: delRoot.modelData?.desc ?? ""
-                    color: Theme.subtext
-                    font.family: "JetBrainsMono Nerd Font"
-                    font.pixelSize: 10
-                    elide: Text.ElideRight
+                Item {
                     width: parent.width
+                    height: childrenRect.height
+                    visible: !!delRoot.modelData?.desc || delRoot.modelData?.type === "scheme-family"
+
+                    Text {
+                        visible: delRoot.modelData?.type !== "scheme-family"
+                        text: delRoot.modelData?.desc ?? ""
+                        color: Theme.subtext
+                        font.family: "JetBrainsMono Nerd Font"
+                        font.pixelSize: 10
+                        elide: Text.ElideRight
+                        width: parent.width
+                    }
+
+                    Row {
+                        visible: delRoot.modelData?.type === "scheme-family"
+                        spacing: 6
+                        Repeater {
+                            model: delRoot.modelData?.flavours ?? []
+                            delegate: Text {
+                                required property var modelData
+                                required property int index
+                                text: modelData.flavour
+                                color: index === delRoot.activeFlavourIndex ? Theme.accent : Theme.subtext
+                                font.family: "JetBrainsMono Nerd Font"
+                                font.pixelSize: 10
+                            }
+                        }
+                    }
                 }
             }
 
@@ -431,7 +534,7 @@ ListView {
                 width: 40
                 height: 22
                 radius: 11
-                color: Theme.currentSchemeMode === "dark" ? Theme.accent : Theme.surfaceVariant
+                color: Theme.currentSchemeMode === "dark" ? Theme.accent : Qt.rgba(Theme.subtext.r, Theme.subtext.g, Theme.subtext.b, 0.5)
                 Layout.alignment: Qt.AlignVCenter
                 
                 Rectangle {

@@ -212,6 +212,13 @@ Item {
                         event.accepted = true;
                     }
                 }
+                Keys.onBacktabPressed: (event) => {
+                    const v = stack.activeView;
+                    if (v?.handleBacktab) {
+                        v.handleBacktab();
+                        event.accepted = true;
+                    }
+                }
             }
 
             Text {

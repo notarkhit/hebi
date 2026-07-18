@@ -16,7 +16,8 @@ Singleton {
     readonly property bool showPreview: isWallpaperPreview || isSchemePreview
 
     // Current (persisted) colour backing
-    property string currentSchemeName: ""
+    property string currentSchemeName: "dynamic"
+    property string currentSchemeFlavour: "default"
     property string currentSchemeMode: "dark"
     property string _curSurfaceHex:    "#000000"
     property color  _curBorder:        "#2a2d3e"
@@ -109,6 +110,7 @@ Singleton {
             try {
                 const scheme = JSON.parse(text());
                 root.currentSchemeName = scheme.name;
+                root.currentSchemeFlavour = scheme.flavour;
                 root.currentSchemeMode = scheme.mode;
                 root._curSurfaceHex      = "#" + scheme.colours.surface;
                 root._curBorder          = "#" + scheme.colours.outlineVariant;

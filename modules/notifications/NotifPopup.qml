@@ -101,7 +101,7 @@ Item {
         implicitHeight: inner.implicitHeight + 20
 
         radius: 14
-        color: root.isCritical ? "#cc1a0a0e" : "#cc1a1b26"
+        color: root.isCritical ? Qt.alpha(Theme.error, 0.8) : Qt.alpha(Theme.surfaceContainer, 0.8)
         border.color: root.isCritical ? Theme.error : root.isLow ? Theme.surfaceHex : Theme.surfaceVariant
         border.width: root.isCritical ? 1.5 : 1
 
@@ -393,7 +393,7 @@ Item {
                     anchors.verticalCenter: parent.verticalCenter
                     height: 4
                     radius: 2
-                    color: root.isCritical ? "#22f7768e" : "#227aa2f7"
+                    color: root.isCritical ? Qt.alpha(Theme.error, 0.13) : Qt.alpha(Theme.accent, 0.13)
 
                     // Fill
                     Rectangle {
@@ -428,8 +428,8 @@ Item {
                         implicitHeight: 26
                         implicitWidth: Math.max(64, btnText.implicitWidth + 20)
                         radius: 6
-                        color: btnHover.containsMouse ? (root.isCritical ? "#22f7768e" : "#227aa2f7") : (root.isCritical ? "#0df7768e" : "#0d7aa2f7")
-                        border.color: root.isCritical ? "#55f7768e" : "#557aa2f7"
+                        color: btnHover.containsMouse ? (root.isCritical ? Qt.alpha(Theme.error, 0.13) : Qt.alpha(Theme.accent, 0.13)) : (root.isCritical ? Qt.alpha(Theme.error, 0.05) : Qt.alpha(Theme.accent, 0.05))
+                        border.color: root.isCritical ? Qt.alpha(Theme.error, 0.33) : Qt.alpha(Theme.accent, 0.33)
                         border.width: 1
 
                         Behavior on color {
