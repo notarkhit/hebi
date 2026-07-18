@@ -98,6 +98,12 @@ ListView {
             target: "system"
         },
         {
+            name: "Theme Mode",
+            desc: "Switch between light and dark mode",
+            icon: "󰔎",
+            type: "toggle-mode"
+        },
+        {
             name: "Calculator",
             desc: "Open Calculator",
             icon: "󰃬",
@@ -312,6 +318,8 @@ ListView {
             } else if (modelData.type === "scheme") {
                 actionsList.action();
                 Quickshell.execDetached(["sh", "-c", "$HOME/.local/bin/hebi scheme set -n \"$1\" -f \"$2\"", "--", modelData.schemeName, modelData.schemeFlavour]);
+            } else if (modelData.type === "toggle-mode") {
+                Quickshell.execDetached(["sh", "-c", "$HOME/.local/bin/hebi scheme set -m " + (Theme.currentSchemeMode === "dark" ? "light" : "dark")]);
             } else if (modelData.type === "wallpaper-item") {
                 actionsList.action();
                 Wallpapers.apply(modelData.path);
@@ -415,6 +423,29 @@ ListView {
                 font.family: "JetBrainsMono Nerd Font"
                 font.pixelSize: 16
                 Layout.alignment: Qt.AlignVCenter
+            }
+
+            // Theme Mode Toggle Visualizer
+            Rectangle {
+                visible: delRoot.modelData?.type === "toggle-mode"
+                width: 40
+                height: 22
+                radius: 11
+                color: Theme.currentSchemeMode === "dark" ? Theme.accent : Theme.surfaceVariant
+                Layout.alignment: Qt.AlignVCenter
+                
+                Rectangle {
+                    width: 18
+                    height: 18
+                    radius: 9
+                    color: Theme.surface
+                    x: Theme.currentSchemeMode === "dark" ? parent.width - width - 2 : 2
+                    y: 2
+                    
+                    Behavior on x {
+                        NumberAnimation { duration: 150; easing.type: Easing.InOutQuad }
+                    }
+                }
             }
         }
     }

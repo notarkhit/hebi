@@ -12,12 +12,14 @@ import "../../services"
 PathView {
     id: root
 
+    clip: true
+
     signal action
 
     // ── Sizing ─────────────────────────────────────────────────────────────
     // Each thumbnail card is 16:9, plus label below
-    readonly property int thumbW: 200
-    readonly property int thumbH: thumbW * 9 / 16   // 112
+    readonly property int thumbW: 280
+    readonly property int thumbH: thumbW * 9 / 16   // 157.5
     readonly property int cardH: thumbH + 28 + 12   // thumb + label + padding
 
     // Show as many items as fit, odd numbers only (to keep a clear center)
@@ -26,7 +28,7 @@ PathView {
         return n % 2 === 0 ? Math.max(1, n - 1) : n;
     }
 
-    implicitWidth: 1080
+    implicitWidth: 1440
     implicitHeight: cardH + 16
 
     // ── Model ──────────────────────────────────────────────────────────────
@@ -82,6 +84,9 @@ PathView {
             Wallpapers.apply(currentItem.entryPath);
             root.action();
         }
+    }
+    function handleTab() {
+        Wallpapers.toggleType();
     }
 
     // ── Delegate ───────────────────────────────────────────────────────────

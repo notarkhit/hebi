@@ -17,6 +17,7 @@ Singleton {
 
     // Current (persisted) colour backing
     property string currentSchemeName: ""
+    property string currentSchemeMode: "dark"
     property string _curSurfaceHex:    "#000000"
     property color  _curBorder:        "#2a2d3e"
     property color  _curAccent:        "#7aa2f7"
@@ -108,6 +109,7 @@ Singleton {
             try {
                 const scheme = JSON.parse(text());
                 root.currentSchemeName = scheme.name;
+                root.currentSchemeMode = scheme.mode;
                 root._curSurfaceHex      = "#" + scheme.colours.surface;
                 root._curBorder          = "#" + scheme.colours.outlineVariant;
                 root._curAccent          = "#" + scheme.colours.primary;

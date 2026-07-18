@@ -22,21 +22,58 @@ Singleton {
     property var previewScheme: null
     property bool wantsPreview: false
 
+    // ── Type state (static/live) ───────────────────────────────────────────
+    property string wallpaperType: "static"
+
+    function toggleType() {
+        const newType = (wallpaperType === "static") ? "live" : "static";
+        Quickshell.execDetached(["sh", "-c", `echo '${newType}' > ${root._stateBase}/hebi/wallpaper/type.txt`]);
+    }
+
     readonly property var list: {
-        const result = [];
         const entries = fsModel.entries;
+        const mode = Theme.currentSchemeMode || "dark";
+        const type = wallpaperType;
+
+        let filtered = [];
+        
+        // Strategy: First try matching exact type/mode.
+        let hasExact = false;
+        let hasType = false;
+
         for (let i = 0; i < entries.length; i++) {
             const e = entries[i];
             const parts = e.relativePath.split("/");
-            if (parts.length > 0 && parts[0] === "live")
-                continue;
-            result.push({
-                path: e.path,
-                name: e.fileName,
-                relativePath: e.relativePath
-            });
+            if (parts.length >= 2 && parts[0] === type && parts[1] === mode) {
+                hasExact = true;
+                break;
+            } else if (parts.length >= 1 && parts[0] === type) {
+                hasType = true;
+            }
         }
-        return result;
+
+        for (let i = 0; i < entries.length; i++) {
+            const e = entries[i];
+            const parts = e.relativePath.split("/");
+            
+            let include = false;
+            if (hasExact) {
+                include = (parts.length >= 2 && parts[0] === type && parts[1] === mode);
+            } else if (hasType) {
+                include = (parts.length >= 1 && parts[0] === type);
+            } else {
+                include = true; // fallback: include all
+            }
+
+            if (include) {
+                filtered.push({
+                    path: e.path,
+                    name: e.fileName,
+                    relativePath: e.relativePath
+                });
+            }
+        }
+        return filtered;
     }
 
     // ── Public API ─────────────────────────────────────────────────────────
@@ -65,13 +102,26 @@ Singleton {
         ]);
     }
 
-    // ── Watch path.txt for external changes ───────────────────────────────
+    // ── Watch paths for external changes ───────────────────────────────
     FileView {
         path: `${root._stateBase}/hebi/wallpaper/path.txt`
         watchChanges: true
         printErrors: false
         onFileChanged: reload()
         onLoaded: root.currentPath = text().trim()
+    }
+
+    FileView {
+        path: `${root._stateBase}/hebi/wallpaper/type.txt`
+        watchChanges: true
+        printErrors: false
+        onFileChanged: reload()
+        onLoaded: {
+            const t = text().trim();
+            if (t === "live" || t === "static") {
+                root.wallpaperType = t;
+            }
+        }
     }
 
     // ── FileSystemModel to scan wallpapers dir ────────────────────────────

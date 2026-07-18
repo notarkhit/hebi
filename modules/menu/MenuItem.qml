@@ -74,7 +74,8 @@ Item {
     Item {
         id: card
 
-        readonly property int fullHeight: contentItem.height + 56
+        readonly property bool isWallpaperPicker: root.currentMode === "actions" && typeof actionsView !== "undefined" && actionsView.activeMenu === "wallpaper"
+        readonly property int fullHeight: contentItem.height + (isWallpaperPicker ? 0 : 56)
 
         anchors.horizontalCenter: parent.horizontalCenter
         anchors.bottom: parent.bottom
@@ -83,6 +84,7 @@ Item {
 
         RowLayout {
             id: searchRow
+            visible: !card.isWallpaperPicker
             anchors.bottom: parent.bottom
             anchors.left: parent.left
             anchors.right: parent.right
@@ -203,6 +205,11 @@ Item {
                     if (v?.handleReturn)
                         v.handleReturn();
                 }
+                Keys.onTabPressed: {
+                    const v = stack.activeView;
+                    if (v?.handleTab)
+                        v.handleTab();
+                }
             }
 
             Text {
@@ -227,8 +234,8 @@ Item {
 
             anchors.left: parent.left
             anchors.right: parent.right
-            anchors.bottom: searchRow.top
-            anchors.bottomMargin: 0
+            anchors.bottom: parent.bottom
+            anchors.bottomMargin: card.isWallpaperPicker ? 0 : 56
             height: stack.implicitHeight
             Behavior on height {
                 enabled: root.offsetScale === 0
