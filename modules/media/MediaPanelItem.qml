@@ -211,24 +211,82 @@ Item {
                 Layout.fillHeight: true
                 spacing: 8
                 
-                Text {
-                    text: Players.active?.trackTitle || "No Media Playing"
-                    color: Theme.text
-                    font.family: "JetBrainsMono Nerd Font"
-                    font.pixelSize: 16
-                    font.bold: true
-                    elide: Text.ElideRight
+                Item {
                     Layout.fillWidth: true
-                    horizontalAlignment: Text.AlignHCenter
+                    implicitHeight: 20
+                    clip: true
+                    Text {
+                        id: titleText
+                        text: Players.active?.trackTitle || "No Media Playing"
+                        color: Theme.text
+                        font.family: "JetBrainsMono Nerd Font"
+                        font.pixelSize: 15
+                        font.bold: true
+                        
+                        anchors.verticalCenter: parent.verticalCenter
+                        x: implicitWidth > parent.width ? marqueeAnimTitle.xPos : (parent.width - implicitWidth) / 2
+                        
+                        SequentialAnimation {
+                            id: marqueeAnimTitle
+                            property real xPos: 0
+                            running: titleText.implicitWidth > titleText.parent.width
+                            loops: Animation.Infinite
+                            
+                            PauseAnimation { duration: 1500 }
+                            NumberAnimation {
+                                target: marqueeAnimTitle
+                                property: "xPos"
+                                from: 0
+                                to: Math.min(0, -(titleText.implicitWidth - titleText.parent.width))
+                                duration: Math.max(1, titleText.implicitWidth - titleText.parent.width) * 30
+                            }
+                            PauseAnimation { duration: 1500 }
+                            NumberAnimation {
+                                target: marqueeAnimTitle
+                                property: "xPos"
+                                to: 0
+                                duration: Math.max(1, titleText.implicitWidth - titleText.parent.width) * 30
+                            }
+                        }
+                    }
                 }
-                Text {
-                    text: Players.active?.trackArtist || "Unknown Artist"
-                    color: Theme.secondary
-                    font.family: "JetBrainsMono Nerd Font"
-                    font.pixelSize: 13
-                    elide: Text.ElideRight
+                Item {
                     Layout.fillWidth: true
-                    horizontalAlignment: Text.AlignHCenter
+                    implicitHeight: 18
+                    clip: true
+                    Text {
+                        id: artistText
+                        text: Players.active?.trackArtist || "Unknown Artist"
+                        color: Theme.secondary
+                        font.family: "JetBrainsMono Nerd Font"
+                        font.pixelSize: 13
+                        
+                        anchors.verticalCenter: parent.verticalCenter
+                        x: implicitWidth > parent.width ? marqueeAnimArtist.xPos : (parent.width - implicitWidth) / 2
+                        
+                        SequentialAnimation {
+                            id: marqueeAnimArtist
+                            property real xPos: 0
+                            running: artistText.implicitWidth > artistText.parent.width
+                            loops: Animation.Infinite
+                            
+                            PauseAnimation { duration: 1500 }
+                            NumberAnimation {
+                                target: marqueeAnimArtist
+                                property: "xPos"
+                                from: 0
+                                to: Math.min(0, -(artistText.implicitWidth - artistText.parent.width))
+                                duration: Math.max(1, artistText.implicitWidth - artistText.parent.width) * 30
+                            }
+                            PauseAnimation { duration: 1500 }
+                            NumberAnimation {
+                                target: marqueeAnimArtist
+                                property: "xPos"
+                                to: 0
+                                duration: Math.max(1, artistText.implicitWidth - artistText.parent.width) * 30
+                            }
+                        }
+                    }
                 }
                 Item {
                     Layout.fillWidth: true
@@ -394,8 +452,6 @@ Item {
                 // Lyrics
                 Text {
                     text: "󰦨"
-                    color: hoverLyrics.hovered || root.showLyrics ? Theme.warning : Theme.accent
-                    font.family: "JetBrainsMono Nerd Font"
                     font.pixelSize: 24
                     opacity: Lyrics.hasLyrics ? 1 : 0.5
                     HoverHandler { id: hoverLyrics; cursorShape: Qt.PointingHandCursor }
@@ -415,7 +471,7 @@ Item {
                     Row {
                         id: playerBtn
                         anchors.centerIn: parent
-                        spacing: 4
+                        spacing: 1 // Tiny gap to look like a single button
                         
                         Rectangle {
                             id: leftPill
@@ -423,8 +479,8 @@ Item {
                             height: 28
                             color: hoverBtn.hovered ? Theme.surfaceVariant : Theme.surfaceHex
                             radius: 14
-                            topRightRadius: 6
-                            bottomRightRadius: 6
+                            topRightRadius: 2 // Joined inner radius
+                            bottomRightRadius: 2
                             
                             Behavior on color { ColorAnimation { duration: 150 } }
                             
@@ -457,11 +513,12 @@ Item {
                                 onTapped: {
                                     if (playerSwitcherItem.dropdownVisible) {
                                         playerSwitcherItem.dropdownVisible = false;
-                                    } else {
-                                        const mappedPos = playerBtn.mapToItem(globalClickCatcher, 0, 0);
-                                        playerDropdown.x = mappedPos.x + (playerBtn.width - playerDropdown.width) / 2;
-                                        playerDropdown.y = mappedPos.y - playerDropdown.height - 12;
-                                        playerSwitcherItem.dropdownVisible = true;
+                                    }
+                                    const list = Players.list;
+                                    if (list.length > 1) {
+                                        const idx = list.indexOf(Players.active);
+                                        const nextIdx = (idx + 1) % list.length;
+                                        Players.manualActive = list[nextIdx];
                                     }
                                 }
                             }
@@ -473,23 +530,22 @@ Item {
                             height: 28
                             color: hoverExpand.hovered ? Theme.surfaceVariant : Theme.surfaceHex
                             radius: 14
-                            topLeftRadius: playerSwitcherItem.dropdownVisible ? 14 : 6
-                            bottomLeftRadius: playerSwitcherItem.dropdownVisible ? 14 : 6
+                            // Animate to full radius when clicked to visually "split" the button!
+                            topLeftRadius: playerSwitcherItem.dropdownVisible ? 14 : 2
+                            bottomLeftRadius: playerSwitcherItem.dropdownVisible ? 14 : 2
                             
                             Behavior on color { ColorAnimation { duration: 150 } }
-                            Behavior on topLeftRadius { NumberAnimation { duration: 150 } }
-                            Behavior on bottomLeftRadius { NumberAnimation { duration: 150 } }
+                            Behavior on topLeftRadius { NumberAnimation { duration: 250; easing.type: Easing.OutBack } }
+                            Behavior on bottomLeftRadius { NumberAnimation { duration: 250; easing.type: Easing.OutBack } }
                             
                             Text {
                                 anchors.centerIn: parent
-                                anchors.horizontalCenterOffset: playerSwitcherItem.dropdownVisible ? 0 : -2
                                 text: "󰅀" // mdi-chevron-down
                                 color: Theme.accent
                                 font.family: "JetBrainsMono Nerd Font"
                                 font.pixelSize: 16
                                 rotation: playerSwitcherItem.dropdownVisible ? 180 : 0
                                 Behavior on rotation { NumberAnimation { duration: 200; easing.type: Easing.OutQuint } }
-                                Behavior on anchors.horizontalCenterOffset { NumberAnimation { duration: 150 } }
                             }
                             
                             HoverHandler { id: hoverExpand; cursorShape: Qt.PointingHandCursor }
@@ -498,9 +554,10 @@ Item {
                                     if (playerSwitcherItem.dropdownVisible) {
                                         playerSwitcherItem.dropdownVisible = false;
                                     } else {
-                                        const mappedPos = playerBtn.mapToItem(globalClickCatcher, 0, 0);
-                                        playerDropdown.x = mappedPos.x + (playerBtn.width - playerDropdown.width) / 2;
-                                        playerDropdown.y = mappedPos.y - playerDropdown.height - 12;
+                                        const mappedPos = rightPill.mapToItem(globalClickCatcher, 0, 0);
+                                        // Attach to the expand button like in env/shell
+                                        playerDropdown.x = mappedPos.x - (playerDropdown.width - rightPill.width);
+                                        playerDropdown.y = mappedPos.y + rightPill.height + 6;
                                         playerSwitcherItem.dropdownVisible = true;
                                     }
                                 }
@@ -510,7 +567,7 @@ Item {
                     
                     MouseArea {
                         id: globalClickCatcher
-                        parent: root
+                        parent: QsWindow.window ? QsWindow.window.contentItem : root
                         anchors.fill: parent
                         enabled: playerSwitcherItem.dropdownVisible
                         visible: playerSwitcherItem.dropdownVisible
@@ -521,15 +578,17 @@ Item {
                         Rectangle {
                             id: playerDropdown
                             
-                            width: Math.max(140, playerBtn.width + 10)
+                            width: Math.max(140, playerBtn.width)
                             height: contentCol.implicitHeight + 16
                             
                             opacity: playerSwitcherItem.dropdownVisible ? 1 : 0
-                            scale: playerSwitcherItem.dropdownVisible ? 1 : 0.95
-                            transformOrigin: Item.Bottom
                             
+                            transform: Scale {
+                                origin.y: 0
+                                yScale: playerSwitcherItem.dropdownVisible ? 1 : 0.1
+                                Behavior on yScale { NumberAnimation { duration: 200; easing.type: Easing.OutQuint } }
+                            }
                             Behavior on opacity { NumberAnimation { duration: 200 } }
-                            Behavior on scale { NumberAnimation { duration: 200; easing.type: Easing.OutQuint } }
                             
                             color: Theme.surfaceHex
                             radius: 12
@@ -553,12 +612,12 @@ Item {
                                 Repeater {
                                     model: Players.list
                                     Rectangle {
-                                        id: playerRect
+                                        id: playerRectItem
                                         required property var modelData
                                         readonly property bool isActive: Players.active === modelData
                                         Layout.fillWidth: true
                                         Layout.preferredHeight: 36
-                                        color: playerHover.hovered ? Theme.surfaceVariant : (isActive ? Theme.surfaceVariant : "transparent")
+                                        color: playerHoverItem.hovered ? Theme.surfaceVariant : (isActive ? Qt.rgba(Theme.accent.r, Theme.accent.g, Theme.accent.b, 0.1) : "transparent")
                                         radius: 8
                                         
                                         RowLayout {
@@ -568,8 +627,8 @@ Item {
                                             spacing: 12
                                             
                                             Text {
-                                                text: playerRect.isActive ? "󰄬" : ""
-                                                color: playerRect.isActive ? Theme.warning : Theme.subtext
+                                                text: playerRectItem.isActive ? "󰄬" : ""
+                                                color: playerRectItem.isActive ? Theme.accent : Theme.subtext
                                                 font.family: "JetBrainsMono Nerd Font"
                                                 font.pixelSize: 16
                                                 Layout.preferredWidth: 16
@@ -577,21 +636,20 @@ Item {
                                             }
                                             
                                             Text {
-                                                text: Players.getIdentity(playerRect.modelData)
-                                                color: playerRect.isActive ? Theme.warning : Theme.secondary
+                                                text: Players.getIdentity(playerRectItem.modelData)
+                                                color: playerRectItem.isActive ? Theme.accent : Theme.secondary
                                                 font.family: "JetBrainsMono Nerd Font"
                                                 font.pixelSize: 13
-                                                font.bold: playerRect.isActive
                                                 Layout.fillWidth: true
                                                 Layout.alignment: Qt.AlignVCenter
                                                 elide: Text.ElideRight
                                             }
                                         }
                                         
-                                        HoverHandler { id: playerHover; cursorShape: Qt.PointingHandCursor }
+                                        HoverHandler { id: playerHoverItem; cursorShape: Qt.PointingHandCursor }
                                         TapHandler {
                                             onTapped: {
-                                                Players.manualActive = playerRect.modelData;
+                                                Players.manualActive = playerRectItem.modelData;
                                                 playerSwitcherItem.dropdownVisible = false;
                                             }
                                         }
@@ -618,12 +676,11 @@ Item {
                         }
                     }
                 }
+                }
             }
         }
-            }
-
         }
-
+        
         Rectangle {
             id: lyricsContainer
             Layout.fillWidth: true

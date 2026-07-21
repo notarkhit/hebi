@@ -38,10 +38,12 @@ Item {
         anchors.right: rightSide.left
         anchors.top: parent.top
         anchors.bottom: parent.bottom
+        clip: true
 
         Media {
             id: mediaControl
             anchors.centerIn: parent
+            width: Math.min(implicitWidth, parent.width)
         }
     }
 

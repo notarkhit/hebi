@@ -61,11 +61,12 @@ Rectangle {
         }
 
         Text {
-            text: root.artist ? root.artist + " - " + root.title : root.title
+            text: root.title
             color: Theme.text
             font.family: "JetBrainsMono Nerd Font"
             font.pixelSize: 12
             Layout.alignment: Qt.AlignVCenter
+            Layout.maximumWidth: 250
             elide: Text.ElideRight
         }
     }
