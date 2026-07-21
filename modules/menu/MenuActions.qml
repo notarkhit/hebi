@@ -215,7 +215,7 @@ ListView {
             if (q.startsWith("system "))
                 searchQ = q.slice(7).trim();
             else
-                searchQ = "";
+                searchQ = q;
         } else if (activeMenu === "scheme") {
             const families = {};
             
@@ -248,7 +248,7 @@ ListView {
             if (q.startsWith("scheme "))
                 searchQ = q.slice(7).trim();
             else
-                searchQ = "";
+                searchQ = q;
         }
 
         if (!searchQ) {
