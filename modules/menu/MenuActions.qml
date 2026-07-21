@@ -11,6 +11,7 @@ ListView {
     property string query: ""
     signal action
     signal autocomplete(string text)
+    signal openModeReq(string mode)
 
     clip: true
     verticalLayoutDirection: ListView.BottomToTop
@@ -70,8 +71,6 @@ ListView {
             activeMenu = "scheme";
         } else if (q.startsWith("wallpaper ")) {
             activeMenu = "wallpaper";
-        } else if (q.length === 0) {
-            activeMenu = "root";
         }
     }
 
@@ -107,15 +106,15 @@ ListView {
             name: "Calculator",
             desc: "Open Calculator",
             icon: "󰃬",
-            type: "autocomplete",
-            target: "="
+            type: "mode",
+            target: "calc"
         },
         {
             name: "Clipboard",
             desc: "Clipboard History",
             icon: "󱘢",
-            type: "autocomplete",
-            target: "@"
+            type: "mode",
+            target: "clipboard"
         }
     ]
 
@@ -212,14 +211,7 @@ ListView {
         if (activeMenu === "root") {
             listToSearch = rootActions;
         } else if (activeMenu === "system") {
-            listToSearch = [
-                {
-                    name: "Back",
-                    desc: "Return to main menu",
-                    icon: "󰁍",
-                    type: "back"
-                }
-            ].concat(systemActions);
+            listToSearch = systemActions;
             if (q.startsWith("system "))
                 searchQ = q.slice(7).trim();
             else
@@ -252,15 +244,7 @@ ListView {
                 return f;
             });
 
-            listToSearch = [
-                {
-                    name: "Back",
-                    desc: "Return to main menu",
-                    icon: "󰁍",
-                    type: "back"
-                },
-                ...filteredSchemes
-            ];
+            listToSearch = filteredSchemes;
             if (q.startsWith("scheme "))
                 searchQ = q.slice(7).trim();
             else
@@ -300,6 +284,14 @@ ListView {
     function handleBacktab() { cycleFlavour(-1); }
     function handleLeft() { cycleFlavour(-1); }
     function handleRight() { cycleFlavour(1); }
+
+    function handleBackspace() {
+        if (activeMenu !== "root") {
+            activeMenu = "root";
+            return true;
+        }
+        return false;
+    }
 
     function handleUp() {
         if (count === 0)
@@ -370,6 +362,8 @@ ListView {
                 actionsList.activeMenu = "root";
             } else if (modelData.type === "submenu") {
                 actionsList.activeMenu = modelData.target;
+            } else if (modelData.type === "mode") {
+                actionsList.openModeReq(modelData.target);
             } else if (modelData.type === "autocomplete") {
                 actionsList.autocomplete(modelData.target);
             } else if (modelData.type === "scheme-family") {

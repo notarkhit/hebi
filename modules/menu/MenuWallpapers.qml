@@ -15,6 +15,12 @@ PathView {
     clip: true
 
     signal action
+    signal cancelRequested
+
+    function handleBackspace() {
+        cancelRequested();
+        return true;
+    }
 
     // ── Sizing ─────────────────────────────────────────────────────────────
     // Each thumbnail card is 16:9, plus label below

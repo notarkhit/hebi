@@ -17,6 +17,7 @@ Item {
 
     property string currentMode: "drun"
     property bool navigatedViaPrefix: false
+    property string previousMode: ""
 
     function openMode(m) {
         currentMode = m;
@@ -165,6 +166,17 @@ Item {
 
                 Keys.onPressed: (event) => {
                     if (event.key === Qt.Key_Backspace && text.length === 0 && root.currentMode !== "drun" && root.navigatedViaPrefix) {
+                        const v = stack.activeView;
+                        if (v && typeof v.handleBackspace === "function" && v.handleBackspace()) {
+                            event.accepted = true;
+                            return;
+                        }
+                        if (root.previousMode !== "") {
+                            root.currentMode = root.previousMode;
+                            root.previousMode = "";
+                            event.accepted = true;
+                            return;
+                        }
                         root.currentMode = "drun";
                         root.navigatedViaPrefix = false;
                         event.accepted = true;
@@ -321,7 +333,14 @@ Item {
                     visible: contentItem.mode === "actions" && actionsView.activeMenu !== "wallpaper"
                     query: contentItem.mode === "actions" ? searchField.text.trim() : ""
                     onAction: root.closeRequested()
+                    onOpenModeReq: mode => {
+                        root.previousMode = "actions";
+                        root.currentMode = mode;
+                        root.navigatedViaPrefix = true;
+                        searchField.text = "";
+                    }
                     onAutocomplete: text => {
+                        root.previousMode = root.currentMode;
                         root.currentMode = "drun";
                         root.navigatedViaPrefix = false;
                         searchField.text = text;
@@ -334,6 +353,7 @@ Item {
                     anchors.bottom: parent.bottom
                     visible: contentItem.mode === "actions" && actionsView.activeMenu === "wallpaper"
                     onAction: root.closeRequested()
+                    onCancelRequested: actionsView.activeMenu = "root"
                 }
                 MenuClipboard {
                     id: clipboardView
