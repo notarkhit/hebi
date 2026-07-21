@@ -11,3 +11,4 @@ singleton SystemInfoService 1.0 SystemInfoService.qml
 singleton Theme             1.0 Theme.qml
 singleton Players           1.0 Players.qml
 singleton Wallpapers        1.0 Wallpapers.qml
+singleton TrayMenuState     1.0 TrayMenuState.qml

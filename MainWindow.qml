@@ -10,6 +10,7 @@ import "modules/settings"
 import "modules/sysinfo"
 import "modules/media"
 import "modules/calendar"
+import "modules/tray"
 
 import "modules/bar"
 import "services"
@@ -31,7 +32,7 @@ PanelWindow {
     property bool notifMgrVisible: false
     property bool mediaVisible: false
     property bool calendarVisible: false
-    readonly property bool anyPanelVisible: settingsVisible || sysInfoVisible || notifMgrVisible || mediaVisible || calendarVisible
+    readonly property bool anyPanelVisible: settingsVisible || sysInfoVisible || notifMgrVisible || mediaVisible || calendarVisible || TrayMenuState.visible
 
     // ── fullscreen detection ──────────────────────────────────────────────────
     readonly property var activeMonitor: Hypr.monitorFor(root.screen)
@@ -49,30 +50,47 @@ PanelWindow {
         notifMgrVisible = false;
         mediaVisible = false;
         calendarVisible = false;
+        TrayMenuState.close();
     }
     onSysInfoVisibleChanged: if (sysInfoVisible) {
         settingsVisible = false;
         notifMgrVisible = false;
         mediaVisible = false;
         calendarVisible = false;
+        TrayMenuState.close();
     }
     onNotifMgrVisibleChanged: if (notifMgrVisible) {
         settingsVisible = false;
         sysInfoVisible = false;
         mediaVisible = false;
         calendarVisible = false;
+        TrayMenuState.close();
     }
     onMediaVisibleChanged: if (mediaVisible) {
         settingsVisible = false;
         sysInfoVisible = false;
         notifMgrVisible = false;
         calendarVisible = false;
+        TrayMenuState.close();
     }
     onCalendarVisibleChanged: if (calendarVisible) {
         settingsVisible = false;
         sysInfoVisible = false;
         notifMgrVisible = false;
         mediaVisible = false;
+        TrayMenuState.close();
+    }
+    Connections {
+        target: TrayMenuState
+        function onVisibleChanged() {
+            if (TrayMenuState.visible) {
+                settingsVisible = false;
+                sysInfoVisible = false;
+                notifMgrVisible = false;
+                mediaVisible = false;
+                calendarVisible = false;
+            }
+        }
     }
 
     // ── IPC handlers ──────────────────────────────────────────────────────────
@@ -274,6 +292,21 @@ PanelWindow {
             visible: calendarItem.offsetScale < 1
         }
 
+        // Tray Menu blob — centered on the tray module, bounded to screen edges
+        BlobRect {
+            group: blobGroup
+            x: Math.max(12, Math.min(TrayMenuState.menuX - width / 2, root.width - width - 12))
+            y: root.barHeight
+            width: trayMenuItem.offsetScale < 1 ? trayMenuItem.implicitWidth : 0
+            height: trayMenuItem.implicitHeight * (1 - trayMenuItem.offsetScale)
+            radius: 20
+            topLeftRadius: 0
+            topRightRadius: 0
+            stiffness: 200
+            damping: 18
+            deformScale: (0.15 * Config.appearance.deformScale) / 10000
+            visible: trayMenuItem.offsetScale < 1
+        }
 
     }
 
@@ -367,6 +400,21 @@ PanelWindow {
         }
     }
 
+    Item {
+        id: trayMenuWrapper
+        clip: true
+        x: Math.max(12, Math.min(TrayMenuState.menuX - width / 2, root.width - width - 12))
+        y: root.barHeight
+        width: trayMenuItem.implicitWidth
+        height: trayMenuItem.implicitHeight * (1 - trayMenuItem.offsetScale)
+
+        TrayMenuPanelItem {
+            id: trayMenuItem
+            panelVisible: TrayMenuState.visible
+            width: parent.width
+            onCloseRequested: TrayMenuState.close()
+        }
+    }
 
 
     // ── dismiss click ─────────────────────────────────────────────────────────
@@ -379,7 +427,7 @@ PanelWindow {
             root.notifMgrVisible = false;
             root.mediaVisible = false;
             root.calendarVisible = false;
-
+            TrayMenuState.close();
         }
     }
 }
