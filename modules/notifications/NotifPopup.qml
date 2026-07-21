@@ -101,7 +101,7 @@ Item {
         implicitHeight: inner.implicitHeight + 20
 
         radius: 14
-        color: root.isCritical ? Qt.alpha(Theme.error, 0.8) : Qt.alpha(Theme.surfaceContainer, 0.8)
+        color: root.isCritical ? Qt.alpha(Theme.error, Theme.hasActiveWindow ? 1.0 : 0.8) : Qt.alpha(Theme.surfaceContainer, Theme.hasActiveWindow ? 1.0 : 0.8)
         border.color: root.isCritical ? Theme.error : root.isLow ? Theme.surfaceHex : Theme.surfaceVariant
         border.width: root.isCritical ? 1.5 : 1
 
@@ -248,7 +248,7 @@ Item {
                     Text {
                         width: parent.width
                         text: root.modelData.summary
-                        color: root.isCritical ? Theme.error : Theme.text
+                        color: root.isCritical ? Theme.error : Theme.accent
                         font.family: "JetBrainsMono Nerd Font"
                         font.pixelSize: 13
                         font.weight: Font.DemiBold
@@ -354,7 +354,7 @@ Item {
                 Layout.fillWidth: true
                 Layout.leftMargin: 50  // align under summary (40px icon + 10px gap)
                 text: root.modelData.body
-                color: root.isCritical ? Theme.error : root.isLow ? Theme.subtext : Theme.secondary
+                color: root.isCritical ? Theme.error : root.isLow ? Theme.subtext : Theme.text
                 font.family: "JetBrainsMono Nerd Font"
                 font.pixelSize: 11
                 textFormat: root.bodyFmt
