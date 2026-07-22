@@ -50,9 +50,21 @@ Item {
         implicitHeight: inner.implicitHeight + 20
 
         radius: 14
-        color: root.isCritical ? "#441a0a0e" : "#441a1b26"
+        color: "#441a1b26"
         border.color: root.isCritical ? Theme.error : root.isLow ? Theme.surfaceHex : Theme.surfaceVariant
-        border.width: root.isCritical ? 1.5 : 1
+        border.width: 1
+
+        Rectangle {
+            anchors.fill: parent
+            radius: parent.radius
+            visible: root.isCritical
+            gradient: Gradient {
+                orientation: Gradient.Horizontal
+                GradientStop { position: 0.0; color: Qt.alpha(Theme.error, 0.25) }
+                GradientStop { position: 0.4; color: Qt.alpha(Theme.error, 0.05) }
+                GradientStop { position: 1.0; color: "transparent" }
+            }
+        }
 
         Behavior on opacity {
             NumberAnimation {
@@ -67,7 +79,7 @@ Item {
             anchors.bottom: parent.bottom
             anchors.topMargin: parent.radius
             anchors.bottomMargin: parent.radius
-            width: 3
+            width: root.isCritical ? 4 : 3
             radius: 2
             visible: !root.isLow
             color: root.isCritical ? Theme.error : Theme.accent
@@ -112,7 +124,7 @@ Item {
                         anchors.centerIn: parent
                         visible: root.actualIconName.length === 0 && overlayImage.status !== Image.Ready
                         text: (root.modelData.appName || "?").charAt(0).toUpperCase()
-                        color: root.isCritical ? Theme.error : Theme.accent
+                        color: Theme.accent
                         font.family: "JetBrainsMono Nerd Font"
                         font.pixelSize: 14
                         font.weight: Font.Bold
@@ -139,7 +151,7 @@ Item {
                     Text {
                         width: parent.width
                         text: root.modelData.appName || "Notification"
-                        color: root.isCritical ? Theme.warning : Theme.subtext
+                        color: Theme.subtext
                         font.family: "JetBrainsMono Nerd Font"
                         font.pixelSize: 10
                         elide: Text.ElideRight
@@ -148,7 +160,7 @@ Item {
                     Text {
                         width: parent.width
                         text: root.modelData.summary || ""
-                        color: root.isCritical ? Theme.error : Theme.text
+                        color: Theme.text
                         font.family: "JetBrainsMono Nerd Font"
                         font.pixelSize: 13
                         font.weight: Font.DemiBold
@@ -245,7 +257,7 @@ Item {
                 Layout.fillWidth: true
                 Layout.leftMargin: 42
                 text: root.modelData.body || ""
-                color: root.isCritical ? Theme.error : root.isLow ? Theme.subtext : Theme.secondary
+                color: root.isLow ? Theme.subtext : Theme.secondary
                 font.family: "JetBrainsMono Nerd Font"
                 font.pixelSize: 11
                 textFormat: root.bodyFmt

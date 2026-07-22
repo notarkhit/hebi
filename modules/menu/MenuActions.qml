@@ -25,6 +25,7 @@ ListView {
     onCountChanged: currentIndex = 0
 
     onCurrentItemChanged: {
+        if (!visible) return;
         if (activeMenu === "scheme" && currentItem && currentItem.modelData && currentItem.modelData.type === "scheme-family") {
             Theme.setSchemePreview(currentItem.activeFlavour.colours);
         } else {
@@ -367,17 +368,20 @@ ListView {
             } else if (modelData.type === "autocomplete") {
                 actionsList.autocomplete(modelData.target);
             } else if (modelData.type === "scheme-family") {
-                actionsList.action();
+                const sName = modelData.schemeName;
                 const selFlav = delRoot.activeFlavour.flavour;
-                Quickshell.execDetached(["sh", "-c", "$HOME/.local/bin/hebi scheme set -n \"$1\" -f \"$2\"", "--", modelData.schemeName, selFlav]);
+                Quickshell.execDetached(["sh", "-c", "$HOME/.local/bin/hebi scheme set -n \"$1\" -f \"$2\"", "--", sName, selFlav]);
+                Qt.callLater(actionsList.action);
             } else if (modelData.type === "toggle-mode") {
                 Quickshell.execDetached(["sh", "-c", "$HOME/.local/bin/hebi scheme set -m " + (Theme.currentSchemeMode === "dark" ? "light" : "dark")]);
             } else if (modelData.type === "wallpaper-item") {
-                actionsList.action();
-                Wallpapers.apply(modelData.path);
+                const p = modelData.path;
+                Wallpapers.apply(p);
+                Qt.callLater(actionsList.action);
             } else {
-                actionsList.action();
-                Quickshell.execDetached(modelData.cmd);
+                const c = modelData.cmd;
+                Quickshell.execDetached(c);
+                Qt.callLater(actionsList.action);
             }
         }
 

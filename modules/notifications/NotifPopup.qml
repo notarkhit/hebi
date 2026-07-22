@@ -101,9 +101,21 @@ Item {
         implicitHeight: inner.implicitHeight + 20
 
         radius: 14
-        color: root.isCritical ? Qt.alpha(Theme.error, Theme.hasActiveWindow ? 1.0 : 0.8) : Qt.alpha(Theme.surfaceContainer, Theme.hasActiveWindow ? 1.0 : 0.8)
+        color: Qt.alpha(Theme.surfaceContainer, Theme.hasActiveWindow ? 1.0 : 0.8)
         border.color: root.isCritical ? Theme.error : root.isLow ? Theme.surfaceHex : Theme.surfaceVariant
-        border.width: root.isCritical ? 1.5 : 1
+        border.width: 1
+
+        Rectangle {
+            anchors.fill: parent
+            radius: parent.radius
+            visible: root.isCritical
+            gradient: Gradient {
+                orientation: Gradient.Horizontal
+                GradientStop { position: 0.0; color: Qt.alpha(Theme.error, 0.25) }
+                GradientStop { position: 0.4; color: Qt.alpha(Theme.error, 0.05) }
+                GradientStop { position: 1.0; color: "transparent" }
+            }
+        }
 
         // Snap-back behavior after swipe drag
         Behavior on x {
@@ -167,7 +179,7 @@ Item {
             anchors.bottom: parent.bottom
             anchors.topMargin: parent.radius
             anchors.bottomMargin: parent.radius
-            width: 3
+            width: root.isCritical ? 4 : 3
             radius: 2
             visible: !root.isLow
             color: root.isCritical ? Theme.error : Theme.accent
@@ -212,7 +224,7 @@ Item {
                         anchors.centerIn: parent
                         visible: root.actualIconName.length === 0 && overlayImage.status !== Image.Ready
                         text: (root.modelData.appName || "?").charAt(0).toUpperCase()
-                        color: root.isCritical ? Theme.error : Theme.accent
+                        color: Theme.accent
                         font.family: "JetBrainsMono Nerd Font"
                         font.pixelSize: 18
                         font.weight: Font.Bold
@@ -239,7 +251,7 @@ Item {
                     Text {
                         width: parent.width
                         text: root.modelData.appName
-                        color: root.isCritical ? Theme.warning : Theme.subtext
+                        color: Theme.subtext
                         font.family: "JetBrainsMono Nerd Font"
                         font.pixelSize: 10
                         elide: Text.ElideRight
@@ -248,7 +260,7 @@ Item {
                     Text {
                         width: parent.width
                         text: root.modelData.summary
-                        color: root.isCritical ? Theme.error : Theme.accent
+                        color: root.isCritical ? Theme.text : Theme.accent
                         font.family: "JetBrainsMono Nerd Font"
                         font.pixelSize: 13
                         font.weight: Font.DemiBold
@@ -277,7 +289,7 @@ Item {
                         implicitWidth: 20
                         implicitHeight: 20
                         radius: 4
-                        color: expandHover.containsMouse ? "#663b4261" : "transparent"
+                        color: expandHover.containsMouse ? (root.isCritical ? Qt.alpha(Theme.error, 0.2) : "#663b4261") : "transparent"
                         Layout.alignment: Qt.AlignVCenter
 
                         Behavior on color {
@@ -313,7 +325,7 @@ Item {
                         implicitWidth: 20
                         implicitHeight: 20
                         radius: 4
-                        color: closeHover.containsMouse ? "#22f7768e" : "transparent"
+                        color: closeHover.containsMouse ? (root.isCritical ? Qt.alpha(Theme.error, 0.2) : "#22f7768e") : "transparent"
                         Layout.alignment: Qt.AlignVCenter
 
                         Behavior on color {
@@ -354,7 +366,7 @@ Item {
                 Layout.fillWidth: true
                 Layout.leftMargin: 50  // align under summary (40px icon + 10px gap)
                 text: root.modelData.body
-                color: root.isCritical ? Theme.error : root.isLow ? Theme.subtext : Theme.text
+                color: root.isLow ? Theme.subtext : Theme.text
                 font.family: "JetBrainsMono Nerd Font"
                 font.pixelSize: 11
                 textFormat: root.bodyFmt
@@ -442,7 +454,7 @@ Item {
                             id: btnText
                             anchors.centerIn: parent
                             text: modelData.text
-                            color: root.isCritical ? Theme.error : Theme.accent
+                            color: Theme.text
                             font.family: "JetBrainsMono Nerd Font"
                             font.pixelSize: 11
                         }
