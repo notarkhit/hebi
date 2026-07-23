@@ -187,7 +187,7 @@ Item {
                     color: Theme.subtext
                     font.family: "JetBrainsMono Nerd Font"
                     font.pixelSize: 32
-                    visible: cover.source === ""
+                    visible: cover.status !== Image.Ready
                     opacity: root.showBongoCat ? 0 : 1
                     Behavior on opacity {
                         NumberAnimation {
@@ -944,10 +944,10 @@ Item {
         }
     }
 
-    function formatTime(microsecs: real): string {
-        if (microsecs < 0)
+    function formatTime(time: real): string {
+        if (time < 0)
             return "0:00";
-        let secs = Math.floor(microsecs / 1000000);
+        let secs = Math.floor(time);
         let mins = Math.floor(secs / 60);
         secs = secs % 60;
         return mins + ":" + secs.toString().padStart(2, "0");
