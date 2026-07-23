@@ -20,8 +20,8 @@ Rectangle {
 
     color: {
         if (active)
-            return hov.containsMouse ? Theme.accent : Theme.accent;
-        return hov.containsMouse ? Theme.border : Theme.surfaceVariant;
+            return hov.containsMouse ? Qt.darker(Theme.accent, 1.12) : Theme.accent;
+        return hov.containsMouse ? Theme.surfaceVariant : Theme.surface;
     }
 
     Behavior on color {
@@ -53,8 +53,8 @@ Rectangle {
             font.family: "JetBrainsMono Nerd Font"
             font.pixelSize: 16
             Layout.alignment: Qt.AlignVCenter
-            color: root.active ? Theme.text : Theme.text
-            opacity: root.active ? 1.0 : 0.9
+            color: root.active ? Theme.text : Theme.subtext
+            opacity: root.active ? 1.0 : 0.75
             Behavior on opacity {
                 NumberAnimation {
                     duration: 120
@@ -74,7 +74,7 @@ Rectangle {
 
             Text {
                 text: root.label
-                color: root.active ? Theme.text : Theme.text
+                color: root.active ? Theme.text : Theme.subtext
                 font.family: "JetBrainsMono Nerd Font"
                 font.pixelSize: 12
                 font.weight: root.active ? Font.DemiBold : Font.Medium
@@ -118,6 +118,7 @@ Rectangle {
     MouseArea {
         id: hov
         anchors.fill: parent
+        z: -1
         hoverEnabled: true
         cursorShape: Qt.PointingHandCursor
         onClicked: root.clicked()

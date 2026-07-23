@@ -129,7 +129,7 @@ Item {
                 }
             }
             Text {
-                text: root.hasBat ? `${Math.round(root.batPct * 100)}%${root.batCharging ? " ⚡" : ""}` : "Desktop"
+                text: root.hasBat ? `${Math.round(root.batPct * 100)}%${root.batCharging ? " \u{f0e7}" : ""}` : "Desktop"
                 color: Theme.text
                 font.family: "JetBrainsMono Nerd Font"
                 font.pixelSize: 14
@@ -148,7 +148,7 @@ Item {
                 }
                 Text {
                     anchors.centerIn: parent
-                    text: ""
+                    text: "\u{f033e}"
                     font.family: "JetBrainsMono Nerd Font"
                     font.pixelSize: 16
                     color: Theme.text
@@ -176,7 +176,7 @@ Item {
                 }
                 Text {
                     anchors.centerIn: parent
-                    text: ""
+                    text: "\u{f0425}"
                     font.family: "JetBrainsMono Nerd Font"
                     font.pixelSize: 16
                     color: Theme.text
@@ -199,14 +199,14 @@ Item {
 
         SliderRow {
             Layout.fillWidth: true
-            iconText: AudioService.muted || AudioService.volume <= 0 ? "" : AudioService.volume <= 0.33 ? "" : AudioService.volume <= 0.66 ? "墳" : ""
+            iconText: AudioService.muted || AudioService.volume <= 0 ? "\u{f0581}" : AudioService.volume <= 0.33 ? "\u{f057f}" : AudioService.volume <= 0.66 ? "\u{f0580}" : "\u{f057e}"
             value: AudioService.volume
             maxValue: 1.5
             onChanged: v => AudioService.setVolume(v)
         }
         SliderRow {
             Layout.fillWidth: true
-            iconText: ""
+            iconText: "\u{f036c}"
             value: 0.8
             maxValue: 1.0
             showArrow: true
@@ -214,7 +214,7 @@ Item {
         }
         SliderRow {
             Layout.fillWidth: true
-            iconText: ""
+            iconText: "\u{f00e0}"
             value: BrightnessService.brightness
             maxValue: 1.0
             onChanged: v => BrightnessService.setBrightness(v)
@@ -235,7 +235,7 @@ Item {
 
             TogglePill {
                 Layout.fillWidth: true
-                iconText: root.ethUp ? "" : root.wifiUp ? "" : "睊"
+                iconText: root.ethUp ? "\u{f0200}" : root.wifiUp ? "\u{f0528}" : "\u{f052e}"
                 label: "Wi-Fi"
                 sublabel: root.wifiSsid
                 active: root.wifiEnabled
@@ -248,7 +248,7 @@ Item {
             }
             TogglePill {
                 Layout.fillWidth: true
-                iconText: ""
+                iconText: "\u{f00af}"
                 label: "Bluetooth"
                 active: root.bluetoothEnabled
                 showChevron: true
@@ -260,7 +260,7 @@ Item {
             }
             TogglePill {
                 Layout.fillWidth: true
-                iconText: ""
+                iconText: "\u{f0011}"
                 label: "Airplane Mode"
                 active: root.airplaneMode
                 onClicked: {
@@ -270,14 +270,14 @@ Item {
             }
             TogglePill {
                 Layout.fillWidth: true
-                iconText: ""
+                iconText: "\u{f009b}"
                 label: "Do Not Disturb"
                 active: Notifs.dnd
                 onClicked: Notifs.dnd = !Notifs.dnd
             }
             TogglePill {
                 Layout.fillWidth: true
-                iconText: ""
+                iconText: "\u{f0208}"
                 label: "Idle Inhibitor"
                 active: root.idleInhibited
                 onClicked: {
@@ -287,7 +287,7 @@ Item {
             }
             TogglePill {
                 Layout.fillWidth: true
-                iconText: ""
+                iconText: "\u{f00de}"
                 label: "Night Light"
                 active: false
                 onClicked: Quickshell.execDetached(["hyprshade", "toggle", "blue-light-filter"])

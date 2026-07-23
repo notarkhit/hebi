@@ -26,6 +26,8 @@ Item {
             text: root.iconText
             font.family: "JetBrainsMono Nerd Font"
             font.pixelSize: 16
+            width: 22
+            horizontalAlignment: Text.AlignHCenter
             Layout.alignment: Qt.AlignVCenter
             color: Theme.accent
             opacity: 0.9
