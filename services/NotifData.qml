@@ -26,7 +26,6 @@ QtObject {
     property list<var> actions: []
     property var hints: null
     property bool resident: false
-    property bool hasActionIcons: false
 
     // ── timestamp / elapsed time string ──────────────────────────────────────
     property date time: new Date()
@@ -100,9 +99,6 @@ QtObject {
         function onResidentChanged(): void {
             notif.resident = notif.notification.resident;
         }
-        function onHasActionIconsChanged(): void {
-            notif.hasActionIcons = notif.notification.hasActionIcons;
-        }
         function onHintsChanged(): void {
             notif.hints = notif.notification.hints;
         }
@@ -166,7 +162,6 @@ QtObject {
         expireTimeout = newNotif.expireTimeout;
         hints = newNotif.hints;
         resident = newNotif.resident;
-        hasActionIcons = newNotif.hasActionIcons;
         time = new Date();
         timeStr = "now";
         timeStrTimer.interval = 5000;
@@ -191,7 +186,6 @@ QtObject {
         expireTimeout = notification.expireTimeout;
         hints = notification.hints;
         resident = notification.resident;
-        hasActionIcons = notification.hasActionIcons;
         syncActions();
     }
 }
