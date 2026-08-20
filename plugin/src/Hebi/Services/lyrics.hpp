@@ -83,6 +83,7 @@ private:
 
     void tryLocal(int reqId);
     void tryLrclib(int reqId);
+    void tryLrclibFuzzy(int reqId);
     void tryNetEase(int reqId);
     void chainNext(LyricsBackend::Backend just_failed, int reqId);
 

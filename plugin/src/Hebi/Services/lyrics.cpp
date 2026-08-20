@@ -525,7 +525,7 @@ void Lyrics::tryLrclib(int reqId) {
         }
         if (reply->error() != QNetworkReply::NoError) {
             qCDebug(lcLyrics) << "lrclib /get error:" << reply->errorString();
-            chainNext(LyricsBackend::LRCLIB, reqId);
+            tryLrclibFuzzy(reqId);
             return;
         }
         const QJsonDocument doc = QJsonDocument::fromJson(reply->readAll());
@@ -535,13 +535,13 @@ void Lyrics::tryLrclib(int reqId) {
 
         if (synced.isEmpty()) {
             qCDebug(lcLyrics) << "lrclib: no syncedLyrics for" << m_artist << "-" << m_title;
-            chainNext(LyricsBackend::LRCLIB, reqId);
+            tryLrclibFuzzy(reqId);
             return;
         }
 
         const auto lines = parseLrc(synced);
         if (lines.isEmpty()) {
-            chainNext(LyricsBackend::LRCLIB, reqId);
+            tryLrclibFuzzy(reqId);
             return;
         }
 
@@ -557,6 +557,59 @@ void Lyrics::tryLrclib(int reqId) {
             persistTrackPrefs();
         }
         setLoading(false);
+    });
+}
+
+void Lyrics::tryLrclibFuzzy(int reqId) {
+    if (reqId != m_currentRequestId) {
+        return;
+    }
+
+    QUrl url(u"https://lrclib.net/api/search"_s);
+    QUrlQuery q;
+    q.addQueryItem(u"track_name"_s, m_title);
+    q.addQueryItem(u"artist_name"_s, m_artist);
+    url.setQuery(q);
+
+    auto* reply = getJson(url, lrclibHeaders());
+    trackReply(reqId, reply);
+
+    QObject::connect(reply, &QNetworkReply::finished, this, [this, reply, reqId] {
+        reply->deleteLater();
+        if (reqId != m_currentRequestId) {
+            return;
+        }
+        if (reply->error() != QNetworkReply::NoError) {
+            chainNext(LyricsBackend::LRCLIB, reqId);
+            return;
+        }
+        const QJsonDocument doc = QJsonDocument::fromJson(reply->readAll());
+        const QJsonArray arr = doc.array();
+
+        for (const auto& v : arr) {
+            const QJsonObject o = v.toObject();
+            const QString synced = o.value(u"syncedLyrics"_s).toString();
+            if (!synced.isEmpty()) {
+                const auto lines = parseLrc(synced);
+                if (!lines.isEmpty()) {
+                    const qint64 id = static_cast<qint64>(o.value(u"id"_s).toDouble());
+                    writeCachedLrc(LyricsBackend::LRCLIB, QString::number(id), synced);
+                    setLines(lines, LyricsBackend::LRCLIB);
+                    const LyricCandidate cand(LyricsBackend::LRCLIB, QString::number(id),
+                        o.value(u"trackName"_s).toString(), o.value(u"artistName"_s).toString(),
+                        o.value(u"albumName"_s).toString(), o.value(u"duration"_s).toDouble());
+                    appendCandidates({ cand });
+                    m_selected = cand;
+                    emit selectedCandidateChanged();
+                    if (!m_settingFromPrefs) {
+                        persistTrackPrefs();
+                    }
+                    setLoading(false);
+                    return;
+                }
+            }
+        }
+        chainNext(LyricsBackend::LRCLIB, reqId);
     });
 }
 

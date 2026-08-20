@@ -24,7 +24,7 @@ Item {
     readonly property real currentHeight: implicitHeight
 
     implicitWidth: panelWidth
-    implicitHeight: Players.active ? (showLyrics ? (Lyrics.hasLyrics ? 620 : 320) : 260) : 260
+    implicitHeight: Players.active ? (showLyrics ? (Lyrics.hasLyrics ? 360 : 320) : 260) : 260
     Behavior on implicitHeight {
         NumberAnimation {
             duration: 300
@@ -50,9 +50,7 @@ Item {
     Connections {
         target: Lyrics
         function onLoadingChanged() {
-            if (!Lyrics.loading && Lyrics.trackTitle !== "" && Lyrics.hasLyrics) {
-                root.showLyrics = true;
-            }
+            // Do not automatically expand the panel; wait for user interaction.
         }
     }
 
@@ -783,8 +781,8 @@ Item {
         Rectangle {
             id: lyricsContainer
             Layout.fillWidth: true
-            implicitHeight: Lyrics.hasLyrics ? 340 : 40
-            Layout.preferredHeight: Lyrics.hasLyrics ? 340 : 40
+            implicitHeight: Lyrics.hasLyrics ? 80 : 40
+            Layout.preferredHeight: Lyrics.hasLyrics ? 80 : 40
             color: "transparent"
             radius: 10
             clip: true
@@ -876,6 +874,7 @@ Item {
                 highlightRangeMode: ListView.ApplyRange
                 highlightMoveDuration: 300
                 delegate: Text {
+                    required property string modelData
                     width: lyricsList.width
                     text: modelData || ". . ."
                     color: ListView.isCurrentItem ? Theme.accent : mouse.containsMouse ? Theme.text : Theme.subtext
