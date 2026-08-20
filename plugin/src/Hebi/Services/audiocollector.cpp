@@ -198,7 +198,7 @@ void AudioCollector::loadChunk(const qint16* samples, quint32 count) {
 
     auto* writeBuffer = m_writeBuffer.load(std::memory_order_relaxed);
     std::transform(samples, samples + count, writeBuffer->begin(), [](qint16 sample) {
-        return sample / 32768.0f;
+        return static_cast<float>(sample);
     });
 
     auto* oldRead = m_readBuffer.exchange(writeBuffer, std::memory_order_acq_rel);
